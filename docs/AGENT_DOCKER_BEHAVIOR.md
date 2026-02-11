@@ -1,6 +1,6 @@
 # AI Agent Docker Behavior - Quick Reference
 
-**Project**: Quiz Application (cert-app)  
+**Project**: Web Application  
 **Approach**: 100% Docker-first development  
 **Rule**: NEVER run Node.js directly on host (except E2E tests and git hooks)
 
@@ -202,13 +202,13 @@ docker compose -f docker-compose.dev.yml exec backend npm run seed
 docker compose -f docker-compose.dev.yml exec backend npx prisma migrate reset
 
 # Backup database
-docker compose -f docker-compose.dev.yml exec postgres pg_dump -U quizuser quizapp > backup.sql
+docker compose -f docker-compose.dev.yml exec postgres pg_dump -U dbuser app_db > backup.sql
 
 # Restore database
-docker compose -f docker-compose.dev.yml exec -T postgres psql -U quizuser -d quizapp < backup.sql
+docker compose -f docker-compose.dev.yml exec -T postgres psql -U dbuser -d app_db < backup.sql
 
 # PostgreSQL CLI
-docker compose -f docker-compose.dev.yml exec postgres psql -U quizuser -d quizapp
+docker compose -f docker-compose.dev.yml exec postgres psql -U dbuser -d app_db
 
 # Redis CLI
 docker compose -f docker-compose.dev.yml exec redis redis-cli
@@ -360,7 +360,7 @@ volumes:
 ```yaml
 services:
   backend:
-    image: cert-app-backend:latest
+    image: app-backend:latest
     deploy:
       resources:
         limits:

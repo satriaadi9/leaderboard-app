@@ -1,6 +1,6 @@
 # AI Agent React Behavior - Quick Reference
 
-**Project**: Quiz Application (cert-app)  
+**Project**: Web Application  
 **Framework**: React 18 + TypeScript + React Router  
 **Style**: Functional components, hooks, type-safe props
 
@@ -12,42 +12,42 @@
 // 1. Imports (external → internal → types → styles)
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { examService } from '@/services/exam.service';
+import { itemService } from '@/services/item.service';
 import { Button } from '@/components/common/Button';
-import type { Exam } from '@/types';
+import type { Item } from '@/types';
 
 // 2. Types/Interfaces
-interface ExamListProps {
-  teacherId: string;
-  onExamSelect?: (exam: Exam) => void;
+interface ItemListProps {
+  ownerId: string;
+  onItemSelect?: (item: Item) => void;
 }
 
 // 3. Constants
 const ITEMS_PER_PAGE = 10;
 
 // 4. Component
-export const ExamList: React.FC<ExamListProps> = ({ teacherId, onExamSelect }) => {
+export const ItemList: React.FC<ItemListProps> = ({ ownerId, onItemSelect }) => {
   // 4a. Hooks (useState, useContext, custom hooks)
   const navigate = useNavigate();
-  const [exams, setExams] = useState<Exam[]>([]);
+  const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
 
   // 4b. Effects
   useEffect(() => {
-    loadExams();
-  }, [teacherId]);
+    loadItems();
+  }, [ownerId]);
 
   // 4c. Event Handlers (useCallback for optimization)
-  const handleClick = useCallback((exam: Exam): void => {
-    onExamSelect?.(exam) ?? navigate(`/exams/${exam.id}`);
-  }, [onExamSelect, navigate]);
+  const handleClick = useCallback((item: Item): void => {
+    onItemSelect?.(item) ?? navigate(`/items/${item.id}`);
+  }, [onItemSelect, navigate]);
 
   // 4d. Helper Functions
-  const loadExams = async (): Promise<void> => {
+  const loadItems = async (): Promise<void> => {
     try {
       setLoading(true);
-      const data = await examService.getAll(teacherId);
-      setExams(data);
+      const data = await itemService.getAll(ownerId);
+      setItems(data);
     } finally {
       setLoading(false);
     }
@@ -55,13 +55,13 @@ export const ExamList: React.FC<ExamListProps> = ({ teacherId, onExamSelect }) =
 
   // 4e. Early Returns
   if (loading) return <LoadingSpinner />;
-  if (exams.length === 0) return <EmptyState />;
+  if (items.length === 0) return <EmptyState />;
 
   // 4f. Main Render
   return (
-    <div className="exam-list">
-      {exams.map(exam => (
-        <ExamCard key={exam.id} exam={exam} onClick={() => handleClick(exam)} />
+    <div className="item-list">
+      {items.map(item => (
+        <ItemCard key={item.id} item={item} onClick={() => handleClick(item)} />
       ))}
     </div>
   );
@@ -113,14 +113,14 @@ setItems(prev => prev.map(item => (item.id === id ? { ...item, ...updates } : it
 ```typescript
 // Use when you have related state values
 interface State {
-  exams: Exam[];
+  items: Item[];
   loading: boolean;
   error: string | null;
 }
 
 type Action =
   | { type: 'FETCH_START' }
-  | { type: 'FETCH_SUCCESS'; payload: Exam[] }
+  | { type: 'FETCH_SUCCESS'; payload: Item[] }
   | { type: 'FETCH_ERROR'; payload: string };
 
 function reducer(state: State, action: Action): State {
@@ -128,7 +128,7 @@ function reducer(state: State, action: Action): State {
     case 'FETCH_START':
       return { ...state, loading: true, error: null };
     case 'FETCH_SUCCESS':
-      return { ...state, loading: false, exams: action.payload };
+      return { ...state, loading: false, items: action.payload };
     case 'FETCH_ERROR':
       return { ...state, loading: false, error: action.payload };
     default:
@@ -137,7 +137,7 @@ function reducer(state: State, action: Action): State {
 }
 
 const [state, dispatch] = useReducer(reducer, initialState);
-dispatch({ type: 'FETCH_SUCCESS', payload: exams });
+dispatch({ type: 'FETCH_SUCCESS', payload: items });
 ```
 
 ## Custom Hooks Pattern
@@ -145,19 +145,19 @@ dispatch({ type: 'FETCH_SUCCESS', payload: exams });
 ### Extract Reusable Logic
 
 ```typescript
-// hooks/useTimer.ts
-interface UseTimerOptions {
+// hooks/useCountdown.ts
+interface UseCountdownOptions {
   endTime: Date;
   onExpire?: () => void;
 }
 
-interface UseTimerReturn {
+interface UseCountdownReturn {
   timeRemaining: number;
   isExpired: boolean;
   formattedTime: string;
 }
 
-export const useTimer = ({ endTime, onExpire }: UseTimerOptions): UseTimerReturn => {
+export const useCountdown = ({ endTime, onExpire }: UseCountdownOptions): UseCountdownReturn => {
   const [timeRemaining, setTimeRemaining] = useState(0);
 
   useEffect(() => {
@@ -180,8 +180,8 @@ export const useTimer = ({ endTime, onExpire }: UseTimerOptions): UseTimerReturn
 };
 
 // Usage
-const { formattedTime, isExpired } = useTimer({
-  endTime: session.endTime,
+const { formattedTime, isExpired } = useCountdown({
+  endTime: task.endTime,
   onExpire: handleSubmit,
 });
 ```
@@ -226,7 +226,7 @@ export const useFetch = <T>(
 };
 
 // Usage
-const { data: exams, loading, error, refetch } = useFetch(() => examService.getAll(), [userId]);
+const { data: items, loading, error, refetch } = useFetch(() => itemService.getAll(), [userId]);
 ```
 
 ## Context Pattern
@@ -285,24 +285,24 @@ const { user, logout } = useAuth();
 ### React.memo (Prevent Re-renders)
 
 ```typescript
-interface ExamCardProps {
-  exam: Exam;
-  onClick: (exam: Exam) => void;
+interface ItemCardProps {
+  item: Item;
+  onClick: (item: Item) => void;
 }
 
 // ✅ Memoize component
-export const ExamCard = React.memo<ExamCardProps>(({ exam, onClick }) => {
+export const ItemCard = React.memo<ItemCardProps>(({ item, onClick }) => {
   return (
-    <div onClick={() => onClick(exam)}>
-      <h3>{exam.title}</h3>
+    <div onClick={() => onClick(item)}>
+      <h3>{item.title}</h3>
     </div>
   );
 });
 
 // ✅ Custom comparison
-export const ExamCard = React.memo<ExamCardProps>(
-  ({ exam, onClick }) => { /* ... */ },
-  (prev, next) => prev.exam.id === next.exam.id
+export const ItemCard = React.memo<ItemCardProps>(
+  ({ item, onClick }) => { /* ... */ },
+  (prev, next) => prev.item.id === next.item.id
 );
 ```
 
@@ -326,16 +326,16 @@ const handleDelete = useCallback((id: string) => {
 
 ```typescript
 // ❌ Recalculates every render
-const filtered = exams.filter(e => e.status === filter);
+const filtered = items.filter(e => e.status === filter);
 
 // ✅ Only recalculates when dependencies change
 const filtered = useMemo(() => {
-  return exams.filter(e => e.status === filter);
-}, [exams, filter]);
+  return items.filter(e => e.status === filter);
+}, [items, filter]);
 
 const stats = useMemo(() => {
-  return calculateStatistics(exams);
-}, [exams]);
+  return calculateStatistics(items);
+}, [items]);
 ```
 
 ### Code Splitting (Lazy Loading)
@@ -344,13 +344,13 @@ const stats = useMemo(() => {
 import { lazy, Suspense } from 'react';
 
 // ✅ Lazy load heavy components
-const ExamEditor = lazy(() => import('./components/ExamEditor'));
+const ItemEditor = lazy(() => import('./components/ItemEditor'));
 const ResultsChart = lazy(() => import('./components/ResultsChart'));
 
 const Dashboard = () => (
   <div>
     <Suspense fallback={<LoadingSpinner />}>
-      <ExamEditor />
+      <ItemEditor />
     </Suspense>
 
     <Suspense fallback={<div>Loading charts...</div>}>
@@ -365,8 +365,8 @@ const Dashboard = () => (
 ### Controlled Components
 
 ```typescript
-const ExamForm: React.FC<{ onSubmit: (data: FormData) => void }> = ({ onSubmit }) => {
-  const [form, setForm] = useState({ title: '', duration: 60 });
+const ItemForm: React.FC<{ onSubmit: (data: FormData) => void }> = ({ onSubmit }) => {
+  const [form, setForm] = useState({ title: '', priority: 5 });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -382,7 +382,7 @@ const ExamForm: React.FC<{ onSubmit: (data: FormData) => void }> = ({ onSubmit }
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
     if (!form.title.trim()) newErrors.title = 'Title required';
-    if (form.duration < 1) newErrors.duration = 'Invalid duration';
+    if (form.priority < 1) newErrors.priority = 'Invalid priority';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -511,9 +511,9 @@ export const TabPanel: React.FC<{ value: string; children: React.ReactNode }> = 
 // Usage
 <Tabs defaultTab="details">
   <Tab value="details">Details</Tab>
-  <Tab value="questions">Questions</Tab>
-  <TabPanel value="details"><ExamDetails /></TabPanel>
-  <TabPanel value="questions"><QuestionsList /></TabPanel>
+  <Tab value="content">Content</Tab>
+  <TabPanel value="details"><ItemDetails /></TabPanel>
+  <TabPanel value="content"><ContentList /></TabPanel>
 </Tabs>
 ```
 
@@ -524,11 +524,11 @@ src/
 ├── components/
 │   ├── common/        # Reusable (Button, Input, Modal)
 │   ├── layout/        # Layout (Header, Sidebar, Footer)
-│   └── exam/          # Feature-specific
+│   └── item/          # Feature-specific
 ├── pages/             # Route-level components
 │   ├── auth/
-│   ├── student/
-│   └── teacher/
+│   ├── user/
+│   └── admin/
 ├── hooks/             # Custom hooks
 ├── contexts/          # React contexts
 ├── services/          # API services

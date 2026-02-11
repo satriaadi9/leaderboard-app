@@ -1,6 +1,6 @@
 # AI Agent Visual Behavior - Quick Reference
 
-**Project**: Quiz Application (cert-app)  
+**Project**: Web Application  
 **Tech Stack**: React + Tailwind CSS + SCSS  
 **Style**: Flat design, GitHub-inspired color palette  
 **Approach**: Tailwind-first, SCSS for complex patterns
@@ -349,7 +349,7 @@ $transition-slow: 300ms;
 ### Card Component
 
 ```scss
-// components/ExamCard/ExamCard.module.scss
+// components/ItemCard/ItemCard.module.scss
 @use '@/styles/variables' as *;
 @use '@/styles/mixins' as *;
 
@@ -620,22 +620,22 @@ $transition-slow: 300ms;
 ### Tailwind-First with SCSS Modules
 
 ```tsx
-// components/ExamCard/ExamCard.tsx
+// components/ItemCard/ItemCard.tsx
 import React from 'react';
-import styles from './ExamCard.module.scss';
+import styles from './ItemCard.module.scss';
 
-interface ExamCardProps {
+interface ItemCardProps {
   title: string;
-  duration: number;
-  questions: number;
+  priority: number;
+  details: number;
   variant?: 'default' | 'highlighted';
   onClick?: () => void;
 }
 
-export const ExamCard: React.FC<ExamCardProps> = ({
+export const ItemCard: React.FC<ItemCardProps> = ({
   title,
-  duration,
-  questions,
+  priority,
+  details,
   variant = 'default',
   onClick,
 }) => {
@@ -664,11 +664,11 @@ export const ExamCard: React.FC<ExamCardProps> = ({
       <div className={styles.card__body}>
         <div className={styles['card__body-item']}>
           <ClockIcon className="w-5 h-5" />
-          <span>Duration: {duration} minutes</span>
+          <span>Priority: {priority}</span>
         </div>
         <div className={styles['card__body-item']}>
           <QuestionIcon className="w-5 h-5" />
-          <span>Questions: {questions}</span>
+          <span>Details: {details}</span>
         </div>
       </div>
 

@@ -1,7 +1,7 @@
 # AI Agent Git Behavior - Quick Reference
 
-**Project**: Quiz Application (cert-app)  
-**Root**: `/home/kazawa/cert-app`  
+**Project**: Web Application  
+**Root**: Project root directory  
 **Hooks**: Enabled (NEVER use `--no-verify` - fix issues instead)
 
 ## Commit Format
@@ -12,7 +12,7 @@
 
 **Types**: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `perf`, `ci`
 
-**Common Scopes**: `auth`, `exam`, `question`, `session`, `timer`, `ui`, `api`, `db`, `docker`
+**Common Scopes**: `auth`, `item`, `detail`, `task`, `ui`, `api`, `db`, `docker`
 
 **Subject Rules**:
 
@@ -32,28 +32,21 @@ backend/src/services/auth.*                       → (auth)
 backend/src/routes/auth.*                         → (auth)
 backend/src/middleware/auth.*                     → (auth)
 
-backend/src/controllers/exam.*                    → (exam)
-backend/src/services/exam.*                       → (exam)
-backend/src/routes/exam.*                         → (exam)
+backend/src/controllers/item.*                    → (item)
+backend/src/services/item.*                       → (item)
+backend/src/routes/item.*                         → (item)
 
-backend/src/controllers/questionBank.*            → (question)
-backend/src/services/questionBank.*               → (question)
-backend/src/routes/questionBank.*                 → (question)
-backend/src/controllers/questionBankTemplate.*    → (question)
-backend/src/services/questionBankTemplate.*       → (question)
-backend/src/routes/questionBankTemplate.*         → (question)
+backend/src/controllers/detail.*                  → (detail)
+backend/src/services/detail.*                     → (detail)
+backend/src/routes/detail.*                       → (detail)
 
-backend/src/controllers/session.*                 → (session)
-backend/src/services/session.*                    → (session)
-backend/src/routes/session.*                      → (session)
+backend/src/controllers/task.*                    → (task)
+backend/src/services/task.*                       → (task)
+backend/src/routes/task.*                         → (task)
 
-backend/src/controllers/violation.*               → (violation)
-backend/src/services/violation.*                  → (violation)
-backend/src/routes/violation.*                    → (violation)
-
-backend/src/controllers/certificate.*             → (certificate)
-backend/src/services/certificate.*                → (certificate)
-backend/src/routes/certificate.*                  → (certificate)
+backend/src/controllers/event.*                   → (event)
+backend/src/services/event.*                      → (event)
+backend/src/routes/event.*                        → (event)
 
 backend/src/controllers/upload.*                  → (upload)
 backend/src/routes/upload.*                       → (upload)
@@ -85,23 +78,22 @@ frontend/src/pages/auth/*                         → (auth)
 frontend/src/components/auth/*                    → (auth)
 frontend/src/services/auth.*                      → (auth)
 
-frontend/src/pages/teacher/*                      → (teacher)
-frontend/src/components/teacher/*                 → (teacher)
+frontend/src/pages/admin/*                        → (admin)
+frontend/src/components/admin/*                   → (admin)
 
-frontend/src/pages/student/*                      → (student)
-frontend/src/components/student/*                 → (student)
+frontend/src/pages/user/*                         → (user)
+frontend/src/components/user/*                    → (user)
 
-frontend/src/components/exam/*                    → (exam)
-frontend/src/pages/shared/exam/*                  → (exam)
+frontend/src/components/item/*                    → (item)
+frontend/src/pages/shared/item/*                  → (item)
 
 frontend/src/components/form/*                    → (ui)
 frontend/src/components/common/*                  → (ui)
 frontend/src/components/layout/*                  → (ui)
 
-frontend/src/services/exam.*                      → (exam)
-frontend/src/services/session.*                   → (session)
-frontend/src/services/questionBank.*              → (question)
-frontend/src/services/certificate.*               → (certificate)
+frontend/src/services/item.*                      → (item)
+frontend/src/services/task.*                      → (task)
+frontend/src/services/detail.*                    → (detail)
 
 frontend/src/contexts/*                           → (context)
 frontend/src/hooks/*                              → (hooks)
@@ -130,15 +122,15 @@ docs/*.md                                         → (docs)
 
 ## Quick Decision Matrix
 
-| Change Type       | Type            | Example                                    |
-| ----------------- | --------------- | ------------------------------------------ |
-| New functionality | `feat`          | `feat(question): add image upload support` |
-| Bug fix           | `fix`           | `fix(timer): resolve countdown sync issue` |
-| Docs only         | `docs`          | `docs(api): add endpoint examples`         |
+| Change Type       | Type            | Example                                  |
+| ----------------- | --------------- | ---------------------------------------- |
+| New functionality | `feat`          | `feat(item): add image upload support`   |
+| Bug fix           | `fix`           | `fix(task): resolve status sync issue`   |
+| Docs only         | `docs`          | `docs(api): add endpoint examples`       |
 | Refactor          | `refactor`      | `refactor(auth): extract validation logic` |
-| Tests             | `test`          | `test(exam): add integration tests`        |
-| Dependencies      | `chore`         | `chore(deps): update prisma to v5.7.1`     |
-| DB schema         | `feat` or `fix` | `feat(db): add order field to questions`   |
+| Tests             | `test`          | `test(item): add integration tests`      |
+| Dependencies      | `chore`         | `chore(deps): update prisma to v5.7.1`   |
+| DB schema         | `feat` or `fix` | `feat(db): add order field to details`   |
 
 ## Commit Workflow
 
@@ -164,7 +156,7 @@ git commit -m "type(scope): specific action and reason"
 **Same feature** → Single commit with bullet list in body:
 
 ```bash
-feat(question): add image upload support
+feat(item): add image upload support
 
 - Add imageUrl field to schema
 - Create upload controller
@@ -177,9 +169,9 @@ feat(question): add image upload support
 **Schema change** → Always include migration details:
 
 ```bash
-feat(db): add order field to questions
+feat(db): add order field to details
 
-- Create migration 20251121051734_add_order_to_questions
+- Create migration 20251121051734_add_order_to_details
 - Backfill existing data
 - Update queries to use new field
 ```
@@ -188,16 +180,16 @@ feat(db): add order field to questions
 
 ```bash
 # Bug fix
-fix(timer): prevent countdown after submission
+fix(task): prevent status update after completion
 
 # New feature
-feat(exam): add JSON import validation
+feat(item): add JSON import validation
 
 # Refactor
 refactor(service): extract validation logic
 
 # Docs
-docs(api): add question bank examples
+docs(api): add item endpoint examples
 
 # Dependencies
 chore(deps): update dependencies

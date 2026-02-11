@@ -1,6 +1,6 @@
 # AI Agent Code Behavior - Quick Reference
 
-**Project**: Quiz Application (cert-app)  
+**Project**: Web Application  
 **Languages**: TypeScript, JavaScript, CSS/SCSS, Bash, SQL, JSON, YAML  
 **Style**: Professional, modular, DRY, type-safe code
 
@@ -23,30 +23,30 @@ const fetchData = (id: any) => api.get(id);
 // ✅ Always
 interface FetchResponse {
   id: string;
-  data: ExamData;
+  data: ItemData;
 }
 
 const fetchData = async (id: string): Promise<FetchResponse> => {
-  return await api.get<FetchResponse>(`/exams/${id}`);
+  return await api.get<FetchResponse>(`/items/${id}`);
 };
 ```
 
 ### Type Definitions Location
 
 ```typescript
-// types/exam.ts
-export interface Exam {
+// types/item.ts
+export interface Item {
   id: string;
   title: string;
   description: string | null;
-  duration: number;
-  teacherId: string;
+  status: string;
+  ownerId: string;
   isActive: boolean;
   createdAt: Date;
 }
 
-export type ExamWithQuestions = Exam & {
-  questions: Question[];
+export type ItemWithDetails = Item & {
+  details: Detail[];
 };
 ```
 
@@ -54,20 +54,20 @@ export type ExamWithQuestions = Exam & {
 
 ```typescript
 export enum UserRole {
-  TEACHER = 'TEACHER',
-  STUDENT = 'STUDENT',
+  ADMIN = 'ADMIN',
+  USER = 'USER',
 }
 
-export enum SessionStatus {
+export enum TaskStatus {
   IN_PROGRESS = 'IN_PROGRESS',
   COMPLETED = 'COMPLETED',
   EXPIRED = 'EXPIRED',
 }
 
-export enum ViolationType {
-  TAB_SWITCH = 'TAB_SWITCH',
-  EXIT_FULLSCREEN = 'EXIT_FULLSCREEN',
-  COPY_ATTEMPT = 'COPY_ATTEMPT',
+export enum EventType {
+  CREATED = 'CREATED',
+  UPDATED = 'UPDATED',
+  DELETED = 'DELETED',
 }
 ```
 
@@ -91,12 +91,12 @@ if (isUser(data)) {
 
 | Type                     | Convention           | Example                            |
 | ------------------------ | -------------------- | ---------------------------------- |
-| Variables/Functions      | camelCase            | `currentDate`, `fetchExamData()`   |
+| Variables/Functions      | camelCase            | `currentDate`, `fetchItemData()`   |
 | Constants                | UPPER_SNAKE_CASE     | `MAX_ATTEMPTS`, `API_BASE_URL`     |
-| Classes/Interfaces/Types | PascalCase           | `ExamSession`, `UserProfile`       |
-| Components               | PascalCase           | `ExamList.tsx`, `QuestionCard.tsx` |
+| Classes/Interfaces/Types | PascalCase           | `UserSession`, `UserProfile`       |
+| Components               | PascalCase           | `ItemList.tsx`, `DataCard.tsx`     |
 | Utility files            | camelCase            | `formatDate.ts`, `validation.ts`   |
-| Route files              | kebab-case           | `exam-routes.ts`                   |
+| Route files              | kebab-case           | `item-routes.ts`                   |
 | Booleans                 | is/has/should prefix | `isAuthenticated`, `hasPermission` |
 
 ## File Organization
@@ -181,8 +181,8 @@ export class ValidationError extends AppError {
 
 ```typescript
 // In services/controllers
-if (!exam) {
-  throw new NotFoundError('Exam');
+if (!item) {
+  throw new NotFoundError('Item');
 }
 
 if (!hasPermission) {
@@ -197,26 +197,17 @@ const validatedData = schema.parse(data); // Throws ValidationError
 ### Always Use Zod Schemas
 
 ```typescript
-// validators/examValidator.ts
-import { z } from 'zod';
+// validators/itemValidator.ts
 
-export const createExamSchema = z.object({
+export const createItemSchema = z.object({
   title: z.string().min(1).max(200),
   description: z.string().max(1000).optional(),
-  duration: z.number().int().min(1).max(480),
-  questions: z
-    .array(
-      z.object({
-        question: z.string().min(1),
-        options: z.array(z.string()).min(2).max(10),
-        answer: z.number().int().min(0),
-      })
-    )
-    .min(1),
+  priority: z.number().int().min(1).max(10),
+  tags: z.array(z.string()).optional(),
 });
 
 // In controller
-const validatedData = createExamSchema.parse(req.body);
+const validatedData = createItemSchema.parse(req.body);
 ```
 
 ## Security Standards
@@ -407,21 +398,21 @@ model User {
   id        String   @id @default(cuid())
   email     String   @unique
   name      String?
-  role      UserRole @default(STUDENT)
+  role      UserRole @default(USER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relations
-  exams     Exam[]
-  sessions  ExamSession[]
+  items     Item[]
+  tasks     Task[]
 
   @@index([email])
   @@map("users")
 }
 
 enum UserRole {
-  TEACHER
-  STUDENT
+  ADMIN
+  USER
 }
 ```
 
@@ -431,7 +422,7 @@ enum UserRole {
 
 ```json
 {
-  "name": "cert-app",
+  "name": "app",
   "version": "1.0.0",
   "scripts": {
     "dev": "vite",
@@ -458,7 +449,7 @@ API_BASE_URL="http://localhost:3000"
 # Database
 DB_HOST="localhost"
 DB_PORT="5432"
-DB_NAME="cert_app"
+DB_NAME="app_db"
 
 # Redis
 REDIS_HOST="localhost"
@@ -474,8 +465,8 @@ version: '3.8'
 
 services:
   backend:
-    image: cert-app-backend:latest
-    container_name: cert-app-backend
+    image: app-backend:latest
+    container_name: app-backend
     environment:
       - NODE_ENV=production
       - DATABASE_URL=${DATABASE_URL}
@@ -491,7 +482,7 @@ services:
   postgres:
     image: postgres:15-alpine
     environment:
-      POSTGRES_DB: cert_app
+      POSTGRES_DB: app_db
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
@@ -554,14 +545,14 @@ const timeout = config.timeout || 30000;
 
 ```typescript
 // ✅ Use functional methods
-const activeExams = exams.filter(e => e.isActive);
-const examIds = exams.map(e => e.id);
-const hasCompleted = sessions.some(s => s.status === 'COMPLETED');
+const activeItems = items.filter(e => e.isActive);
+const itemIds = items.map(e => e.id);
+const hasCompleted = tasks.some(s => s.status === 'COMPLETED');
 
 // ❌ Avoid loops when functional works
-const activeExams = [];
-for (let i = 0; i < exams.length; i++) {
-  if (exams[i].isActive) activeExams.push(exams[i]);
+const activeItems = [];
+for (let i = 0; i < items.length; i++) {
+  if (items[i].isActive) activeItems.push(items[i]);
 }
 ```
 

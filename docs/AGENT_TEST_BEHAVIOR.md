@@ -1,6 +1,6 @@
 # AI Agent Test Behavior - Quick Reference
 
-**Project**: Quiz Application (cert-app)  
+**Project**: Web Application  
 **Framework**: Vitest for E2E tests  
 **Approach**: E2E only, no unit/integration tests  
 **Environment**: Clone test database from dev
@@ -57,9 +57,9 @@ Docker Container (postgres-test with cloned data)
 backend/test/
 ├── api/                    # E2E API tests
 │   ├── auth.e2e.test.ts   # Authentication flows
-│   ├── exam.e2e.test.ts   # Exam CRUD operations
-│   ├── session.e2e.test.ts # Exam sessions
-│   └── admin.e2e.test.ts   # Admin operations
+│   ├── item.e2e.test.ts   # Item CRUD operations
+│   ├── task.e2e.test.ts   # Task operations
+│   └── admin.e2e.test.ts  # Admin operations
 ├── helpers/                # Test utilities
 │   ├── setup.ts           # Global setup/teardown
 │   ├── factories.ts       # Test data factories
@@ -78,9 +78,9 @@ backend/test/
 Examples:
 
 - `auth.e2e.test.ts`
-- `exam.e2e.test.ts`
-- `question.e2e.test.ts`
-- `certificate.e2e.test.ts`
+- `item.e2e.test.ts`
+- `task.e2e.test.ts`
+- `data.e2e.test.ts`
 
 ## Vitest Configuration
 
@@ -109,7 +109,7 @@ export default defineConfig({
     // Environment
     env: {
       NODE_ENV: 'test',
-      DATABASE_URL: 'postgresql://quizuser:quizpass@localhost:5433/quizapp_test',
+      DATABASE_URL: 'postgresql://dbuser:dbpass@localhost:5433/app_db_test',
       JWT_SECRET: 'test-secret-key',
     },
   },
@@ -135,31 +135,31 @@ export default defineConfig({
 ### Complete E2E Test Pattern
 
 ```typescript
-// test/api/exam.e2e.test.ts
+// test/api/item.e2e.test.ts
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { apiClient } from '../helpers/api-client';
-import { createUser, createExam } from '../helpers/factories';
+import { createUser, createItem } from '../helpers/factories';
 import { prisma } from '@/config/prisma';
 
-describe('Exam API (E2E)', () => {
-  let teacherToken: string;
-  let studentToken: string;
-  let teacherId: string;
+describe('Item API (E2E)', () => {
+  let adminToken: string;
+  let userToken: string;
+  let adminId: string;
 
   // Setup: Create test users
   beforeAll(async () => {
-    const teacher = await createUser({ role: 'TEACHER' });
-    const student = await createUser({ role: 'STUDENT' });
+    const admin = await createUser({ role: 'ADMIN' });
+    const user = await createUser({ role: 'USER' });
 
-    teacherId = teacher.id;
+    adminId = admin.id;
 
-    teacherToken = await apiClient.login(teacher.email, 'password');
-    studentToken = await apiClient.login(student.email, 'password');
+    adminToken = await apiClient.login(admin.email, 'password');
+    userToken = await apiClient.login(user.email, 'password');
   });
 
   // Cleanup: Delete test data after each test
   beforeEach(async () => {
-    await prisma.exam.deleteMany({});
+    await prisma.item.deleteMany({});
   });
 
   // Cleanup: Close connections
@@ -167,51 +167,50 @@ describe('Exam API (E2E)', () => {
     await prisma.$disconnect();
   });
 
-  describe('POST /api/teacher/exams', () => {
-    it('should create exam with valid data', async () => {
+  describe('POST /api/admin/items', () => {
+    it('should create item with valid data', async () => {
       // Arrange
-      const examData = {
-        title: 'Mathematics Final',
-        description: 'End of semester exam',
-        duration: 60,
-        questions: [
+      const itemData = {
+        title: 'New Item',
+        description: 'Item description',
+        priority: 5,
+        details: [
           {
-            question: 'What is 2+2?',
-            options: ['3', '4', '5', '6'],
-            answer: 1,
-            points: 10,
+            content: 'Detail content',
+            type: 'text',
+            order: 0,
           },
         ],
       };
 
       // Act
-      const response = await apiClient.post('/api/teacher/exams', examData, {
-        headers: { Authorization: `Bearer ${teacherToken}` },
+      const response = await apiClient.post('/api/admin/items', itemData, {
+        headers: { Authorization: `Bearer ${adminToken}` },
       });
 
       // Assert
       expect(response.status).toBe(201);
       expect(response.data.success).toBe(true);
       expect(response.data.data).toMatchObject({
-        title: examData.title,
-        duration: examData.duration,
-        teacherId: teacherId,
+        title: itemData.title,
+        priority: itemData.priority,
+        ownerId: adminId,
       });
-      expect(response.data.data.questions).toHaveLength(1);
+      expect(response.data.data.details).toHaveLength(1);
 
       // Verify in database
-      const savedExam = await prisma.exam.findUnique({
+      const savedItem = await prisma.item.findUnique({
         where: { id: response.data.data.id },
-        include: { questions: true },
+        include: { details: true },
       });
-      expect(savedExam).not.toBeNull();
-      expect(savedExam!.questions).toHaveLength(1);
+      expect(savedItem).not.toBeNull();
+      expect(savedItem!.details).toHaveLength(1);
     });
 
-    it('should reject exam without authentication', async () => {
-      const examData = { title: 'Test', duration: 60, questions: [] };
+    it('should reject item without authentication', async () => {
+      const itemData = { title: 'Test', priority: 5, details: [] };
 
-      const response = await apiClient.post('/api/teacher/exams', examData, {
+      const response = await apiClient.post('/api/admin/items', itemData, {
         validateStatus: () => true, // Don't throw on 401
       });
 
@@ -219,15 +218,15 @@ describe('Exam API (E2E)', () => {
       expect(response.data.success).toBe(false);
     });
 
-    it('should reject exam with invalid data', async () => {
-      const examData = {
+    it('should reject item with invalid data', async () => {
+      const itemData = {
         title: '', // Invalid: empty title
-        duration: 0, // Invalid: zero duration
-        questions: [], // Invalid: no questions
+        priority: 0, // Invalid: zero priority
+        details: [], // Invalid: no details
       };
 
-      const response = await apiClient.post('/api/teacher/exams', examData, {
-        headers: { Authorization: `Bearer ${teacherToken}` },
+      const response = await apiClient.post('/api/admin/items', itemData, {
+        headers: { Authorization: `Bearer ${adminToken}` },
         validateStatus: () => true,
       });
 
@@ -236,11 +235,11 @@ describe('Exam API (E2E)', () => {
       expect(response.data.errors).toBeDefined();
     });
 
-    it('should reject student creating exam', async () => {
-      const examData = { title: 'Test', duration: 60, questions: [] };
+    it('should reject user creating item', async () => {
+      const itemData = { title: 'Test', priority: 5, details: [] };
 
-      const response = await apiClient.post('/api/teacher/exams', examData, {
-        headers: { Authorization: `Bearer ${studentToken}` },
+      const response = await apiClient.post('/api/admin/items', itemData, {
+        headers: { Authorization: `Bearer ${userToken}` },
         validateStatus: () => true,
       });
 
@@ -249,15 +248,15 @@ describe('Exam API (E2E)', () => {
     });
   });
 
-  describe('GET /api/teacher/exams', () => {
-    it('should list teacher exams', async () => {
-      // Arrange: Create test exams
-      await createExam({ teacherId, title: 'Exam 1' });
-      await createExam({ teacherId, title: 'Exam 2' });
+  describe('GET /api/admin/items', () => {
+    it('should list admin items', async () => {
+      // Arrange: Create test items
+      await createItem({ ownerId: adminId, title: 'Item 1' });
+      await createItem({ ownerId: adminId, title: 'Item 2' });
 
       // Act
-      const response = await apiClient.get('/api/teacher/exams', {
-        headers: { Authorization: `Bearer ${teacherToken}` },
+      const response = await apiClient.get('/api/admin/items', {
+        headers: { Authorization: `Bearer ${adminToken}` },
       });
 
       // Assert
@@ -265,7 +264,7 @@ describe('Exam API (E2E)', () => {
       expect(response.data.success).toBe(true);
       expect(response.data.data).toHaveLength(2);
       expect(response.data.data[0]).toHaveProperty('title');
-      expect(response.data.data[0]).toHaveProperty('duration');
+      expect(response.data.data[0]).toHaveProperty('priority');
     });
   });
 });
@@ -326,7 +325,7 @@ import bcrypt from 'bcrypt';
 export async function createUser(data: {
   email?: string;
   name?: string;
-  role?: 'TEACHER' | 'STUDENT';
+  role?: 'ADMIN' | 'USER';
 }) {
   const email = data.email || `test-${Date.now()}@example.com`;
   const hashedPassword = await bcrypt.hash('password', 10);
@@ -336,25 +335,23 @@ export async function createUser(data: {
       email,
       name: data.name || 'Test User',
       password: hashedPassword,
-      role: data.role || 'STUDENT',
+      role: data.role || 'USER',
     },
   });
 }
 
-export async function createExam(data: { teacherId: string; title?: string; duration?: number }) {
-  return await prisma.exam.create({
+export async function createItem(data: { ownerId: string; title?: string; priority?: number }) {
+  return await prisma.item.create({
     data: {
-      title: data.title || 'Test Exam',
+      title: data.title || 'Test Item',
       description: 'Test description',
-      duration: data.duration || 60,
-      teacherId: data.teacherId,
-      questions: {
+      priority: data.priority || 5,
+      ownerId: data.ownerId,
+      details: {
         create: [
           {
-            question: 'Test question?',
-            options: ['A', 'B', 'C', 'D'],
-            answer: 0,
-            points: 10,
+            content: 'Test detail',
+            type: 'text',
             order: 0,
           },
         ],
@@ -363,15 +360,15 @@ export async function createExam(data: { teacherId: string; title?: string; dura
   });
 }
 
-export async function createSession(data: { examId: string; studentId: string }) {
-  const exam = await prisma.exam.findUnique({ where: { id: data.examId } });
+export async function createTask(data: { itemId: string; userId: string }) {
+  const item = await prisma.item.findUnique({ where: { id: data.itemId } });
   const startTime = new Date();
-  const endTime = new Date(startTime.getTime() + exam!.duration * 60 * 1000);
+  const endTime = new Date(startTime.getTime() + 60 * 60 * 1000);
 
-  return await prisma.examSession.create({
+  return await prisma.task.create({
     data: {
-      examId: data.examId,
-      studentId: data.studentId,
+      itemId: data.itemId,
+      userId: data.userId,
       startTime,
       endTime,
       status: 'IN_PROGRESS',
@@ -425,10 +422,10 @@ set -e
 echo "Setting up test database..."
 
 # Drop existing test database
-docker compose -f docker-compose.dev.yml exec -T postgres psql -U quizuser -d postgres -c "DROP DATABASE IF EXISTS quizapp_test;"
+docker compose -f docker-compose.dev.yml exec -T postgres psql -U dbuser -d postgres -c "DROP DATABASE IF EXISTS app_db_test;"
 
 # Create test database by cloning dev database
-docker compose -f docker-compose.dev.yml exec -T postgres psql -U quizuser -d postgres -c "CREATE DATABASE quizapp_test WITH TEMPLATE quizapp;"
+docker compose -f docker-compose.dev.yml exec -T postgres psql -U dbuser -d postgres -c "CREATE DATABASE app_db_test WITH TEMPLATE app_db;"
 
 echo "Test database ready (cloned from dev)"
 ```
@@ -444,7 +441,7 @@ set -e
 echo "Cleaning up test database..."
 
 # Drop test database
-docker compose -f docker-compose.dev.yml exec -T postgres psql -U quizuser -d postgres -c "DROP DATABASE IF EXISTS quizapp_test;"
+docker compose -f docker-compose.dev.yml exec -T postgres psql -U dbuser -d postgres -c "DROP DATABASE IF EXISTS app_db_test;"
 
 echo "Test database cleaned up"
 ```
@@ -481,7 +478,7 @@ echo "E2E tests complete"
 cd backend && npm run test:e2e
 
 # Run specific test file
-cd backend && npx vitest test/api/exam.e2e.test.ts
+cd backend && npx vitest test/api/item.e2e.test.ts
 
 # Run tests in watch mode
 cd backend && npx vitest --watch
@@ -510,12 +507,12 @@ cd backend && npx vitest -t "should create exam"
 ### AAA Pattern (Arrange-Act-Assert)
 
 ```typescript
-it('should create exam', async () => {
+it('should create item', async () => {
   // Arrange: Setup test data
-  const examData = { title: 'Test', duration: 60, questions: [] };
+  const itemData = { title: 'Test', priority: 5, details: [] };
 
   // Act: Execute the operation
-  const response = await apiClient.post('/api/teacher/exams', examData, {
+  const response = await apiClient.post('/api/admin/items', itemData, {
     headers: { Authorization: `Bearer ${token}` },
   });
 
@@ -528,24 +525,24 @@ it('should create exam', async () => {
 ### Test CRUD Operations
 
 ```typescript
-describe('Exam CRUD', () => {
-  it('should CREATE exam', async () => {
-    const response = await apiClient.post('/api/teacher/exams', data, { headers });
+describe('Item CRUD', () => {
+  it('should CREATE item', async () => {
+    const response = await apiClient.post('/api/admin/items', data, { headers });
     expect(response.status).toBe(201);
   });
 
-  it('should READ exam', async () => {
-    const response = await apiClient.get(`/api/teacher/exams/${examId}`, { headers });
+  it('should READ item', async () => {
+    const response = await apiClient.get(`/api/admin/items/${itemId}`, { headers });
     expect(response.status).toBe(200);
   });
 
-  it('should UPDATE exam', async () => {
-    const response = await apiClient.put(`/api/teacher/exams/${examId}`, updates, { headers });
+  it('should UPDATE item', async () => {
+    const response = await apiClient.put(`/api/admin/items/${itemId}`, updates, { headers });
     expect(response.status).toBe(200);
   });
 
-  it('should DELETE exam', async () => {
-    const response = await apiClient.delete(`/api/teacher/exams/${examId}`, { headers });
+  it('should DELETE item', async () => {
+    const response = await apiClient.delete(`/api/admin/items/${itemId}`, { headers });
     expect(response.status).toBe(204);
   });
 });
@@ -556,23 +553,23 @@ describe('Exam CRUD', () => {
 ```typescript
 describe('Authorization', () => {
   it('should reject unauthenticated request', async () => {
-    const response = await apiClient.get('/api/teacher/exams', {
+    const response = await apiClient.get('/api/admin/items', {
       validateStatus: () => true,
     });
     expect(response.status).toBe(401);
   });
 
-  it('should reject student accessing teacher endpoint', async () => {
-    const response = await apiClient.get('/api/teacher/exams', {
-      headers: { Authorization: `Bearer ${studentToken}` },
+  it('should reject user accessing admin endpoint', async () => {
+    const response = await apiClient.get('/api/admin/items', {
+      headers: { Authorization: `Bearer ${userToken}` },
       validateStatus: () => true,
     });
     expect(response.status).toBe(403);
   });
 
-  it('should allow teacher accessing teacher endpoint', async () => {
-    const response = await apiClient.get('/api/teacher/exams', {
-      headers: { Authorization: `Bearer ${teacherToken}` },
+  it('should allow admin accessing admin endpoint', async () => {
+    const response = await apiClient.get('/api/admin/items', {
+      headers: { Authorization: `Bearer ${adminToken}` },
     });
     expect(response.status).toBe(200);
   });
@@ -585,27 +582,27 @@ describe('Authorization', () => {
 describe('Validation', () => {
   it('should reject empty title', async () => {
     const response = await apiClient.post(
-      '/api/teacher/exams',
-      { title: '', duration: 60, questions: [] },
+      '/api/admin/items',
+      { title: '', priority: 5, details: [] },
       { headers, validateStatus: () => true }
     );
     expect(response.status).toBe(400);
     expect(response.data.errors).toBeDefined();
   });
 
-  it('should reject invalid duration', async () => {
+  it('should reject invalid priority', async () => {
     const response = await apiClient.post(
-      '/api/teacher/exams',
-      { title: 'Test', duration: 0, questions: [] },
+      '/api/admin/items',
+      { title: 'Test', priority: 0, details: [] },
       { headers, validateStatus: () => true }
     );
     expect(response.status).toBe(400);
   });
 
-  it('should reject exam without questions', async () => {
+  it('should reject item without details', async () => {
     const response = await apiClient.post(
-      '/api/teacher/exams',
-      { title: 'Test', duration: 60, questions: [] },
+      '/api/admin/items',
+      { title: 'Test', priority: 5, details: [] },
       { headers, validateStatus: () => true }
     );
     expect(response.status).toBe(400);
@@ -616,35 +613,35 @@ describe('Validation', () => {
 ### Test Complete Flows
 
 ```typescript
-describe('Complete Exam Flow', () => {
-  it('should complete full exam lifecycle', async () => {
-    // 1. Teacher creates exam
-    const createResponse = await apiClient.post('/api/teacher/exams', examData, {
-      headers: { Authorization: `Bearer ${teacherToken}` },
+describe('Complete Item Flow', () => {
+  it('should complete full item lifecycle', async () => {
+    // 1. Admin creates item
+    const createResponse = await apiClient.post('/api/admin/items', itemData, {
+      headers: { Authorization: `Bearer ${adminToken}` },
     });
-    const examId = createResponse.data.data.id;
+    const itemId = createResponse.data.data.id;
 
-    // 2. Student starts exam
+    // 2. User starts task
     const startResponse = await apiClient.post(
-      `/api/student/exams/${examId}/start`,
+      `/api/user/items/${itemId}/start`,
       {},
       {
-        headers: { Authorization: `Bearer ${studentToken}` },
+        headers: { Authorization: `Bearer ${userToken}` },
       }
     );
-    const sessionId = startResponse.data.data.id;
+    const taskId = startResponse.data.data.id;
 
-    // 3. Student submits answers
+    // 3. User submits task
     const submitResponse = await apiClient.post(
-      `/api/student/sessions/${sessionId}/submit`,
-      { answers: [{ questionId: 'q1', answer: 0 }] },
-      { headers: { Authorization: `Bearer ${studentToken}` } }
+      `/api/user/tasks/${taskId}/submit`,
+      { data: { status: 'completed' } },
+      { headers: { Authorization: `Bearer ${userToken}` } }
     );
     expect(submitResponse.status).toBe(200);
 
-    // 4. Teacher views results
-    const resultsResponse = await apiClient.get(`/api/teacher/sessions/${sessionId}`, {
-      headers: { Authorization: `Bearer ${teacherToken}` },
+    // 4. Admin views results
+    const resultsResponse = await apiClient.get(`/api/admin/tasks/${taskId}`, {
+      headers: { Authorization: `Bearer ${adminToken}` },
     });
     expect(resultsResponse.status).toBe(200);
     expect(resultsResponse.data.data.status).toBe('COMPLETED');

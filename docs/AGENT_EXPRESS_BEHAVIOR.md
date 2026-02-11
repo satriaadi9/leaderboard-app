@@ -1,6 +1,6 @@
 # AI Agent Express Behavior - Quick Reference
 
-**Project**: Quiz Application (cert-app)  
+**Project**: Web Application  
 **Framework**: Express.js + TypeScript + Prisma  
 **Architecture**: Layered (Routes → Middleware → Controllers → Services → Data Access)
 
@@ -44,39 +44,39 @@ backend/src/
 ### Template
 
 ```typescript
-// controllers/exam.controller.ts
+// controllers/item.controller.ts
 import { Request, Response, NextFunction } from 'express';
-import { examService } from '@/services/exam.service';
+import { itemService } from '@/services/item.service';
 import { AppError } from '@/utils/errors';
 
-export const examController = {
-  async getExamById(req: Request, res: Response, next: NextFunction): Promise<void> {
+export const itemController = {
+  async getItemById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;
-      const exam = await examService.getExamById(id);
+      const item = await itemService.getItemById(id);
 
-      if (!exam) {
-        throw new AppError('Exam not found', 404);
+      if (!item) {
+        throw new AppError('Item not found', 404);
       }
 
       res.json({
         success: true,
-        data: exam,
+        data: item,
       });
     } catch (error) {
       next(error);
     }
   },
 
-  async createExam(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async createItem(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const teacherId = req.user!.id;
-      const exam = await examService.createExam(teacherId, req.body);
+      const ownerId = req.user!.id;
+      const item = await itemService.createItem(ownerId, req.body);
 
       res.status(201).json({
         success: true,
-        data: exam,
-        message: 'Exam created successfully',
+        data: item,
+        message: 'Item created successfully',
       });
     } catch (error) {
       next(error);
@@ -116,118 +116,108 @@ export const examController = {
 ### Template
 
 ```typescript
-// services/exam.service.ts
+// services/item.service.ts
 import { prisma } from '@/config/database';
 import { redis } from '@/config/redis';
 import { AppError } from '@/utils/errors';
 import { logger } from '@/utils/logger';
 
-export const examService = {
-  async getExamById(examId: string) {
-    const cacheKey = `exam:${examId}`;
+export const itemService = {
+  async getItemById(itemId: string) {
+    const cacheKey = `item:${itemId}`;
 
     // Check cache
     const cached = await redis.get(cacheKey);
     if (cached) return JSON.parse(cached);
 
     // Fetch from DB
-    const exam = await prisma.exam.findUnique({
-      where: { id: examId },
+    const item = await prisma.item.findUnique({
+      where: { id: itemId },
       include: {
-        questions: { orderBy: { order: 'asc' } },
-        teacher: { select: { id: true, name: true } },
+        details: { orderBy: { order: 'asc' } },
+        owner: { select: { id: true, name: true } },
       },
     });
 
     // Cache result
-    if (exam) {
-      await redis.setex(cacheKey, 3600, JSON.stringify(exam));
+    if (item) {
+      await redis.setex(cacheKey, 3600, JSON.stringify(item));
     }
 
-    return exam;
+    return item;
   },
 
-  async createExam(teacherId: string, data: CreateExamData) {
+  async createItem(ownerId: string, data: CreateItemData) {
     // Validate business rules
-    this.validateExamData(data);
+    this.validateItemData(data);
 
     // Use transaction for atomic operations
-    const exam = await prisma.$transaction(async tx => {
-      return await tx.exam.create({
+    const item = await prisma.$transaction(async tx => {
+      return await tx.item.create({
         data: {
           title: data.title,
           description: data.description,
-          duration: data.duration,
-          teacherId,
-          questions: {
-            create: data.questions.map((q, index) => ({
-              ...q,
+          status: data.status,
+          ownerId,
+          details: {
+            create: data.details.map((d, index) => ({
+              ...d,
               order: index,
             })),
           },
         },
-        include: { questions: true },
+        include: { details: true },
       });
     });
 
-    logger.info(`Exam created: ${exam.id} by teacher: ${teacherId}`);
-    return exam;
+    logger.info(`Item created: ${item.id} by user: ${ownerId}`);
+    return item;
   },
 
-  async updateExam(examId: string, teacherId: string, updates: UpdateExamData) {
+  async updateItem(itemId: string, ownerId: string, updates: UpdateItemData) {
     // Check ownership
-    const exam = await prisma.exam.findUnique({ where: { id: examId } });
+    const item = await prisma.item.findUnique({ where: { id: itemId } });
 
-    if (!exam) {
-      throw new AppError('Exam not found', 404);
+    if (!item) {
+      throw new AppError('Item not found', 404);
     }
 
-    if (exam.teacherId !== teacherId) {
-      throw new AppError('Unauthorized to update this exam', 403);
+    if (item.ownerId !== ownerId) {
+      throw new AppError('Unauthorized to update this item', 403);
     }
 
-    // Business rule: no updates during active sessions
-    const activeSessions = await prisma.examSession.count({
-      where: { examId, status: 'IN_PROGRESS' },
+    // Business rule: no updates during active tasks
+    const activeTasks = await prisma.task.count({
+      where: { itemId, status: 'IN_PROGRESS' },
     });
 
-    if (activeSessions > 0) {
-      throw new AppError('Cannot update exam with active sessions', 400);
+    if (activeTasks > 0) {
+      throw new AppError('Cannot update item with active tasks', 400);
     }
 
     // Update and invalidate cache
-    const updated = await prisma.exam.update({
-      where: { id: examId },
+    const updated = await prisma.item.update({
+      where: { id: itemId },
       data: updates,
-      include: { questions: true },
+      include: { details: true },
     });
 
-    await redis.del(`exam:${examId}`);
+    await redis.del(`item:${itemId}`);
     return updated;
   },
 
-  validateExamData(data: CreateExamData): void {
+  validateItemData(data: CreateItemData): void {
     if (!data.title?.trim()) {
-      throw new AppError('Exam title is required', 400);
+      throw new AppError('Item title is required', 400);
     }
 
-    if (data.duration <= 0 || data.duration > 480) {
-      throw new AppError('Duration must be between 1-480 minutes', 400);
+    if (!data.details?.length) {
+      throw new AppError('Item must have at least one detail', 400);
     }
 
-    if (!data.questions?.length) {
-      throw new AppError('Exam must have at least one question', 400);
-    }
-
-    data.questions.forEach((q, i) => {
-      if (!q.question?.trim()) {
-        throw new AppError(`Question ${i + 1} is empty`, 400);
-      }
-      if (q.options.length < 2) {
-        throw new AppError(`Question ${i + 1} needs at least 2 options`, 400);
-      }
-      if (q.answer < 0 || q.answer >= q.options.length) {
-        throw new AppError(`Question ${i + 1} has invalid answer index`, 400);
+    data.details.forEach((d, i) => {
+      if (!d.content?.trim()) {
+        throw new AppError(`Detail ${i + 1} is empty`, 400);
       }
     });
   },
@@ -265,7 +255,7 @@ import { AppError } from '@/utils/errors';
 interface JwtPayload {
   id: string;
   email: string;
-  role: 'TEACHER' | 'STUDENT';
+  role: 'ADMIN' | 'USER';
 }
 
 declare global {
@@ -300,7 +290,7 @@ export const authenticate = (req: Request, res: Response, next: NextFunction): v
   }
 };
 
-export const authorize = (...roles: ('TEACHER' | 'STUDENT')[]) => {
+export const authorize = (...roles: ('ADMIN' | 'USER')[]) => {
   return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {
       return next(new AppError('Authentication required', 401));
@@ -395,36 +385,36 @@ export const errorHandler = (err: Error, req: Request, res: Response, next: Next
 ## Routes Pattern
 
 ```typescript
-// routes/exam.routes.ts
+// routes/item.routes.ts
 import { Router } from 'express';
-import { examController } from '@/controllers/exam.controller';
+import { itemController } from '@/controllers/item.controller';
 import { authenticate, authorize } from '@/middleware/auth';
 import { validate } from '@/middleware/validate';
-import { createExamSchema, updateExamSchema } from '@/validators/exam.validator';
+import { createItemSchema, updateItemSchema } from '@/validators/item.validator';
 
 const router = Router();
 
-// Teacher routes
-router.get('/teacher/exams', authenticate, authorize('TEACHER'), examController.getTeacherExams);
+// Admin routes
+router.get('/admin/items', authenticate, authorize('ADMIN'), itemController.getAdminItems);
 
 router.post(
-  '/teacher/exams',
+  '/admin/items',
   authenticate,
-  authorize('TEACHER'),
-  validate(createExamSchema),
-  examController.createExam
+  authorize('ADMIN'),
+  validate(createItemSchema),
+  itemController.createItem
 );
 
 router.put(
-  '/teacher/exams/:id',
+  '/admin/items/:id',
   authenticate,
-  authorize('TEACHER'),
-  validate(updateExamSchema),
-  examController.updateExam
+  authorize('ADMIN'),
+  validate(updateItemSchema),
+  itemController.updateItem
 );
 
-// Student routes
-router.get('/student/exams', authenticate, authorize('STUDENT'), examController.getStudentExams);
+// User routes
+router.get('/user/items', authenticate, authorize('USER'), itemController.getUserItems);
 
 export default router;
 ```
@@ -432,21 +422,20 @@ export default router;
 ## Validation Pattern
 
 ```typescript
-// validators/exam.validator.ts
+// validators/item.validator.ts
 import { z } from 'zod';
 
-export const createExamSchema = z.object({
+export const createItemSchema = z.object({
   body: z.object({
     title: z.string().min(1).max(200),
     description: z.string().max(1000).optional(),
-    duration: z.number().int().min(1).max(480),
-    questions: z
+    priority: z.number().int().min(1).max(10),
+    details: z
       .array(
         z.object({
-          question: z.string().min(1),
-          options: z.array(z.string()).min(2).max(10),
-          answer: z.number().int().min(0),
-          points: z.number().int().min(1).default(1),
+          content: z.string().min(1),
+          type: z.string(),
+          order: z.number().int().min(0),
         })
       )
       .min(1)
@@ -454,14 +443,14 @@ export const createExamSchema = z.object({
   }),
 });
 
-export const updateExamSchema = z.object({
+export const updateItemSchema = z.object({
   params: z.object({
     id: z.string().cuid(),
   }),
   body: z.object({
     title: z.string().min(1).max(200).optional(),
     description: z.string().max(1000).optional(),
-    duration: z.number().int().min(1).max(480).optional(),
+    priority: z.number().int().min(1).max(10).optional(),
     isActive: z.boolean().optional(),
   }),
 });
@@ -474,9 +463,9 @@ export const updateExamSchema = z.object({
 ```typescript
 // ✅ Use transactions for multi-step operations
 await prisma.$transaction(async tx => {
-  const exam = await tx.exam.create({ data: examData });
-  const sessions = await tx.examSession.createMany({ data: sessionData });
-  return { exam, sessions };
+  const item = await tx.item.create({ data: itemData });
+  const tasks = await tx.task.createMany({ data: taskData });
+  return { item, tasks };
 });
 ```
 
@@ -484,11 +473,11 @@ await prisma.$transaction(async tx => {
 
 ```typescript
 // ✅ Load related data efficiently
-const exam = await prisma.exam.findUnique({
+const item = await prisma.item.findUnique({
   where: { id },
   include: {
-    questions: { orderBy: { order: 'asc' } },
-    teacher: { select: { id: true, name: true } },
+    details: { orderBy: { order: 'asc' } },
+    owner: { select: { id: true, name: true } },
   },
 });
 ```
@@ -497,12 +486,12 @@ const exam = await prisma.exam.findUnique({
 
 ```typescript
 // ✅ Reduce payload size
-const exams = await prisma.exam.findMany({
+const items = await prisma.item.findMany({
   select: {
     id: true,
     title: true,
-    duration: true,
-    _count: { select: { sessions: true } },
+    priority: true,
+    _count: { select: { tasks: true } },
   },
 });
 ```

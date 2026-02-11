@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  // Assuming we might have other roles later, but requirements say "Only admins authenticate"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  role      UserRole @default(ADMIN)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  createdClasses  Class[]
+  ledgerEntries   PointsLedger[]
+
+  @@map("users")
+}
+
+model Student {
+  id        String   @id @default(cuid())
+  nim       String   @unique // National Student ID, assuming unique
+  email     String?  
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  enrollments     Enrollment[]
+  ledgerEntries   PointsLedger[]
+  pointsTotals    ClassPointsTotal[]
+
+  @@map("students")
+}
+
+model Class {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  publicSlug    String   @unique
+  isArchived    Boolean  @default(false)
+  createdByUserId String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  createdBy     User     @relation(fields: [createdByUserId], references: [id])
+  enrollments   Enrollment[]
+  ledgerEntries PointsLedger[]
+  pointsTotals  ClassPointsTotal[]
+
+  @@map("classes")
+}
+
+model Enrollment {
+  id        String   @id @default(cuid())
+  classId   String
+  studentId String
+  joinedAt  DateTime @default(now())
+
+  class     Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([classId, studentId])
+  @@map("enrollments")
+}
+
+model PointsLedger {
+  id                String   @id @default(cuid())
+  classId           String
+  studentId         String
+  delta             Int
+  reason            String
+  createdByUserId   String
+  createdAt         DateTime @default(now())
+
+  class     Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  createdBy User     @relation(fields: [createdByUserId], references: [id])
+
+  @@map("points_ledger")
+}
+
+model ClassPointsTotal {
+  id        String   @id @default(cuid())
+  classId   String
+  studentId String
+  total     Int
+  updatedAt DateTime @updatedAt
+
+  class     Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([classId, studentId])
+  @@map("class_points_totals")
+}
