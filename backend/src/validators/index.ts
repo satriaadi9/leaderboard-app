@@ -47,13 +47,37 @@ export const importStudentsSchema = z.object({
   params: z.object({
     id: z.string(),
   }),
-  body: z.array(
-    z.object({
-      nim: z.string(),
-      name: z.string(),
-      email: z.string().email().optional(),
+  body: z.object({
+    students: z.array(
+      z.object({
+        nim: z.string().optional(),
+        name: z.string().trim().min(1),
+        email: z.string().trim().email(),
+      })
+    ),
+  }),
+});
+
+export const removeStudentsSchema = z.object({
+  params: z.object({
+    id: z.string(),
+  }),
+  body: z.object({
+    studentIds: z.array(z.string()),
+  }),
+});
+
+export const deleteClassSchema = z.object({
+    params: z.object({
+        id: z.string(),
     })
-  ),
+});
+
+export const removeStudentSchema = z.object({
+    params: z.object({
+        id: z.string(),
+        studentId: z.string(),
+    })
 });
 
 export const adjustPointsSchema = z.object({
