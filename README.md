@@ -45,7 +45,13 @@ A real-time leaderboard application for managing student points in classes. Buil
 - **Caching**: Redis (for high-performance public leaderboard views).
 - **Containerization**: Docker & Docker Compose.
 
-## Quick Start within Dev Container
+## Quick Start
+
+For detailed setup instructions, including **Development Environment** and **Production Deployment**, please refer to the [Deployment Guide](DEPLOY.md).
+
+### Development (Docker Compose)
+
+The fastest way to run the app locally is using Docker Compose:
 
 1. **Start the Stack**:
    ```bash
@@ -55,15 +61,16 @@ A real-time leaderboard application for managing student points in classes. Buil
 2. **Access the App**:
    - Frontend: [http://localhost:5173](http://localhost:5173)
    - Backend API: [http://localhost:3000](http://localhost:3000)
+   - Prisma Studio: [http://localhost:5555](http://localhost:5555)
 
 3. **Database Management**:
-   To access Prisma Studio:
+   To access the database GUI (Prisma Studio):
    ```bash
    docker-compose -f docker-compose.dev.yml exec backend npx prisma studio
    ```
-   Then open [http://localhost:5555](http://localhost:5555)
 
 ## 📚 Documentation
-- [User Guide for Instructors & Assistants](docs/USER_GUIDE.md)
-- [Deployment Guide](docs/DEPLOYMENT.md)
+- [Deployment Guide (Dev & Prod)](DEPLOY.md)
+- [User Guide](docs/USER_GUIDE.md)
 - [Agent Behavior Guidelines](docs/AGENT_CODE_BEHAVIOR.md)
+
