@@ -31,6 +31,13 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
   }
 };
 
+export const requireSuperAdmin = (req: Request, res: Response, next: NextFunction) => {
+  if (req.user?.role !== (UserRole as any).SUPERADMIN) {
+    return next(new AppError('Access denied. Superadmin only.', 403));
+  }
+  next();
+};
+
 export const authorize = (roles: UserRole[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user || !roles.includes(req.user.role)) {

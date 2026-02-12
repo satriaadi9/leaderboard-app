@@ -3,6 +3,7 @@ import { AppError } from '@/utils/errors';
 import { UserRole } from '@prisma/client';
 import { randomBytes } from 'crypto';
 import { redis } from '@/config/redis';
+import { hashPassword } from '@/utils/auth';
 
 export const classService = {
   async createClass(name: string, description: string | undefined, adminId: string) {
@@ -145,52 +146,95 @@ export const classService = {
       where: { id: classId },
       include: {
         _count: { select: { enrollments: true } },
-      },
+        createdBy: { select: { id: true, name: true, email: true } },
+        // Use any cast for experimental/new relation
+        assistants: { select: { id: true, name: true, email: true } },
+      } as any,
     });
     if (!cls) throw new AppError('Class not found', 404);
     return cls;
   },
-  
+
   async listClasses(userId: string, role: string) {
-      const whereClause = role === 'SUPERADMIN' ? {} : { createdByUserId: userId };
+      const whereClause = role === 'SUPERADMIN' 
+          ? {} 
+          : { 
+              OR: [
+                  { createdByUserId: userId },
+                  { assistants: { some: { id: userId } } }
+              ]
+          };
       
       const classes = await prisma.class.findMany({
           where: whereClause,
           include: {
               _count: { select: { enrollments: true } },
+              // Using ignore for relation if not yet typed
+              // @ts-ignore
               pointsTotals: {
                   select: { total: true }
-              }
-          },
+              },
+              createdBy: { select: { id: true, name: true, email: true } }, // Include owner info
+              assistants: { select: { id: true, name: true, email: true } } // Include assistants
+          } as any,
           orderBy: { createdAt: 'desc' }
       });
 
       // Calculate aggregated stats
       return classes.map(cls => {
-          const totalPoints = cls.pointsTotals.reduce((sum, p) => sum + p.total, 0);
-          const avgPoints = cls.pointsTotals.length > 0 ? totalPoints / cls.pointsTotals.length : 0;
+          const totals = (cls as any).pointsTotals.map((p: any) => p.total);
+          const totalPoints = totals.reduce((sum: number, val: number) => sum + val, 0);
+          const avgPoints = totals.length > 0 ? totalPoints / totals.length : 0;
           
+          // Calculate Distribution (5 buckets)
+          const distribution = [0, 0, 0, 0, 0];
+          if (totals.length > 0) {
+              const min = Math.min(...totals);
+              const max = Math.max(...totals);
+              const range = max - min;
+              
+              if (range === 0) {
+                  // If all scores are the same, put them in the middle bucket
+                  distribution[2] = totals.length;
+              } else {
+                  totals.forEach((score: number) => {
+                      // Normalize score to 0-4
+                      const normalized = (score - min) / range;
+                      const bucketIndex = Math.min(Math.floor(normalized * 5), 4);
+                      distribution[bucketIndex]++;
+                  });
+              }
+          }
+
           // Clean up response objects (remove raw arrays)
-          const { pointsTotals, ...rest } = cls;
+          const { pointsTotals, ...rest } = cls as any;
           
           return {
               ...rest,
               stats: {
-                  studentCount: cls._count.enrollments,
+                  studentCount: (cls as any)._count.enrollments,
                   averagePoints: Math.round(avgPoints * 100) / 100, // Round to 2 decimals
-                  totalPointsDistributed: totalPoints
+                  totalPointsDistributed: totalPoints,
+                  distribution // New array of 5 integers
               }
           };
       });
   },
 
-  async updateClass(id: string, name: string) {
+  async updateClass(id: string, updates: { name?: string, publicSlug?: string, isPublic?: boolean, isArchived?: boolean }) {
       const cls = await prisma.class.findUnique({ where: { id } });
       if (!cls) throw new AppError('Class not found', 404);
+
+      if (updates.publicSlug) {
+          const existing = await prisma.class.findUnique({ where: { publicSlug: updates.publicSlug } });
+          if (existing && existing.id !== id) {
+              throw new AppError('Public link slug is already taken', 400);
+          }
+      }
       
       return await prisma.class.update({
           where: { id },
-          data: { name, publicSlug: `${name.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${cls.publicSlug.split('-').pop()}` }
+          data: updates
       });
   },
 
@@ -199,5 +243,60 @@ export const classService = {
       // But verify relations first
       await prisma.class.delete({ where: { id } });
       await redis.del(`leaderboard:${id}`);
+  },
+
+  async addAssistant(classId: string, email: string, name: string, password?: string) {
+      const normalizedEmail = email.toLowerCase().trim();
+      let user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
+      
+      if (!user) {
+          if (!password) throw new AppError('Password required for new assistant user', 400);
+          user = await prisma.user.create({
+              data: {
+                  email: normalizedEmail,
+                  name,
+                  password: await hashPassword(password),
+                  role: (UserRole as any).STUDENT_ASSISTANT
+              }
+          });
+      }
+
+      // Link to class
+      await prisma.class.update({
+          where: { id: classId },
+          data: {
+              assistants: {
+                  connect: { id: user.id }
+              }
+          } as any
+      });
+
+      return { id: user.id, name: user.name, email: user.email, role: user.role };
+  },
+
+  async removeAssistant(classId: string, assistantId: string) {
+      await prisma.class.update({
+          where: { id: classId },
+          data: {
+              assistants: {
+                  disconnect: { id: assistantId }
+              }
+          } as any
+      });
+  },
+
+  async verifyClassAccess(classId: string, userId: string, role: string) {
+      if (role === (UserRole as any).SUPERADMIN) return true;
+      
+      const cls = await prisma.class.findUnique({
+          where: { id: classId },
+          include: { assistants: { select: { id: true } } } as any
+      });
+      
+      if (!cls) return false;
+      if (cls.createdByUserId === userId) return true;
+      if ((cls as any).assistants.some((a: any) => a.id === userId)) return true;
+      
+      return false;
   }
 };

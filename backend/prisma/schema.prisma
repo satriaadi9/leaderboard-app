@@ -10,6 +10,7 @@ datasource db {
 enum UserRole {
   ADMIN
   SUPERADMIN
+  STUDENT_ASSISTANT
 }
 
 model User {
@@ -21,7 +22,8 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  createdClasses  Class[]
+  createdClasses  Class[] // As owner
+  assistantClasses Class[] @relation("ClassAssistants") // As assistant
   ledgerEntries   PointsLedger[]
 
   @@map("users")
@@ -47,12 +49,14 @@ model Class {
   name          String
   description   String?
   publicSlug    String   @unique
+  isPublic      Boolean  @default(true)
   isArchived    Boolean  @default(false)
   createdByUserId String
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   createdBy     User     @relation(fields: [createdByUserId], references: [id])
+  assistants    User[]   @relation("ClassAssistants")
   enrollments   Enrollment[]
   ledgerEntries PointsLedger[]
   pointsTotals  ClassPointsTotal[]
@@ -94,6 +98,7 @@ model ClassPointsTotal {
   classId   String
   studentId String
   total     Int
+  hasNegativeHistory Boolean @default(false)
   updatedAt DateTime @updatedAt
 
   class     Class    @relation(fields: [classId], references: [id], onDelete: Cascade)

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/axios';
 import { Link } from 'react-router-dom';
-import { Plus, Trash2, Edit2, Archive, BarChart2 } from 'lucide-react';
+import { Plus, Trash2, Edit2, BarChart2, Settings, Users } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 interface ClassItem {
@@ -15,6 +15,7 @@ interface ClassItem {
       studentCount: number;
       averagePoints: number;
       totalPointsDistributed: number;
+      distribution: number[];
   };
 }
 
@@ -87,7 +88,22 @@ const Dashboard: React.FC = () => {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-6 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-bold tracking-tight text-gray-900">Dashboard</h1>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">Welcome, {user?.name}</span>
+            {user?.role === 'SUPERADMIN' && (
+                <Link 
+                    to="/admin/users" 
+                    className="hidden sm:flex items-center gap-1 rounded bg-indigo-100 px-3 py-1 text-sm font-medium text-indigo-700 hover:bg-indigo-200"
+                >
+                    <Users className="h-4 w-4" /> Users
+                </Link>
+            )}
+            <Link 
+                to="/profile" 
+                className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
+                title="Edit Profile"
+            >
+                <span className="max-w-[100px] truncate sm:max-w-none">{user?.name}</span>
+                <Settings className="h-4 w-4 text-gray-400" />
+            </Link>
             <button
               onClick={logout}
               className="rounded bg-gray-200 px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-300"
@@ -160,13 +176,15 @@ const Dashboard: React.FC = () => {
                                 >
                                     <Edit2 className="h-4 w-4" />
                                 </button>
-                                <button 
-                                    onClick={() => handleDelete(cls)}
-                                    className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-red-600"
-                                    title="Delete Class"
-                                >
-                                    <Trash2 className="h-4 w-4" />
-                                </button>
+                                {user?.role !== 'STUDENT_ASSISTANT' && (
+                                    <button 
+                                        onClick={() => handleDelete(cls)}
+                                        className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-red-600"
+                                        title="Delete Class"
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </button>
+                                )}
                             </div>
                        </div>
                        
@@ -181,17 +199,33 @@ const Dashboard: React.FC = () => {
                            </div>
                        </div>
                        
-                        {/* Mini Bar Chart / Visual */}
+                        {/* Points Distribution Histogram */}
                        <div className="mt-4">
-                           <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+                           <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
                                <span>Points Distribution</span>
                                <BarChart2 className="h-3 w-3" />
                            </div>
-                           <div className="h-1.5 w-full rounded-full bg-gray-100">
-                               <div 
-                                    className="h-full rounded-full bg-indigo-500" 
-                                    style={{ width: `${Math.min(100, Math.max(5, (cls.stats.averagePoints / 100) * 100))}%` }} 
-                               />
+                           <div className="flex items-end justify-between h-10 gap-1.5">
+                               {(cls.stats.distribution || [0,0,0,0,0]).map((count, i) => {
+                                   const max = Math.max(...(cls.stats.distribution || [0]), 1);
+                                   const height = Math.max((count / max) * 100, 4); // Min height 4% for visibility
+                                   return (
+                                       <div key={i} className="relative flex-1 h-full flex items-end group/bar">
+                                           <div 
+                                               className={`w-full rounded-t-sm transition-all duration-500 ${count > 0 ? 'bg-indigo-500 hover:bg-indigo-600' : 'bg-gray-100'}`}
+                                               style={{ height: `${count > 0 ? height : 4}%` }}
+                                           />
+                                            {/* Tooltip */}
+                                            {count > 0 && (
+                                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover/bar:block whitespace-nowrap rounded bg-gray-900 px-1.5 py-0.5 text-[10px] text-white shadow-sm z-10">
+                                                    {count} students
+                                                    {/* Little arrow */}
+                                                    <div className="absolute -bottom-1 left-1/2 -ml-1 h-2 w-2 -rotate-45 bg-gray-900"></div>
+                                                </div>
+                                            )}
+                                       </div>
+                                   );
+                               })}
                            </div>
                        </div>
                    </div>

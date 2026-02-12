@@ -4,11 +4,46 @@ A real-time leaderboard application for managing student points in classes. Buil
 
 ## Features
 
-- **Class Management**: Create and manage classes.
-- **Student Enrollment**: Enroll students via email (generates unique NIM if new) or ID.
-- **Leaderboard**: Real-time points ranking.
-- **Points System**: flexible point adjustments (add/remove) with reasons.
-- **Caching**: High-performance Redis caching for leaderboard views.
+### Role-Based Access Control
+- **Super Admin**: Full system access (manage all classes, users).
+- **Class Owner (Teacher)**:
+  - Create, edit, and delete classes.
+  - Manage student enrollments (import/add/remove).
+  - Assign **Student Assistants**.
+  - Configure public/private visibility and custom slugs.
+- **Student Assistant**:
+  - View assigned classes in Dashboard.
+  - **Constraints**: Cannot create or delete classes. Cannot add/remove other assistants.
+  - **Capabilities**: Can adjust student points (add/remove) for day-to-day management.
+
+### Class Management
+- **Dashboard**: Centralized view of all classes.
+- **Settings**:
+  - Toggle **Public Access** (allow/deny viewing without login).
+  - Set **Custom Public Slug** for easy sharing (e.g., `leaderboard.com/p/my-class`).
+  - Manage **Student Assistants** list.
+
+### Points System & Leaderboard
+- **Real-time Leaderboard**: Instant updates using WebSocket/SSE (Server-Sent Events).
+- **Point Adjustment**:
+  - Add or remove points with a required reason.
+  - **Audit Trail**: All point changes are logged with the user who made the change.
+- **Badges**:
+  - 🥇 **Top 1**: Current leader.
+  - 🔥 **Most Improved**: Highest point gain in the last 7 days.
+  - 📈 **Biggest Climber**: Most ranks climbed in the last 7 days.
+- **Statistics**: View total points, average points, and student count.
+
+### Student Management
+- **Enrollment**: Add students individually or bulk import.
+- **History**: View detailed point history for each student.
+
+## Tech Stack
+- **Frontend**: React, TypeScript, Tailwind CSS, TanStack Query.
+- **Backend**: Node.js, Express, TypeScript.
+- **Database**: PostgreSQL (Prisma ORM).
+- **Caching**: Redis (for high-performance public leaderboard views).
+- **Containerization**: Docker & Docker Compose.
 
 ## Quick Start within Dev Container
 

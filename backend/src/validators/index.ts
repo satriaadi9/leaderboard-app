@@ -29,6 +29,8 @@ export const updateClassSchema = z.object({
   body: z.object({
     name: z.string().min(1).optional(),
     description: z.string().optional(),
+    publicSlug: z.string().min(3).regex(/^[a-z0-9-]+$/).optional(),
+    isPublic: z.boolean().optional(),
     isArchived: z.boolean().optional(),
   }),
 });
@@ -80,12 +82,41 @@ export const removeStudentSchema = z.object({
     })
 });
 
+export const addAssistantSchema = z.object({
+  params: z.object({
+    id: z.string(),
+  }),
+  body: z.object({
+    name: z.string().min(1),
+    email: z.string().email(),
+    password: z.string().min(6).optional(),
+  }),
+});
+
+export const removeAssistantSchema = z.object({
+  params: z.object({
+    id: z.string(),
+    userId: z.string(),
+  }),
+});
+
 export const adjustPointsSchema = z.object({
   params: z.object({
     id: z.string(),
   }),
   body: z.object({
     studentId: z.string(),
+    delta: z.number().int(),
+    reason: z.string().min(1),
+  }),
+});
+
+export const adjustPointsBulkSchema = z.object({
+  params: z.object({
+    id: z.string(),
+  }),
+  body: z.object({
+    studentIds: z.array(z.string()).min(1),
     delta: z.number().int(),
     reason: z.string().min(1),
   }),
@@ -99,4 +130,17 @@ export const getLeaderboardSchema = z.object({
     limit: z.string().regex(/^\d+$/).transform(Number).optional(),
     offset: z.string().regex(/^\d+$/).transform(Number).optional(),
   }),
+});
+
+export const getPublicDataSchema = z.object({
+    params: z.object({
+        slug: z.string(),
+    })
+});
+
+export const getPublicHistorySchema = z.object({
+    params: z.object({
+        slug: z.string(),
+        studentId: z.string()
+    })
 });
