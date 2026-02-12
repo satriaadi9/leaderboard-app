@@ -70,11 +70,15 @@ environment:
   - JWT_SECRET=supersecretprodkey_change_me_in_prod
 ```
 
-### 2. Automated Deployment
-Use the helper script to build images, push to Docker Hub, and update the remote server.
+### 2. Deployment Options
+
+You can deploy using the automated script (Option A) or manually by cloning the repository (Option B).
+
+#### Option A: Automated Deployment (Recommended)
+Use the helper script to build images locally, push to Docker Hub, and update the remote server.
 
 ```bash
-# Run from project root
+# Run from your local machine
 ./deployment/deploy.sh
 ```
 
@@ -84,6 +88,44 @@ Use the helper script to build images, push to Docker Hub, and update the remote
 3. Copies `docker-compose.prod.yml` to the server.
 4. SSHs into the server, pulls new images, and restarts containers.
 5. Generates the Prisma Client on the server to ensure schema sync.
+
+#### Option B: Manual Deployment (Git Clone)
+If you prefer to manage the server manually or lack local Docker setup.
+
+1.  **SSH into your server:**
+    ```bash
+    ssh user@your-server-ip
+    ```
+
+2.  **Clone the repository (first time):**
+    ```bash
+    git clone https://github.com/satriaadi9/leaderboard-app.git
+    cd leaderboard-app
+    ```
+
+3.  **Pull latest changes (updates):**
+    ```bash
+    git pull origin main
+    ```
+
+4.  **Start the application:**
+    This command pulls the latest pre-built images from Docker Hub and starts the services.
+    ```bash
+    docker compose -f deployment/docker-compose.prod.yml up -d --pull always
+    ```
+
+5.  **Sync Database Schema:**
+    Required after every update to ensure the database matches the code.
+    ```bash
+    docker compose -f deployment/docker-compose.prod.yml exec backend npx prisma migrate deploy
+    docker compose -f deployment/docker-compose.prod.yml exec backend npx prisma generate
+    ```
+
+6.  **Seed Database (Optional):**
+    Only if you need to reset/update the Superadmin user.
+    ```bash
+    docker compose -f deployment/docker-compose.prod.yml exec backend npx prisma db seed
+    ```
 
 ### 3. Database Management (Production)
 
