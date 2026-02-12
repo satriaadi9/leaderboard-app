@@ -63,4 +63,7 @@ A real-time leaderboard application for managing student points in classes. Buil
    ```
    Then open [http://localhost:5555](http://localhost:5555)
 
-For detailed deployment instructions on a new machine, see [DEPLOY.md](DEPLOY.md).
+## 📚 Documentation
+- [User Guide for Instructors & Assistants](docs/USER_GUIDE.md)
+- [Deployment Guide](docs/DEPLOYMENT.md)
+- [Agent Behavior Guidelines](docs/AGENT_CODE_BEHAVIOR.md)

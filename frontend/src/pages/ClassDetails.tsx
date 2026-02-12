@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/axios';
-import { Plus, Minus, UserPlus, ArrowLeft, Trash2, Upload, ArrowUpDown, ArrowUp, ArrowDown, Settings, Code, Copy, Check, Shield, UserX, Lock, Download } from 'lucide-react';
+import { Plus, Minus, UserPlus, ArrowLeft, Trash2, Upload, ArrowUpDown, ArrowUp, ArrowDown, Settings, Code, Copy, Check, Shield, UserX, Lock, Download, HelpCircle, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 
@@ -23,6 +23,7 @@ const ClassDetails: React.FC = () => {
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'total', direction: 'desc' });
   
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [settingsForm, setSettingsForm] = useState({ publicSlug: '', isPublic: true });
 
   const [isEmbedOpen, setIsEmbedOpen] = useState(false);
@@ -414,6 +415,12 @@ const ClassDetails: React.FC = () => {
           
           <div className="flex flex-wrap items-center gap-2">
              <button
+              onClick={() => setIsHelpOpen(true)}
+              className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-white px-4 text-[13px] font-semibold text-[#1C1C1E] shadow-sm ring-1 ring-[#D1D1D6] transition-all hover:bg-[#F2F2F7] active:scale-95"
+            >
+              <HelpCircle className="h-4 w-4 text-[#8E8E93]" /> Help
+            </button>
+             <button
               onClick={() => setIsSettingsOpen(true)}
               className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-white px-4 text-[13px] font-semibold text-[#1C1C1E] shadow-sm ring-1 ring-[#D1D1D6] transition-all hover:bg-[#F2F2F7] active:scale-95"
             >
@@ -770,6 +777,98 @@ const ClassDetails: React.FC = () => {
             </div>
         )}
       </main>
+
+      {/* Help Modal */}
+      {isHelpOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-sm animate-in fade-in" onClick={() => setIsHelpOpen(false)} />
+          <div className="relative w-full max-w-2xl overflow-hidden rounded-[24px] bg-white shadow-2xl animate-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-[#E5E5EA] bg-[#F2F2F7]/80 px-6 py-4 backdrop-blur-xl">
+                <h3 className="text-[17px] font-semibold text-[#1C1C1E] flex items-center gap-2">
+                    <HelpCircle className="h-5 w-5 text-[#007AFF]" /> Leaderboard Guide
+                </h3>
+                <button 
+                    onClick={() => setIsHelpOpen(false)} 
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-[#E5E5EA] text-[#8E8E93] hover:bg-[#D1D1D6] hover:text-[#1C1C1E] transition-colors"
+                >
+                    <X className="h-4 w-4" />
+                </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[70vh]">
+                <div className="space-y-6">
+                    <div>
+                        <h4 className="mb-3 text-[15px] font-semibold text-[#1C1C1E]">1. Managing Students</h4>
+                        <div className="grid gap-3 sm:grid-cols-2">
+                            <div className="rounded-xl bg-[#F2F2F7] p-4">
+                                <span className="mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-[#007AFF] text-white">
+                                    <UserPlus className="h-4 w-4" />
+                                </span>
+                                <h5 className="font-semibold text-[#1C1C1E]">Enroll Student</h5>
+                                <p className="mt-1 text-[13px] text-[#8E8E93]">Add a single student manually using their Name and Email address.</p>
+                            </div>
+                            <div className="rounded-xl bg-[#F2F2F7] p-4">
+                                <span className="mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-sm">
+                                    <Upload className="h-4 w-4 text-[#1C1C1E]" />
+                                </span>
+                                <h5 className="font-semibold text-[#1C1C1E]">Import CSV</h5>
+                                <p className="mt-1 text-[13px] text-[#8E8E93]">Bulk enroll students by uploading a CSV file. Use the "Template" button to see the format.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 className="mb-3 text-[15px] font-semibold text-[#1C1C1E]">2. Scoring</h4>
+                        <ul className="space-y-3 rounded-xl border border-[#E5E5EA] p-4">
+                             <li className="flex gap-3 text-[14px] text-[#1C1C1E]">
+                                <div className="mt-1 h-5 w-5 flex-shrink-0 items-center justify-center rounded bg-[#34C759]/10 text-[#34C759] flex">
+                                    <Plus className="h-3 w-3" />
+                                </div>
+                                <span><span className="font-semibold">Award Points:</span> Hover over a student row and click the (+) button to award points.</span>
+                            </li>
+                             <li className="flex gap-3 text-[14px] text-[#1C1C1E]">
+                                <div className="mt-1 h-5 w-5 flex-shrink-0 items-center justify-center rounded bg-[#FF3B30]/10 text-[#FF3B30] flex">
+                                    <Minus className="h-3 w-3" />
+                                </div>
+                                <span><span className="font-semibold">Penalty:</span> Use the (-) button to deduct points for infractions or missed deadlines.</span>
+                            </li>
+                            <li className="flex gap-3 text-[14px] text-[#1C1C1E]">
+                                <div className="mt-1 h-5 w-5 flex-shrink-0 items-center justify-center rounded bg-[#007AFF]/10 text-[#007AFF] flex">
+                                    <Check className="h-3 w-3" />
+                                </div>
+                                <span><span className="font-semibold">Bulk Actions:</span> Select multiple students using the checkboxes to apply points to the whole group at once.</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 className="mb-3 text-[15px] font-semibold text-[#1C1C1E]">3. Sharing & Data</h4>
+                         <div className="grid gap-3 sm:grid-cols-3">
+                            <div className="rounded-xl border border-[#E5E5EA] p-3">
+                                <div className="font-semibold text-[#1C1C1E] text-[13px] flex items-center gap-2 mb-1">
+                                    <Download className="h-3.5 w-3.5" /> Export
+                                </div>
+                                <p className="text-[12px] text-[#8E8E93]">Download the current leaderboard as a CSV file for grading.</p>
+                            </div>
+                            <div className="rounded-xl border border-[#E5E5EA] p-3">
+                                <div className="font-semibold text-[#1C1C1E] text-[13px] flex items-center gap-2 mb-1">
+                                    <Code className="h-3.5 w-3.5" /> Embed
+                                </div>
+                                <p className="text-[12px] text-[#8E8E93]">Get an iframe code to display this leaderboard on Moodle or Canvas.</p>
+                            </div>
+                             <div className="rounded-xl border border-[#E5E5EA] p-3">
+                                <div className="font-semibold text-[#1C1C1E] text-[13px] flex items-center gap-2 mb-1">
+                                    <Settings className="h-3.5 w-3.5" /> Settings
+                                </div>
+                                <p className="text-[12px] text-[#8E8E93]">Change the public "Slug" URL or make the leaderboard private.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Settings Modal - Apple Standard Modal */}
       {isSettingsOpen && (

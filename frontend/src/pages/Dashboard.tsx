@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/axios';
 import { Link } from 'react-router-dom';
-import { Plus, Trash2, Edit2, BarChart2, Settings, Users, LogOut } from 'lucide-react';
+import { Plus, Trash2, Edit2, BarChart2, Users, LogOut, HelpCircle, X, Shield } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 interface ClassItem {
@@ -26,6 +26,7 @@ const Dashboard: React.FC = () => {
   const [newClassName, setNewClassName] = useState('');
   const [editingClass, setEditingClass] = useState<ClassItem | null>(null);
   const [deleteConfirmation, setDeleteConfirmation] = useState<ClassItem | null>(null);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   const { data: classes, isLoading } = useQuery<ClassItem[]>({
     queryKey: ['classes'],
@@ -106,6 +107,13 @@ const Dashboard: React.FC = () => {
                 </div>
                 <span className="hidden sm:inline max-w-[100px] truncate">{user?.name}</span>
             </Link>
+            <button
+                onClick={() => setIsHelpOpen(true)}
+                className="rounded-full p-2 text-gray-500 hover:bg-gray-100 hover:text-[#007AFF] transition-colors"
+                title="Help & Guide"
+            >
+                <HelpCircle className="h-5 w-5" />
+            </button>
             <button
               onClick={logout}
               className="rounded-full p-2 text-gray-500 hover:bg-gray-100 hover:text-red-600 transition-colors"
@@ -294,6 +302,86 @@ const Dashboard: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Help Modal */}
+      {isHelpOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-sm animate-in fade-in" onClick={() => setIsHelpOpen(false)} />
+          <div className="relative w-full max-w-2xl overflow-hidden rounded-[24px] bg-white shadow-2xl animate-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-[#E5E5EA] bg-[#F2F2F7]/80 px-6 py-4 backdrop-blur-xl">
+                <h3 className="text-[17px] font-semibold text-[#1C1C1E] flex items-center gap-2">
+                    <HelpCircle className="h-5 w-5 text-[#007AFF]" /> User Guide
+                </h3>
+                <button 
+                    onClick={() => setIsHelpOpen(false)} 
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-[#E5E5EA] text-[#8E8E93] hover:bg-[#D1D1D6] hover:text-[#1C1C1E] transition-colors"
+                >
+                    <X className="h-4 w-4" />
+                </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[70vh]">
+                <div className="space-y-8">
+                    {/* Admin Section */}
+                    <div className="rounded-2xl bg-[#F2F2F7]/50 p-6 ring-1 ring-black/5">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#007AFF]/10 text-[#007AFF]">
+                                <Users className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h4 className="text-[17px] font-semibold text-[#1C1C1E]">Admin (Lecturer)</h4>
+                                <p className="text-[13px] text-[#8E8E93]">Full access to manage classes and assistants.</p>
+                            </div>
+                        </div>
+                        <ul className="space-y-3">
+                            <li className="flex gap-3 text-[15px] text-[#1C1C1E]">
+                                <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#007AFF]" />
+                                <span><span className="font-semibold">Create Class:</span> Click the "New Class" button to create a new leaderboard for your course.</span>
+                            </li>
+                            <li className="flex gap-3 text-[15px] text-[#1C1C1E]">
+                                <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#007AFF]" />
+                                <span><span className="font-semibold">Manage Class:</span> Use the edit icon to rename a class, or the trash icon to permanently delete it.</span>
+                            </li>
+                            <li className="flex gap-3 text-[15px] text-[#1C1C1E]">
+                                <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#007AFF]" />
+                                <span><span className="font-semibold">Leaderboard:</span> Click on any class card to enter the leaderboard admin view.</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    {/* Student Assistant Section */}
+                    {user?.role !== 'STUDENT' && (
+                        <div className="rounded-2xl bg-[#F2F2F7]/50 p-6 ring-1 ring-black/5">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#34C759]/10 text-[#34C759]">
+                                    <Shield className="h-5 w-5" />
+                                </div>
+                                <div>
+                                    <h4 className="text-[17px] font-semibold text-[#1C1C1E]">Student Assistant</h4>
+                                    <p className="text-[13px] text-[#8E8E93]">Restricted access to assist in grading.</p>
+                                </div>
+                            </div>
+                            <ul className="space-y-3">
+                                <li className="flex gap-3 text-[15px] text-[#1C1C1E]">
+                                    <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#34C759]" />
+                                    <span><span className="font-semibold">View Access:</span> You can view all classes assigned to you.</span>
+                                </li>
+                                <li className="flex gap-3 text-[15px] text-[#1C1C1E]">
+                                    <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#34C759]" />
+                                    <span><span className="font-semibold">Grading:</span> Click on a class to enter the leaderboard and award/deduct points for students.</span>
+                                </li>
+                                <li className="flex gap-3 text-[15px] text-[#1C1C1E]">
+                                    <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#34C759]" />
+                                    <span><span className="font-semibold">No Deletion:</span> Assistants cannot delete classes or change critical settings.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    )}
+                </div>
+            </div>
           </div>
         </div>
       )}
