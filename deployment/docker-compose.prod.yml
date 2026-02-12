@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  backend:
+    image: satriaadi9/leaderboard-app-backend:latest
+    container_name: leaderboard_backend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/leaderboard?schema=public
+      - REDIS_URL=redis://redis:6379
+      - PORT=3000
+      - NODE_ENV=production
+      - JWT_SECRET=supersecretprodkey_change_me_in_prod
+      - SUPERADMIN_EMAIL=isb@ciputra.ac.id
+      - SUPERADMIN_PASSWORD=admin123
+      # Add other env vars here or use env_file
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - app_network
+
+  frontend:
+    image: satriaadi9/leaderboard-app-frontend:latest
+    container_name: leaderboard_frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - app_network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: leaderboard_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: leaderboard
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: leaderboard_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  postgres_data:

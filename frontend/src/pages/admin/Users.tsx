@@ -11,8 +11,7 @@ import {
     Shield, 
     ShieldAlert, 
     ArrowLeft,
-    X,
-    Save
+    X
 } from 'lucide-react';
 
 interface AdminUser { // Renamed to avoid authorized user conflict

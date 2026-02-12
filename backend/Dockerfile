@@ -16,4 +16,6 @@ RUN npm run build
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+# Run migrations before starting the app
+CMD ["sh", "-c", "npx prisma migrate deploy && npm start"]
+
