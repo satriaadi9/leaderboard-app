@@ -36,45 +36,61 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md space-y-8 rounded-lg bg-white p-6 shadow-md">
-        <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900">
-          Sign in
-        </h2>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Email</label>
-              <input
-                {...register('email')}
-                type="email"
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-              />
-              {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
+    <div className="flex min-h-screen flex-col items-center justify-center bg-[#F2F2F7] px-4">
+      <div className="w-full max-w-[400px]">
+        <div className="mb-8 text-center">
+            <h1 className="text-2xl font-bold tracking-tight text-[#1C1C1E]">Sign In</h1>
+            <p className="mt-2 text-[15px] text-[#8E8E93]">Use your Account to access the dashboard.</p>
+        </div>
+        
+        <div className="rounded-2xl bg-white p-8 shadow-[0_2px_8px_rgba(0,0,0,0.04)] ring-1 ring-black/5">
+            <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
+            <div className="space-y-4">
+                <div>
+                    <input
+                        {...register('email')}
+                        type="email"
+                        placeholder="Email"
+                        className="w-full rounded-lg border-0 bg-[#F2F2F7] px-4 py-3 text-[17px] text-[#1C1C1E] placeholder:text-[#8E8E93] focus:ring-2 focus:ring-[#007AFF] transition-all"
+                    />
+                    {errors.email && <p className="mt-1 ml-1 text-[13px] text-[#FF3B30]">{errors.email.message}</p>}
+                </div>
+                <div>
+                    <input
+                        {...register('password')}
+                        type="password"
+                        placeholder="Password"
+                        className="w-full rounded-lg border-0 bg-[#F2F2F7] px-4 py-3 text-[17px] text-[#1C1C1E] placeholder:text-[#8E8E93] focus:ring-2 focus:ring-[#007AFF] transition-all"
+                    />
+                    {errors.password && <p className="mt-1 ml-1 text-[13px] text-[#FF3B30]">{errors.password.message}</p>}
+                </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Password</label>
-              <input
-                {...register('password')}
-                type="password"
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-              />
-              {errors.password && <p className="text-sm text-red-600">{errors.password.message}</p>}
+            
+            {errors.root && (
+                <div className="rounded-lg bg-[#FF3B30]/10 p-3 text-center text-[13px] font-medium text-[#FF3B30]">
+                    {errors.root.message}
+                </div>
+            )}
+
+            <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full rounded-lg bg-[#007AFF] py-3 text-[17px] font-semibold text-white shadow-sm transition-all hover:bg-[#0062CC] active:scale-95 disabled:opacity-50"
+            >
+                {isSubmitting ? 'Signing in...' : 'Sign In'}
+            </button>
+            </form>
+            
+            <div className="mt-8 border-t border-[#E5E5EA] pt-6 text-center">
+                <p className="text-[13px] text-[#8E8E93]">Don't have an account?</p>
+                <Link to="/register" className="mt-1 block text-[15px] font-medium text-[#007AFF] hover:underline">
+                    Create your account
+                </Link>
             </div>
-          </div>
-          {errors.root && <p className="text-sm text-red-600">{errors.root.message}</p>}
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="group relative flex w-full justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50"
-          >
-            {isSubmitting ? 'Signing in...' : 'Sign in'}
-          </button>
-        </form>
-        <div className="text-center text-sm">
-          <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
-            Don't have an account? Register
-          </Link>
+        </div>
+        
+        <div className="mt-8 text-center text-[11px] text-[#8E8E93]">
+            &copy; {new Date().getFullYear()} UC Leaderboard. All rights reserved.
         </div>
       </div>
     </div>

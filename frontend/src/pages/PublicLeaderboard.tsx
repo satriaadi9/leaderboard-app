@@ -51,193 +51,208 @@ const PublicLeaderboard: React.FC = () => {
   });
 
   if (isLoading) return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-          <div className="text-xl font-semibold text-gray-600">Loading Leaderboard...</div>
+      <div className="flex min-h-screen items-center justify-center bg-[#F2F2F7]">
+          <div className="flex flex-col items-center">
+             <div className="h-8 w-8 rounded-full border-2 border-[#007AFF] border-t-transparent animate-spin mb-4" />
+             <p className="text-[#8E8E93] font-medium">Loading Leaderboard...</p>
+          </div>
       </div>
   );
 
   if (error) return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-          <div className="text-center">
-             <div className="text-xl font-bold text-red-600 mb-2">Access Denied</div>
-             <p className="text-gray-600">This leaderboard is private or does not exist.</p>
+      <div className="flex min-h-screen items-center justify-center bg-[#F2F2F7]">
+          <div className="rounded-2xl bg-white p-8 text-center shadow-[0_2px_8px_rgba(0,0,0,0.04)] ring-1 ring-black/5">
+             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#FF3B30]/10 text-[#FF3B30]">
+                 <X className="h-6 w-6" />
+             </div>
+             <h3 className="text-lg font-bold text-[#1C1C1E]">Access Denied</h3>
+             <p className="mt-2 text-[15px] text-[#8E8E93]">This leaderboard is private or does not exist.</p>
           </div>
       </div>
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans">
+    <div className="min-h-screen bg-[#F2F2F7] font-sans pb-20">
       {/* Hero Section */}
-      <div className="bg-indigo-600 pb-24 pt-12 text-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl font-extrabold tracking-tight">{data.class.name}</h1>
-          <p className="mt-2 text-lg text-indigo-100 max-w-3xl">{data.class.description || 'Welcome to the class leaderboard!'}</p>
-          <div className="mt-4 flex flex-wrap gap-4 text-sm text-indigo-200">
-             <div className="flex items-center gap-1">
-                 <span className="font-semibold text-white">Teacher:</span> {data.class.owner}
-             </div>
-             {data.class.assistants?.length > 0 && (
-                 <div className="flex items-center gap-1">
-                    <span className="font-semibold text-white">Assistants:</span> {data.class.assistants.join(', ')}
+      <div className="bg-[#1C1C1E] pb-32 pt-16 text-white relative overflow-hidden">
+        {/* Abstract shapes / gradients could go here for "Apple" style wallpapers, keeping it cleaner for now */}
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="flex flex-col items-center text-center">
+            <h1 className="text-[40px] font-bold tracking-tight sm:text-5xl">{data.class.name}</h1>
+            <p className="mt-4 text-[19px] text-[#8E8E93] max-w-2xl text-center leading-relaxed">{data.class.description || 'Welcome to the class leaderboard!'}</p>
+            
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
+                 <div className="rounded-full bg-white/10 px-4 py-1.5 text-[13px] font-medium backdrop-blur-md">
+                     <span className="opacity-60">Teacher:</span> {data.class.owner}
                  </div>
-             )}
+                 {data.class.assistants?.length > 0 && (
+                     <div className="rounded-full bg-white/10 px-4 py-1.5 text-[13px] font-medium backdrop-blur-md">
+                        <span className="opacity-60">Assistants:</span> {data.class.assistants.join(', ')}
+                     </div>
+                 )}
+            </div>
           </div>
         </div>
       </div>
 
-      <main className="mx-auto -mt-16 max-w-7xl px-4 sm:px-6 lg:px-8">
+      <main className="mx-auto -mt-24 max-w-5xl px-4 sm:px-6 lg:px-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-          <div className="overflow-hidden rounded-lg bg-white shadow-lg transition-transform hover:-translate-y-1">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-md bg-indigo-500 text-white">
-                    <Trophy className="h-6 w-6" />
-                  </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="overflow-hidden rounded-2xl bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-black/5 backdrop-blur-xl">
+            <div className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-orange-100 text-orange-500">
+                  <Trophy className="h-6 w-6" />
                 </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="truncate text-sm font-medium text-gray-500">Total Points</dt>
-                    <dd className="text-2xl font-bold text-gray-900">{data.stats.totalPoints.toLocaleString()}</dd>
-                  </dl>
+                <div>
+                  <p className="text-[13px] font-bold uppercase tracking-wider text-[#8E8E93]">Total Points</p>
+                  <p className="text-3xl font-bold tracking-tight text-[#1C1C1E]">{data.stats.totalPoints.toLocaleString()}</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-lg bg-white shadow-lg transition-transform hover:-translate-y-1">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-md bg-pink-500 text-white">
-                    <Users className="h-6 w-6" />
-                  </div>
+          <div className="overflow-hidden rounded-2xl bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-black/5 backdrop-blur-xl">
+            <div className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-pink-100 text-pink-500">
+                  <Users className="h-6 w-6" />
                 </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="truncate text-sm font-medium text-gray-500">Students</dt>
-                    <dd className="text-2xl font-bold text-gray-900">{data.stats.studentCount}</dd>
-                  </dl>
+                 <div>
+                  <p className="text-[13px] font-bold uppercase tracking-wider text-[#8E8E93]">Students</p>
+                  <p className="text-3xl font-bold tracking-tight text-[#1C1C1E]">{data.stats.studentCount}</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-lg bg-white shadow-lg transition-transform hover:-translate-y-1">
-             <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-md bg-green-500 text-white">
-                    <TrendingUp className="h-6 w-6" />
-                  </div>
+          <div className="overflow-hidden rounded-2xl bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-black/5 backdrop-blur-xl">
+             <div className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-green-100 text-green-500">
+                  <TrendingUp className="h-6 w-6" />
                 </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="truncate text-sm font-medium text-gray-500">Average</dt>
-                    <dd className="text-2xl font-bold text-gray-900">{data.stats.averagePoints}</dd>
-                  </dl>
+                 <div>
+                  <p className="text-[13px] font-bold uppercase tracking-wider text-[#8E8E93]">Average</p>
+                  <p className="text-3xl font-bold tracking-tight text-[#1C1C1E]">{data.stats.averagePoints}</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Leaderboard Table */}
-        <div className="mt-8 overflow-hidden rounded-lg bg-white shadow-lg">
-          <div className="px-6 py-5 border-b border-gray-200 bg-gray-50">
-            <h3 className="text-lg font-medium leading-6 text-gray-900">Leaderboard</h3>
+        {/* Leaderboard Table / List */}
+        <div className="mt-8 overflow-hidden rounded-[24px] bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-black/5">
+          <div className="border-b border-[#E5E5EA] bg-white/50 px-6 py-4 backdrop-blur-md sticky top-0 z-10">
+            <h3 className="text-[17px] font-semibold text-[#1C1C1E]">Leaderboard</h3>
           </div>
-          <ul role="list" className="divide-y divide-gray-200">
+          <ul role="list" className="divide-y divide-[#E5E5EA]">
             {data.leaderboard.map((entry: any, index: number) => (
               <li 
                 key={entry.student.id} 
-                className={`relative transition hover:bg-gray-50 cursor-pointer ${index < 3 ? 'bg-yellow-50/30' : ''}`}
+                className={`relative transition-all duration-200 hover:bg-[#F2F2F7] cursor-pointer group ${index < 3 ? 'bg-gradient-to-r from-[#F2F2F7]/50 to-transparent' : ''}`}
                 onClick={() => setSelectedStudent(entry.student)}
               >
-                <div className="px-6 py-4 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                                                <div className={`flex h-8 w-8 items-center justify-center rounded-full font-bold ${
-                            index < 3 ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-500'
+                <div className="px-6 py-5 flex items-center justify-between">
+                    <div className="flex items-center gap-5">
+                        <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-[17px] font-bold shadow-sm ring-1 ring-inset ${
+                            index === 0 ? 'bg-yellow-100 text-yellow-700 ring-yellow-200' :
+                            index === 1 ? 'bg-gray-100 text-gray-700 ring-gray-200' :
+                            index === 2 ? 'bg-orange-100 text-orange-800 ring-orange-200' :
+                            'bg-white text-[#8E8E93] ring-[#E5E5EA]'
                         }`}>
                             {entry.total === 0 && !entry.hasNegativeHistory ? '-' : index + 1}
                         </div>
                         <div>
                             <div className="flex items-center gap-2">
-                                <p className="font-semibold text-gray-900">{entry.student.name}</p>
-                                {entry.badges?.includes('TOP_1') && <span title="Top #1" className="text-xl">🥇</span>}
-                                {entry.badges?.includes('MOST_IMPROVED') && <span title="Most Improved This Week" className="text-xl">🔥</span>}
-                                {entry.badges?.includes('BIGGEST_CLIMBER') && <span title="Biggest Rank Climber" className="text-xl">📈</span>}
+                                <p className="text-[17px] font-semibold text-[#1C1C1E] group-hover:text-[#007AFF] transition-colors">{entry.student.name}</p>
+                                <div className="flex gap-1">
+                                    {entry.badges?.includes('TOP_1') && <span title="Top #1" className="flex h-5 items-center justify-center rounded px-1.5 bg-yellow-100 text-[10px] font-bold uppercase tracking-wider text-yellow-800">#1</span>}
+                                    {entry.badges?.includes('MOST_IMPROVED') && <span title="Most Improved This Week" className="flex h-5 items-center justify-center rounded px-1.5 bg-orange-100 text-[10px] font-bold uppercase tracking-wider text-orange-800">HOT</span>}
+                                    {entry.badges?.includes('BIGGEST_CLIMBER') && <span title="Biggest Rank Climber" className="flex h-5 items-center justify-center rounded px-1.5 bg-green-100 text-[10px] font-bold uppercase tracking-wider text-green-800">UP</span>}
+                                </div>
                             </div>
-                            <p className="text-sm text-gray-500">{entry.student.nim}</p>
+                            <p className="text-[13px] text-[#8E8E93]">{entry.student.nim}</p>
                         </div>
                     </div>
                     <div className="text-right">
-                        <span className={`text-xl font-bold ${entry.total < 0 ? 'text-red-600' : 'text-indigo-600'}`}>
+                        <span className={`text-[22px] font-bold tabular-nums tracking-tight ${entry.total < 0 ? 'text-[#FF3B30]' : 'text-[#007AFF]'}`}>
                             {entry.total}
                         </span>
-                        <span className="text-xs text-gray-400 block">pts</span>
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] block mt-[-2px]">pts</span>
                     </div>
                 </div>
               </li>
             ))}
+            {data.leaderboard.length === 0 && (
+                <li className="px-6 py-12 text-center text-[#8E8E93]">
+                    No students ranked yet.
+                </li>
+            )}
           </ul>
         </div>
       </main>
 
        {/* Student History Modal */}
        {selectedStudent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onClick={() => setSelectedStudent(null)}>
-          <div className="w-full max-w-lg overflow-hidden rounded-xl bg-white shadow-2xl transition-all" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between bg-indigo-600 p-6 text-white">
-                <h3 className="text-xl font-bold">{selectedStudent.name}</h3>
-                <button onClick={() => setSelectedStudent(null)} className="rounded-full bg-indigo-500 p-1 hover:bg-indigo-400">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-sm animate-in fade-in" onClick={() => setSelectedStudent(null)}></div>
+          <div className="relative w-full max-w-lg overflow-hidden rounded-[20px] bg-white shadow-2xl animate-in zoom-in-95 transition-all">
+            <div className="flex items-center justify-between border-b border-[#E5E5EA] bg-[#F2F2F7]/80 px-4 py-3 backdrop-blur-md">
+                <div className="flex items-center gap-3">
+                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-[13px] font-bold text-[#1C1C1E] shadow-sm">
+                        {selectedStudent.name.charAt(0)}
+                     </div>
+                     <h3 className="text-[17px] font-semibold text-[#1C1C1E]">{selectedStudent.name}</h3>
+                </div>
+                <button onClick={() => setSelectedStudent(null)} className="rounded-full bg-[#E5E5EA] p-1 text-[#8E8E93] hover:bg-[#D1D1D6] transition-colors">
                     <X className="h-5 w-5" />
                 </button>
             </div>
             
-            <div className="p-6">
-                <h4 className="flex items-center gap-2 mb-4 text-sm font-semibold text-gray-500 uppercase tracking-wider">
-                    <History className="h-4 w-4"/> Point History
-                </h4>
+            <div className="p-0">
+                <div className="bg-[#FAFAFA] px-6 py-3 border-b border-[#E5E5EA]">
+                    <h4 className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-[#8E8E93]">
+                        <History className="h-3 w-3"/> Activity History
+                    </h4>
+                </div>
                 
                 {historyLoading ? (
-                    <div className="py-8 text-center text-gray-500">Loading history...</div>
+                    <div className="py-12 flex justify-center">
+                        <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#007AFF] border-t-transparent"></div>
+                    </div>
                 ) : history?.length === 0 ? (
-                    <div className="py-8 text-center text-gray-500">No point history found.</div>
+                    <div className="py-12 text-center text-[15px] text-[#8E8E93]">No point history found.</div>
                 ) : (
-                    <div className="max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-200">
-                        <div className="relative border-l-2 border-gray-200 ml-3 space-y-6 pb-2">
+                    <div className="max-h-[50vh] overflow-y-auto">
+                         <div className="divide-y divide-[#E5E5EA]">
                              {history.map((item: any) => (
-                                <div key={item.id} className="relative pl-8">
-                                    <div className={`absolute -left-[9px] top-1 h-4 w-4 rounded-full border-2 border-white ${item.delta > 0 ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                                    <div className="flex items-start justify-between">
+                                <div key={item.id} className="flex items-center justify-between px-6 py-4 hover:bg-[#F2F2F7]/50 transition-colors">
+                                    <div className="flex items-start gap-3">
+                                        <div className={`mt-0.5 h-2 w-2 rounded-full ${item.delta > 0 ? 'bg-[#34C759]' : 'bg-[#FF3B30]'}`}></div>
                                         <div>
-                                            <p className="font-medium text-gray-900">{item.reason}</p>
-                                            <div className="flex items-center gap-2 text-xs text-gray-500">
-                                                <span>{new Date(item.createdAt).toLocaleString()}</span>
+                                            <p className="text-[15px] font-medium text-[#1C1C1E]">{item.reason}</p>
+                                            <div className="flex items-center gap-1.5 text-[12px] text-[#8E8E93]">
+                                                <span>{new Date(item.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                                                 {item.createdBy && (
                                                     <>
                                                         <span>•</span>
-                                                        <span className="font-medium text-gray-700" title={item.createdBy.role}>
-                                                            By {item.createdBy.name}
+                                                        <span className="font-medium text-[#1C1C1E]">
+                                                            {item.createdBy.name}
                                                         </span>
                                                     </>
                                                 )}
                                             </div>
                                         </div>
-                                        <span className={`text-sm font-bold ${item.delta > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                            {item.delta > 0 ? '+' : ''}{item.delta}
-                                        </span>
                                     </div>
+                                    <span className={`text-[15px] font-bold tabular-nums ${item.delta > 0 ? 'text-[#34C759]' : 'text-[#FF3B30]'}`}>
+                                        {item.delta > 0 ? '+' : ''}{item.delta}
+                                    </span>
                                 </div>
                              ))}
                         </div>
                     </div>
                 )}
-            </div>
-             <div className="bg-gray-50 p-4 text-right">
-                <button onClick={() => setSelectedStudent(null)} className="text-sm font-medium text-gray-600 hover:text-gray-900">Close</button>
             </div>
           </div>
         </div>

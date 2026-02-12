@@ -62,82 +62,85 @@ const Profile: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4 sm:p-6 lg:p-8">
-      <div className="mx-auto max-w-2xl">
-        <div className="mb-6 flex items-center gap-4">
-          <Link to="/" className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
-            <ArrowLeft className="h-4 w-4" /> Back to Dashboard
+    <div className="flex min-h-screen justify-center bg-[#F2F2F7] p-4 sm:p-6 lg:p-8">
+      <div className="w-full max-w-2xl">
+        <header className="mb-8 flex items-center gap-4">
+          <Link 
+            to="/dashboard" 
+            className="group flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#8E8E93] shadow-sm ring-1 ring-black/5 transition-all hover:bg-[#E5E5EA] hover:text-[#1C1C1E] active:scale-95"
+          >
+            <ArrowLeft className="h-5 w-5 transition-transform group-hover:-translate-x-0.5" />
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">Edit Profile</h1>
-        </div>
+          <h1 className="text-3xl font-bold tracking-tight text-[#1C1C1E]">Edit Profile</h1>
+        </header>
 
-        <div className="overflow-hidden rounded-lg bg-white shadow">
-          <div className="p-6 sm:p-8">
+        <div className="overflow-hidden rounded-[20px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] ring-1 ring-black/5">
+          <div className="p-8">
             {message && (
-              <div className={`mb-6 flex items-center gap-2 rounded-md p-4 text-sm ${
-                message.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+              <div className={`mb-8 flex items-center gap-3 rounded-2xl p-4 text-[15px] font-medium ${
+                message.type === 'success' ? 'bg-[#34C759]/10 text-[#34C759]' : 'bg-[#FF3B30]/10 text-[#FF3B30]'
               }`}>
-                <AlertCircle className="h-4 w-4" />
+                <AlertCircle className="h-5 w-5" />
                 {message.text}
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Email (Cannot be changed)</label>
-                <input
-                  type="email"
-                  value={user?.email || ''}
-                  disabled
-                  className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-gray-500 shadow-sm sm:text-sm"
-                />
+            <form onSubmit={handleSubmit} className="space-y-8">
+              <div className="space-y-5">
+                <div>
+                    <label className="mb-1.5 block text-[13px] font-bold uppercase tracking-wider text-[#8E8E93]">Email Address</label>
+                    <input
+                    type="email"
+                    value={user?.email || ''}
+                    disabled
+                    className="w-full rounded-xl border-0 bg-[#F2F2F7] px-4 py-3.5 text-[17px] text-[#8E8E93] cursor-not-allowed opacity-75"
+                    />
+                    <p className="mt-2 text-[13px] text-[#8E8E93]">Email address cannot be changed.</p>
+                </div>
+
+                <div>
+                    <label className="mb-1.5 block text-[13px] font-bold uppercase tracking-wider text-[#8E8E93]">Full Name</label>
+                    <input
+                        type="text"
+                        required
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className="w-full rounded-xl border-0 bg-[#F2F2F7] px-4 py-3.5 text-[17px] text-[#1C1C1E] placeholder:text-[#C7C7CC] focus:ring-2 focus:ring-[#007AFF] transition-all"
+                    />
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Name</label>
-                <input
-                  type="text"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                />
-              </div>
-
-              <div className="border-t border-gray-200 pt-6">
-                <h3 className="mb-4 text-lg font-medium text-gray-900">Change Password</h3>
-                
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Old Password</label>
-                    <input
-                      type="password"
-                      value={oldPassword}
-                      onChange={(e) => setOldPassword(e.target.value)}
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                      placeholder="Required only if changing password"
+              <div className="rounded-2xl bg-[#F2F2F7]/50 p-6 space-y-5 ring-1 ring-black/5">
+                <h3 className="text-[17px] font-semibold text-[#1C1C1E]">Change Password</h3>
+                <div>
+                   <label className="mb-1.5 block text-[13px] font-bold uppercase tracking-wider text-[#8E8E93]">Current Password</label>
+                   <input
+                        type="password"
+                        value={oldPassword}
+                        onChange={(e) => setOldPassword(e.target.value)}
+                        placeholder="Required to set new password"
+                        className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-[17px] text-[#1C1C1E] placeholder:text-[#C7C7CC] shadow-sm focus:ring-2 focus:ring-[#007AFF] transition-all"
                     />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">New Password</label>
-                    <input
-                      type="password"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Confirm New Password</label>
-                    <input
-                      type="password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                    />
-                  </div>
+                </div>
+                <div className="grid gap-5 sm:grid-cols-2">
+                    <div>
+                        <label className="mb-1.5 block text-[13px] font-bold uppercase tracking-wider text-[#8E8E93]">New Password</label>
+                        <input
+                            type="password"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-[17px] text-[#1C1C1E] placeholder:text-[#C7C7CC] shadow-sm focus:ring-2 focus:ring-[#007AFF] transition-all"
+                        />
+                    </div>
+                    <div>
+                        <label className="mb-1.5 block text-[13px] font-bold uppercase tracking-wider text-[#8E8E93]">Confirm Password</label>
+                        <input
+                            type="password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-[17px] text-[#1C1C1E] placeholder:text-[#C7C7CC] shadow-sm focus:ring-2 focus:ring-[#007AFF] transition-all"
+                        />
+                    </div>
                 </div>
               </div>
 
@@ -145,10 +148,18 @@ const Profile: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 disabled:opacity-50"
+                  className="inline-flex h-[50px] items-center justify-center rounded-xl bg-[#007AFF] px-8 text-[17px] font-semibold text-white shadow-sm transition-all hover:bg-[#0062CC] active:scale-95 disabled:opacity-50"
                 >
-                  <Save className="h-4 w-4" />
-                  {isLoading ? 'Saving...' : 'Save Changes'}
+                  {isLoading ? (
+                      <>
+                        <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                        Saving...
+                      </>
+                  ) : (
+                      <>
+                        <Save className="mr-2 h-5 w-5" /> Save Changes
+                      </>
+                  )}
                 </button>
               </div>
             </form>
