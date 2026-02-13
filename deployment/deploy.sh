@@ -37,7 +37,7 @@ docker push $DOCKER_USER/leaderboard-app-backend:latest
 # 2. Build and Push Frontend
 echo -e "${GREEN}📦 Building Frontend Image...${NC}"
 # Pass API_URL as build argument
-docker build --platform linux/amd64 \
+docker build --no-cache --platform linux/amd64 \
     --build-arg VITE_API_URL=$API_URL \
     -f frontend/Dockerfile.prod \
     -t $DOCKER_USER/leaderboard-app-frontend:latest ./frontend
@@ -67,7 +67,7 @@ ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP << EOF
     docker compose run --rm backend npx prisma generate
 
     echo "🔄 Restarting services..."
-    docker compose up -d --remove-orphans
+    docker compose up -d --remove-orphans --force-recreate
     
     echo "🧹 Cleaning up..."
     docker image prune -f

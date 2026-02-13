@@ -32,6 +32,7 @@ Initialize the database schema:
 docker compose -f docker-compose.dev.yml exec backend npx prisma migrate dev --name init
 ```
 
+// ...existing code...
 ### 3. Common Dev Commands
 
 **Stop all services:**
@@ -48,6 +49,21 @@ docker compose -f docker-compose.dev.yml restart backend
 ```bash
 docker compose -f docker-compose.dev.yml logs -f
 ```
+
+### 4. Troubleshooting Dev Environment
+
+**Fix missing dependencies:**
+If you see module not found errors after pulling changes:
+```bash
+docker compose -f docker-compose.dev.yml exec frontend npm install
+# or
+docker compose -f docker-compose.dev.yml up --build --force-recreate
+```
+
+---
+
+## 🚀 Production Deployment
+// ...existing code...
 
 ---
 
@@ -89,6 +105,7 @@ Use the helper script to build images locally, push to Docker Hub, and update th
 4. SSHs into the server, pulls new images, and restarts containers.
 5. Generates the Prisma Client on the server to ensure schema sync.
 
+// ...existing code...
 #### Option B: Manual Deployment (Git Clone)
 If you prefer to manage the server manually or lack local Docker setup.
 
@@ -102,6 +119,31 @@ If you prefer to manage the server manually or lack local Docker setup.
     git clone https://github.com/satriaadi9/leaderboard-app.git
     cd leaderboard-app
     ```
+
+3.  **Update and deploy:**
+    ```bash
+    git pull
+    docker compose -f deployment/docker-compose.prod.yml up -d --build --force-recreate
+    ```
+    *Note: The `--force-recreate` flag is important to ensure frontend containers pick up the latest build artifacts.*
+
+### 3. Troubleshooting Production
+
+**Caching Issues:**
+If users see old versions of the site after deployment:
+1. Ensure the `frontend/nginx.conf` has been updated with `Cache-Control: no-store` headers.
+2. Force a full rebuild on the server:
+   ```bash
+   docker compose -f deployment/docker-compose.prod.yml down --rmi all
+   docker compose -f deployment/docker-compose.prod.yml up -d --build --force-recreate
+   ```
+
+**Prisma/Foreign Key Constraints:**
+If you make schema changes, ensure you run migrations:
+```bash
+docker compose -f deployment/docker-compose.prod.yml exec backend npx prisma migrate deploy
+```
+
 
 3.  **Pull latest changes (updates):**
     ```bash

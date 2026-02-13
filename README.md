@@ -20,8 +20,19 @@ A real-time leaderboard application for managing student points in classes. Buil
 - **Dashboard**: Centralized view of all classes.
 - **Settings**:
   - Toggle **Public Access** (allow/deny viewing without login).
-  - Set **Custom Public Slug** for easy sharing (e.g., `leaderboard.com/p/my-class`).
+// ...existing code...
+  - **Custom Public Slug** for easy sharing (e.g., `leaderboard.com/p/my-class`).
   - Manage **Student Assistants** list.
+- **Visualization**:
+  - **Score Distribution**: Interactive histogram showing student performance spread.
+  - **Dark Mode**: Fully supported dark/light theme toggle.
+
+### Points System & Leaderboard
+// ...existing code...
+- **Real-time Leaderboard**: Instant updates using WebSocket/SSE (Server-Sent Events).
+- **Easy Sharing**: One-click link copying (supports generic copy on HTTP/HTTPS).
+- **Point Adjustment**:
+// ...existing code...
 
 ### Points System & Leaderboard
 - **Real-time Leaderboard**: Instant updates using WebSocket/SSE (Server-Sent Events).

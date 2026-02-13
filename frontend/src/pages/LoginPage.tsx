@@ -36,14 +36,14 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[#F2F2F7] px-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-[#F2F2F7] dark:bg-black px-4 transition-colors">
       <div className="w-full max-w-[400px]">
         <div className="mb-8 text-center">
-            <h1 className="text-2xl font-bold tracking-tight text-[#1C1C1E]">Sign In</h1>
-            <p className="mt-2 text-[15px] text-[#8E8E93]">Use your Account to access the dashboard.</p>
+            <h1 className="text-2xl font-bold tracking-tight text-[#1C1C1E] dark:text-white">Sign In</h1>
+            <p className="mt-2 text-[15px] text-[#8E8E93] dark:text-gray-400">Use your Account to access the dashboard.</p>
         </div>
         
-        <div className="rounded-2xl bg-white p-8 shadow-[0_2px_8px_rgba(0,0,0,0.04)] ring-1 ring-black/5">
+        <div className="rounded-2xl bg-white dark:bg-[#1c1c1e] p-8 shadow-[0_2px_8px_rgba(0,0,0,0.04)] ring-1 ring-black/5 dark:ring-white/10 transition-colors">
             <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
             <div className="space-y-4">
                 <div>
@@ -51,7 +51,7 @@ const LoginPage: React.FC = () => {
                         {...register('email')}
                         type="email"
                         placeholder="Email"
-                        className="w-full rounded-lg border-0 bg-[#F2F2F7] px-4 py-3 text-[17px] text-[#1C1C1E] placeholder:text-[#8E8E93] focus:ring-2 focus:ring-[#007AFF] transition-all"
+                        className="w-full rounded-lg border-0 bg-[#F2F2F7] dark:bg-[#2c2c2e] px-4 py-3 text-[17px] text-[#1C1C1E] dark:text-white placeholder:text-[#8E8E93] dark:placeholder:text-gray-500 focus:ring-2 focus:ring-[#007AFF] transition-all"
                     />
                     {errors.email && <p className="mt-1 ml-1 text-[13px] text-[#FF3B30]">{errors.email.message}</p>}
                 </div>
@@ -60,7 +60,7 @@ const LoginPage: React.FC = () => {
                         {...register('password')}
                         type="password"
                         placeholder="Password"
-                        className="w-full rounded-lg border-0 bg-[#F2F2F7] px-4 py-3 text-[17px] text-[#1C1C1E] placeholder:text-[#8E8E93] focus:ring-2 focus:ring-[#007AFF] transition-all"
+                        className="w-full rounded-lg border-0 bg-[#F2F2F7] dark:bg-[#2c2c2e] px-4 py-3 text-[17px] text-[#1C1C1E] dark:text-white placeholder:text-[#8E8E93] dark:placeholder:text-gray-500 focus:ring-2 focus:ring-[#007AFF] transition-all"
                     />
                     {errors.password && <p className="mt-1 ml-1 text-[13px] text-[#FF3B30]">{errors.password.message}</p>}
                 </div>
@@ -81,15 +81,15 @@ const LoginPage: React.FC = () => {
             </button>
             </form>
             
-            <div className="mt-8 border-t border-[#E5E5EA] pt-6 text-center">
-                <p className="text-[13px] text-[#8E8E93]">Don't have an account?</p>
+            <div className="mt-8 border-t border-[#E5E5EA] dark:border-[#3a3a3c] pt-6 text-center">
+                <p className="text-[13px] text-[#8E8E93] dark:text-gray-400">Don't have an account?</p>
                 <Link to="/register" className="mt-1 block text-[15px] font-medium text-[#007AFF] hover:underline">
                     Create your account
                 </Link>
             </div>
         </div>
         
-        <div className="mt-8 text-center text-[11px] text-[#8E8E93]">
+        <div className="mt-8 text-center text-[11px] text-[#8E8E93] dark:text-gray-500">
             &copy; {new Date().getFullYear()} UC Leaderboard. All rights reserved.
         </div>
       </div>

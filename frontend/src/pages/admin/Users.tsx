@@ -140,18 +140,18 @@ const Users: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#F2F2F7] p-4 sm:p-6 lg:p-8">
+        <div className="min-h-screen bg-[#F2F2F7] dark:bg-black p-4 sm:p-6 lg:p-8 transition-colors">
             <div className="mx-auto max-w-7xl">
                 {/* Header */}
                 <div className="mb-8 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <Link 
                             to="/dashboard" 
-                            className="group flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#8E8E93] shadow-sm ring-1 ring-black/5 transition-all hover:bg-[#E5E5EA] hover:text-[#1C1C1E] active:scale-95"
+                            className="group flex h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-[#1c1c1e] text-[#8E8E93] dark:text-gray-400 shadow-sm ring-1 ring-black/5 dark:ring-white/10 transition-all hover:bg-[#E5E5EA] dark:hover:bg-[#2c2c2e] hover:text-[#1C1C1E] dark:hover:text-white active:scale-95"
                         >
                             <ArrowLeft className="h-5 w-5 transition-transform group-hover:-translate-x-0.5" />
                         </Link>
-                        <h1 className="text-3xl font-bold tracking-tight text-[#1C1C1E] flex items-center gap-2">
+                        <h1 className="text-3xl font-bold tracking-tight text-[#1C1C1E] dark:text-white flex items-center gap-2">
                              <UsersIcon className="h-7 w-7" /> User Management
                         </h1>
                     </div>
@@ -164,45 +164,45 @@ const Users: React.FC = () => {
                 </div>
 
                 {/* Table */}
-                <div className="overflow-hidden rounded-[20px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] ring-1 ring-black/5">
+                <div className="overflow-hidden rounded-[20px] bg-white dark:bg-[#1c1c1e] shadow-[0_2px_8px_rgba(0,0,0,0.04)] ring-1 ring-black/5 dark:ring-white/10 transition-colors">
                     {isLoading ? (
                         <div className="flex flex-col items-center justify-center py-20">
                              <div className="h-8 w-8 rounded-full border-2 border-[#007AFF] border-t-transparent animate-spin mb-4" />
-                             <p className="text-[#8E8E93] font-medium">Loading users...</p>
+                             <p className="text-[#8E8E93] dark:text-gray-400 font-medium">Loading users...</p>
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
                             <table className="min-w-full">
-                                <thead className="bg-[#F2F2F7]/50 border-b border-[#E5E5EA]">
+                                <thead className="bg-[#F2F2F7]/50 dark:bg-[#2c2c2e]/50 border-b border-[#E5E5EA] dark:border-[#3a3a3c] transition-colors">
                                     <tr>
-                                        <th className="px-6 py-4 text-left text-[11px] font-bold uppercase tracking-wider text-[#8E8E93]">User</th>
-                                        <th className="px-6 py-4 text-left text-[11px] font-bold uppercase tracking-wider text-[#8E8E93]">Role</th>
-                                        <th className="px-6 py-4 text-left text-[11px] font-bold uppercase tracking-wider text-[#8E8E93]">Classes</th>
-                                        <th className="px-6 py-4 text-left text-[11px] font-bold uppercase tracking-wider text-[#8E8E93]">Joined</th>
-                                        <th className="px-6 py-4 text-right text-[11px] font-bold uppercase tracking-wider text-[#8E8E93]">Actions</th>
+                                        <th className="px-6 py-4 text-left text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-gray-400">User</th>
+                                        <th className="px-6 py-4 text-left text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-gray-400">Role</th>
+                                        <th className="px-6 py-4 text-left text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-gray-400">Classes</th>
+                                        <th className="px-6 py-4 text-left text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-gray-400">Joined</th>
+                                        <th className="px-6 py-4 text-right text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-gray-400">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-[#E5E5EA] bg-white">
+                                <tbody className="divide-y divide-[#E5E5EA] dark:divide-[#3a3a3c] bg-white dark:bg-[#1c1c1e] transition-colors">
                                     {users?.map(u => (
-                                        <tr key={u.id} className="hover:bg-[#F2F2F7]/50 transition-colors">
+                                        <tr key={u.id} className="hover:bg-[#F2F2F7]/50 dark:hover:bg-[#2c2c2e]/50 transition-colors">
                                             <td className="whitespace-nowrap px-6 py-4">
                                                 <div>
-                                                    <div className="text-[15px] font-semibold text-[#1C1C1E]">{u.name}</div>
-                                                    <div className="text-[13px] text-[#8E8E93]">{u.email}</div>
+                                                    <div className="text-[15px] font-semibold text-[#1C1C1E] dark:text-white">{u.name}</div>
+                                                    <div className="text-[13px] text-[#8E8E93] dark:text-gray-500">{u.email}</div>
                                                 </div>
                                             </td>
                                             <td className="whitespace-nowrap px-6 py-4">
                                                 <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider ${
-                                                    u.role === 'SUPERADMIN' ? 'bg-purple-100 text-purple-700' : 'bg-[#E5E5EA] text-[#8E8E93]'
+                                                    u.role === 'SUPERADMIN' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300' : 'bg-[#E5E5EA] dark:bg-[#2c2c2e] text-[#8E8E93] dark:text-gray-400'
                                                 }`}>
                                                     {u.role === 'SUPERADMIN' ? <ShieldAlert className="h-3 w-3" /> : <Shield className="h-3 w-3" />}
                                                     {u.role}
                                                 </span>
                                             </td>
-                                            <td className="whitespace-nowrap px-6 py-4 text-[15px] text-[#1C1C1E] tabular-nums">
+                                            <td className="whitespace-nowrap px-6 py-4 text-[15px] text-[#1C1C1E] dark:text-white tabular-nums">
                                                 {u._count.createdClasses}
                                             </td>
-                                            <td className="whitespace-nowrap px-6 py-4 text-[13px] text-[#8E8E93] tabular-nums">
+                                            <td className="whitespace-nowrap px-6 py-4 text-[13px] text-[#8E8E93] dark:text-gray-500 tabular-nums">
                                                 {new Date(u.createdAt).toLocaleDateString(undefined, {
                                                     dateStyle: 'medium'
                                                 })}
@@ -238,14 +238,14 @@ const Users: React.FC = () => {
                 {/* Overlay Modals */}
                 {(isCreateOpen || editingUser) && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-                        <div className="w-full max-w-[440px] overflow-hidden rounded-[20px] bg-white shadow-2xl animate-in zoom-in-95 duration-200">
-                            <div className="flex items-center justify-between border-b border-[#E5E5EA] bg-[#F2F2F7]/50 px-6 py-4 backdrop-blur-xl">
-                                <h2 className="text-[17px] font-semibold text-[#1C1C1E]">
+                        <div className="w-full max-w-[440px] overflow-hidden rounded-[20px] bg-white dark:bg-[#1c1c1e] shadow-2xl animate-in zoom-in-95 duration-200 transition-colors">
+                            <div className="flex items-center justify-between border-b border-[#E5E5EA] dark:border-[#3a3a3c] bg-[#F2F2F7]/50 dark:bg-[#2c2c2e]/50 px-6 py-4 backdrop-blur-xl transition-colors">
+                                <h2 className="text-[17px] font-semibold text-[#1C1C1E] dark:text-white">
                                     {editingUser ? 'Edit User' : 'Create New User'}
                                 </h2>
                                 <button 
                                     onClick={() => { setIsCreateOpen(false); setEditingUser(null); }}
-                                    className="flex h-8 w-8 items-center justify-center rounded-full bg-[#E5E5EA] text-[#8E8E93] transition-colors hover:bg-[#D1D1D6] hover:text-[#1C1C1E]"
+                                    className="flex h-8 w-8 items-center justify-center rounded-full bg-[#E5E5EA] dark:bg-[#3a3a3c] text-[#8E8E93] dark:text-gray-400 transition-colors hover:bg-[#D1D1D6] dark:hover:bg-[#48484a] hover:text-[#1C1C1E] dark:hover:text-white"
                                 >
                                     <X className="h-4 w-4" />
                                 </button>
@@ -254,32 +254,32 @@ const Users: React.FC = () => {
                             <form onSubmit={editingUser ? handleUpdate : handleCreate} className="p-6 space-y-5">
                                 <div className="space-y-4">
                                     <div>
-                                        <label className="mb-1.5 block text-[13px] font-medium text-[#8E8E93] uppercase tracking-wide">Full Name</label>
+                                        <label className="mb-1.5 block text-[13px] font-medium text-[#8E8E93] dark:text-gray-400 uppercase tracking-wide">Full Name</label>
                                         <input 
                                             type="text" 
                                             required 
                                             value={formData.name}
                                             onChange={e => setFormData({...formData, name: e.target.value})}
-                                            className="block w-full rounded-xl border-0 bg-[#F2F2F7] px-4 py-3 text-[17px] text-[#1C1C1E] placeholder:text-[#8E8E93] focus:ring-2 focus:ring-[#007AFF]/20 transition-all"
+                                            className="block w-full rounded-xl border-0 bg-[#F2F2F7] dark:bg-[#2c2c2e] px-4 py-3 text-[17px] text-[#1C1C1E] dark:text-white placeholder:text-[#8E8E93] dark:placeholder:text-gray-500 focus:ring-2 focus:ring-[#007AFF]/20 transition-all"
                                             placeholder="John Doe"
                                         />
                                     </div>
                                     
                                     <div>
-                                        <label className="mb-1.5 block text-[13px] font-medium text-[#8E8E93] uppercase tracking-wide">Email Address</label>
+                                        <label className="mb-1.5 block text-[13px] font-medium text-[#8E8E93] dark:text-gray-400 uppercase tracking-wide">Email Address</label>
                                         <input 
                                             type="email" 
                                             required 
                                             value={formData.email}
                                             onChange={e => setFormData({...formData, email: e.target.value})}
-                                            className="block w-full rounded-xl border-0 bg-[#F2F2F7] px-4 py-3 text-[17px] text-[#1C1C1E] placeholder:text-[#8E8E93] focus:ring-2 focus:ring-[#007AFF]/20 transition-all disabled:opacity-50"
+                                            className="block w-full rounded-xl border-0 bg-[#F2F2F7] dark:bg-[#2c2c2e] px-4 py-3 text-[17px] text-[#1C1C1E] dark:text-white placeholder:text-[#8E8E93] dark:placeholder:text-gray-500 focus:ring-2 focus:ring-[#007AFF]/20 transition-all disabled:opacity-50"
                                             disabled={!!editingUser && editingUser.id === currentUser?.id}
                                             placeholder="john@example.com"
                                         />
                                     </div>
 
                                     <div>
-                                        <label className="mb-1.5 block text-[13px] font-medium text-[#8E8E93] uppercase tracking-wide">
+                                        <label className="mb-1.5 block text-[13px] font-medium text-[#8E8E93] dark:text-gray-400 uppercase tracking-wide">
                                             {editingUser ? 'New Password (Optional)' : 'Password'}
                                         </label>
                                         <input 
@@ -288,22 +288,22 @@ const Users: React.FC = () => {
                                             value={formData.password}
                                             onChange={e => setFormData({...formData, password: e.target.value})}
                                             placeholder={editingUser ? "Leave blank to keep unchanged" : "••••••••"}
-                                            className="block w-full rounded-xl border-0 bg-[#F2F2F7] px-4 py-3 text-[17px] text-[#1C1C1E] placeholder:text-[#8E8E93] focus:ring-2 focus:ring-[#007AFF]/20 transition-all"
+                                            className="block w-full rounded-xl border-0 bg-[#F2F2F7] dark:bg-[#2c2c2e] px-4 py-3 text-[17px] text-[#1C1C1E] dark:text-white placeholder:text-[#8E8E93] dark:placeholder:text-gray-500 focus:ring-2 focus:ring-[#007AFF]/20 transition-all"
                                         />
                                     </div>
 
                                     <div>
-                                        <label className="mb-1.5 block text-[13px] font-medium text-[#8E8E93] uppercase tracking-wide">Role</label>
+                                        <label className="mb-1.5 block text-[13px] font-medium text-[#8E8E93] dark:text-gray-400 uppercase tracking-wide">Role</label>
                                         <div className="relative">
                                             <select 
                                                 value={formData.role}
                                                 onChange={e => setFormData({...formData, role: e.target.value as any})}
-                                                className="block w-full appearance-none rounded-xl border-0 bg-[#F2F2F7] px-4 py-3 text-[17px] text-[#1C1C1E] focus:ring-2 focus:ring-[#007AFF]/20 transition-all"
+                                                className="block w-full appearance-none rounded-xl border-0 bg-[#F2F2F7] dark:bg-[#2c2c2e] px-4 py-3 text-[17px] text-[#1C1C1E] dark:text-white focus:ring-2 focus:ring-[#007AFF]/20 transition-all"
                                             >
                                                 <option value="ADMIN">Admin</option>
                                                 <option value="SUPERADMIN">Super Admin</option>
                                             </select>
-                                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-[#8E8E93]">
+                                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-[#8E8E93] dark:text-gray-400">
                                                 <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                                             </div>
                                         </div>
@@ -314,7 +314,7 @@ const Users: React.FC = () => {
                                     <button 
                                         type="button"
                                         onClick={() => { setIsCreateOpen(false); setEditingUser(null); }}
-                                        className="flex-1 rounded-xl bg-[#E5E5EA] py-3 text-[15px] font-semibold text-[#1C1C1E] transition-all hover:bg-[#D1D1D6]"
+                                        className="flex-1 rounded-xl bg-[#E5E5EA] dark:bg-[#3a3a3c] py-3 text-[15px] font-semibold text-[#1C1C1E] dark:text-white transition-all hover:bg-[#D1D1D6] dark:hover:bg-[#48484a]"
                                     >
                                         Cancel
                                     </button>

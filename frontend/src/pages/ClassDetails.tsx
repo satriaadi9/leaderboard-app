@@ -1,9 +1,30 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/axios';
-import { Plus, Minus, UserPlus, ArrowLeft, Trash2, Upload, ArrowUpDown, ArrowUp, ArrowDown, Settings, Code, Copy, Check, Shield, UserX, Lock, Download, HelpCircle, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { copyToClipboard } from '@/lib/utils';
+import { 
+  ArrowLeft, 
+  Plus, 
+  Minus, 
+  UserPlus, 
+  Trash2, 
+  Upload, 
+  ArrowUpDown, 
+  ArrowUp, 
+  ArrowDown, 
+  Settings, 
+  Code, 
+  Copy, 
+  Check, 
+  Shield, 
+  UserX, 
+  Lock, 
+  Download, 
+  HelpCircle, 
+  X, 
+  Link as LinkIcon 
+} from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 type SortConfig = {
@@ -278,11 +299,15 @@ const ClassDetails: React.FC = () => {
       }));
   };
 
-  const copyEmbedCode = () => {
+  const copyEmbedCode = async () => {
     const code = `<iframe src="${window.location.origin}/p/${classDetails?.publicSlug}" width="${embedConfig.width}" height="${embedConfig.height}" style="border:none; border-radius: 8px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);"></iframe>`;
-    navigator.clipboard.writeText(code);
-    setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 2000);
+    const success = await copyToClipboard(code);
+    if (success) {
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } else {
+      alert('Failed to copy to clipboard');
+    }
   };
 
   const sortedLeaderboard = React.useMemo(() => {
@@ -377,7 +402,7 @@ const ClassDetails: React.FC = () => {
   };
 
   if (isLoading) return (
-    <div className="flex min-h-screen items-center justify-center bg-[#F2F2F7]">
+    <div className="flex min-h-screen items-center justify-center bg-[#F2F2F7] dark:bg-black">
       <div className="animate-pulse flex flex-col items-center">
         <div className="h-8 w-8 rounded-full border-2 border-[#007AFF] border-t-transparent animate-spin mb-4" />
         <p className="text-[#8E8E93] font-medium">Loading Class Details...</p>
@@ -386,26 +411,26 @@ const ClassDetails: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#F2F2F7] pb-20 font-sans text-[#1C1C1E]">
+    <div className="min-h-screen bg-[#F2F2F7] dark:bg-black pb-20 font-sans text-[#1C1C1E] dark:text-white">
       {/* Sticky Glass Header */}
-      <header className="sticky top-0 z-30 border-b border-[#000000]/[0.05] bg-white/70 px-4 py-4 backdrop-blur-xl supports-[backdrop-filter]:bg-white/60 sm:px-6 lg:px-8">
+      <header className="sticky top-0 z-30 border-b border-[#000000]/[0.05] dark:border-white/[0.05] bg-white/70 dark:bg-[#1c1c1e]/70 px-4 py-4 backdrop-blur-xl supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-[#1c1c1e]/60 sm:px-6 lg:px-8">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
              <Link 
                 to="/dashboard" 
-                className="group flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-900"
+                className="group flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-[#2c2c2e] text-gray-500 dark:text-gray-400 transition-colors hover:bg-gray-200 dark:hover:bg-[#3a3a3c] hover:text-gray-900 dark:hover:text-white"
             >
                 <ArrowLeft className="h-5 w-5 transition-transform group-hover:-translate-x-0.5" />
             </Link>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-[#1C1C1E]">{classDetails?.name || 'Class Details'}</h1>
-              <div className="flex items-center gap-2 text-[13px] text-[#8E8E93]">
+              <h1 className="text-2xl font-bold tracking-tight text-[#1C1C1E] dark:text-white">{classDetails?.name || 'Class Details'}</h1>
+              <div className="flex items-center gap-2 text-[13px] text-[#8E8E93] dark:text-gray-500">
                  <span>Public Link:</span>
                  <a href={`/p/${classDetails?.publicSlug}`} target="_blank" rel="noreferrer" className="font-medium text-[#007AFF] hover:underline">
                       /p/{classDetails?.publicSlug}
                  </a>
                  {!classDetails?.isPublic && (
-                    <span className="flex items-center gap-1 rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-orange-600">
+                    <span className="flex items-center gap-1 rounded-full bg-orange-100 dark:bg-orange-900/30 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-orange-600 dark:text-orange-400">
                         <Lock className="h-3 w-3" /> Private
                     </span>
                  )}
@@ -416,23 +441,23 @@ const ClassDetails: React.FC = () => {
           <div className="flex flex-wrap items-center gap-2">
              <button
               onClick={() => setIsHelpOpen(true)}
-              className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-white px-4 text-[13px] font-semibold text-[#1C1C1E] shadow-sm ring-1 ring-[#D1D1D6] transition-all hover:bg-[#F2F2F7] active:scale-95"
+              className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-white dark:bg-[#2c2c2e] px-4 text-[13px] font-semibold text-[#1C1C1E] dark:text-white shadow-sm ring-1 ring-[#D1D1D6] dark:ring-[#3a3a3c] transition-all hover:bg-[#F2F2F7] dark:hover:bg-[#3a3a3c] active:scale-95"
             >
               <HelpCircle className="h-4 w-4 text-[#8E8E93]" /> Help
             </button>
              <button
               onClick={() => setIsSettingsOpen(true)}
-              className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-white px-4 text-[13px] font-semibold text-[#1C1C1E] shadow-sm ring-1 ring-[#D1D1D6] transition-all hover:bg-[#F2F2F7] active:scale-95"
+              className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-white dark:bg-[#2c2c2e] px-4 text-[13px] font-semibold text-[#1C1C1E] dark:text-white shadow-sm ring-1 ring-[#D1D1D6] dark:ring-[#3a3a3c] transition-all hover:bg-[#F2F2F7] dark:hover:bg-[#3a3a3c] active:scale-95"
             >
               <Settings className="h-4 w-4 text-[#8E8E93]" /> Settings
             </button>
              <button
               onClick={() => setIsEmbedOpen(true)}
-              className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-white px-4 text-[13px] font-semibold text-[#1C1C1E] shadow-sm ring-1 ring-[#D1D1D6] transition-all hover:bg-[#F2F2F7] active:scale-95"
+              className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-white dark:bg-[#2c2c2e] px-4 text-[13px] font-semibold text-[#1C1C1E] dark:text-white shadow-sm ring-1 ring-[#D1D1D6] dark:ring-[#3a3a3c] transition-all hover:bg-[#F2F2F7] dark:hover:bg-[#3a3a3c] active:scale-95"
             >
               <Code className="h-4 w-4 text-[#8E8E93]" /> Embed
             </button>
-            <div className="h-6 w-px bg-[#D1D1D6] mx-1 hidden sm:block"></div>
+            <div className="h-6 w-px bg-[#D1D1D6] dark:bg-[#3a3a3c] mx-1 hidden sm:block"></div>
             {selectedStudents.size > 0 ? (
                 <>
                     <button
@@ -458,7 +483,7 @@ const ClassDetails: React.FC = () => {
                 <>
                     <button
                         onClick={() => setIsImporting(!isImporting)}
-                        className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-white px-4 text-[13px] font-semibold text-[#1C1C1E] shadow-sm ring-1 ring-[#D1D1D6] transition-all hover:bg-[#F2F2F7] active:scale-95"
+                        className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-white dark:bg-[#2c2c2e] px-4 text-[13px] font-semibold text-[#1C1C1E] dark:text-white shadow-sm ring-1 ring-[#D1D1D6] dark:ring-[#3a3a3c] transition-all hover:bg-[#F2F2F7] dark:hover:bg-[#3a3a3c] active:scale-95"
                     >
                         <Upload className="h-4 w-4 text-[#8E8E93]" /> Import CSV
                     </button>
@@ -472,7 +497,7 @@ const ClassDetails: React.FC = () => {
             )}
             <button
               onClick={handleExport}
-              className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-white px-4 text-[13px] font-semibold text-[#1C1C1E] shadow-sm ring-1 ring-[#D1D1D6] transition-all hover:bg-[#F2F2F7] active:scale-95"
+              className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-white dark:bg-[#2c2c2e] px-4 text-[13px] font-semibold text-[#1C1C1E] dark:text-white shadow-sm ring-1 ring-[#D1D1D6] dark:ring-[#3a3a3c] transition-all hover:bg-[#F2F2F7] dark:hover:bg-[#3a3a3c] active:scale-95"
             >
               <Download className="h-4 w-4 text-[#8E8E93]" /> Export
             </button>
@@ -484,22 +509,22 @@ const ClassDetails: React.FC = () => {
         
         {/* Import Panel */}
         {isImporting && (
-           <div className="mb-8 overflow-hidden rounded-2xl bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] ring-1 ring-black/5 animate-in slide-in-from-top-4 duration-300">
-            <div className="border-b border-[#F2F2F7] px-6 py-4">
-                <h3 className="text-lg font-bold text-[#1C1C1E]">Import Students</h3>
-                <p className="text-[13px] text-[#8E8E93]">Upload a CSV to bulk enroll students.</p>
+           <div className="mb-8 overflow-hidden rounded-2xl bg-white dark:bg-[#1c1c1e] shadow-[0_2px_8px_rgba(0,0,0,0.04)] ring-1 ring-black/5 dark:ring-white/10 animate-in slide-in-from-top-4 duration-300">
+            <div className="border-b border-[#F2F2F7] dark:border-[#2c2c2e] px-6 py-4">
+                <h3 className="text-lg font-bold text-[#1C1C1E] dark:text-white">Import Students</h3>
+                <p className="text-[13px] text-[#8E8E93] dark:text-gray-400">Upload a CSV to bulk enroll students.</p>
             </div>
             <div className="p-6">
-                <div className="mb-6 rounded-xl bg-[#F2F2F7] p-4">
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#8E8E93]">Expected CSV Format</p>
-                    <div className="font-mono text-xs text-[#1C1C1E] bg-white p-3 rounded-lg border border-[#E5E5EA] overflow-x-auto">
+                <div className="mb-6 rounded-xl bg-[#F2F2F7] dark:bg-[#2c2c2e] p-4">
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#8E8E93] dark:text-gray-400">Expected CSV Format</p>
+                    <div className="font-mono text-xs text-[#1C1C1E] dark:text-white bg-white dark:bg-[#1c1c1e] p-3 rounded-lg border border-[#E5E5EA] dark:border-[#3a3a3c] overflow-x-auto">
                         "First name","Last name","Email address",Groups<br/>
                         0706022410004,"Cecilia Agusta Leo",cagustaleo@student.ciputra.ac.id,
                     </div>
                 </div>
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
                     <div className="flex-1">
-                        <label className="mb-1.5 block text-[13px] font-medium text-[#1C1C1E]">Select File</label>
+                        <label className="mb-1.5 block text-[13px] font-medium text-[#1C1C1E] dark:text-white">Select File</label>
                         <input 
                             type="file" 
                             accept=".csv"
@@ -508,15 +533,15 @@ const ClassDetails: React.FC = () => {
                             file:mr-4 file:py-2 file:px-4
                             file:rounded-full file:border-0
                             file:text-xs file:font-bold
-                            file:bg-[#F2F2F7] file:text-[#007AFF]
-                            hover:file:bg-[#E5E5EA] cursor-pointer"
+                            file:bg-[#F2F2F7] dark:file:bg-[#2c2c2e] file:text-[#007AFF]
+                            hover:file:bg-[#E5E5EA] dark:hover:file:bg-[#3a3a3c] cursor-pointer"
                         />
                     </div>
                     <div className="flex gap-3">
                          <a 
                             href={`data:text/csv;charset=utf-8,${encodeURIComponent('"First name","Last name","Email address",Groups\n0706022410033,"Alvon Hindarmawan",ahindarmawan@student.ciputra.ac.id,\n0706022410026,"Casey Daniella Winarto",cdaniella@student.ciputra.ac.id,')}`} 
                             download="import_template.csv"
-                            className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-[13px] font-semibold text-[#007AFF] bg-[#F2F2F7] hover:bg-[#E5E5EA] transition-colors"
+                            className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-[13px] font-semibold text-[#007AFF] bg-[#F2F2F7] dark:bg-[#2c2c2e] hover:bg-[#E5E5EA] dark:hover:bg-[#3a3a3c] transition-colors"
                         >
                             <Upload className="mr-2 h-4 w-4" /> Template
                         </a>
@@ -536,28 +561,28 @@ const ClassDetails: React.FC = () => {
 
         {/* Enroll Panel */}
         {isEnrolling && (
-          <div className="mb-8 overflow-hidden rounded-2xl bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] ring-1 ring-black/5 animate-in slide-in-from-top-4 duration-300">
-            <div className="border-b border-[#F2F2F7] px-6 py-4">
-                <h3 className="text-lg font-bold text-[#1C1C1E]">Enroll New Student</h3>
+          <div className="mb-8 overflow-hidden rounded-2xl bg-white dark:bg-[#1c1c1e] shadow-[0_2px_8px_rgba(0,0,0,0.04)] ring-1 ring-black/5 dark:ring-white/10 animate-in slide-in-from-top-4 duration-300">
+            <div className="border-b border-[#F2F2F7] dark:border-[#2c2c2e] px-6 py-4">
+                <h3 className="text-lg font-bold text-[#1C1C1E] dark:text-white">Enroll New Student</h3>
             </div>
             <div className="p-6">
                 <form onSubmit={handleEnroll} className="flex flex-col gap-4 sm:flex-row sm:items-end">
                 <div className="flex-1">
-                    <label className="mb-1.5 block text-[13px] font-medium text-[#1C1C1E]">Full Name</label>
+                    <label className="mb-1.5 block text-[13px] font-medium text-[#1C1C1E] dark:text-white">Full Name</label>
                     <input
                         placeholder="John Doe"
-                        className="w-full rounded-lg border-0 bg-[#F2F2F7] px-4 py-2.5 text-[15px] font-medium text-[#1C1C1E] placeholder:text-[#8E8E93] focus:ring-2 focus:ring-[#007AFF] transition-all"
+                        className="w-full rounded-lg border-0 bg-[#F2F2F7] dark:bg-[#2c2c2e] px-4 py-2.5 text-[15px] font-medium text-[#1C1C1E] dark:text-white placeholder:text-[#8E8E93] focus:ring-2 focus:ring-[#007AFF] transition-all"
                         value={enrollData.name}
                         onChange={(e) => setEnrollData({ ...enrollData, name: e.target.value })}
                         required
                     />
                 </div>
                 <div className="flex-1">
-                    <label className="mb-1.5 block text-[13px] font-medium text-[#1C1C1E]">Email Address</label>
+                    <label className="mb-1.5 block text-[13px] font-medium text-[#1C1C1E] dark:text-white">Email Address</label>
                     <input
                         placeholder="john@example.com"
                         type="email"
-                        className="w-full rounded-lg border-0 bg-[#F2F2F7] px-4 py-2.5 text-[15px] font-medium text-[#1C1C1E] placeholder:text-[#8E8E93] focus:ring-2 focus:ring-[#007AFF] transition-all"
+                        className="w-full rounded-lg border-0 bg-[#F2F2F7] dark:bg-[#2c2c2e] px-4 py-2.5 text-[15px] font-medium text-[#1C1C1E] dark:text-white placeholder:text-[#8E8E93] focus:ring-2 focus:ring-[#007AFF] transition-all"
                         value={enrollData.email}
                         onChange={(e) => setEnrollData({ ...enrollData, email: e.target.value })}
                         required
@@ -576,27 +601,27 @@ const ClassDetails: React.FC = () => {
         )}
 
         {/* Leaderboard Table (Apple Settings Style) */}
-        <div className="overflow-hidden rounded-2xl bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] ring-1 ring-black/5">
+        <div className="overflow-hidden rounded-2xl bg-white dark:bg-[#1c1c1e] shadow-[0_2px_8px_rgba(0,0,0,0.04)] ring-1 ring-black/5 dark:ring-white/10">
           <div className="overflow-x-auto">
             <table className="min-w-full">
-                <thead className="bg-[#F2F2F7]/50 border-b border-[#E5E5EA]">
+                <thead className="bg-[#F2F2F7]/50 dark:bg-[#2c2c2e]/50 border-b border-[#E5E5EA] dark:border-[#3a3a3c]">
                 <tr>
                     <th className="px-6 py-3 w-4">
                         <input 
                             type="checkbox"
-                            className="rounded h-4 w-4 border-[#C7C7CC] text-[#007AFF] focus:ring-[#007AFF]"
+                            className="rounded h-4 w-4 border-[#C7C7CC] dark:border-gray-600 text-[#007AFF] focus:ring-[#007AFF] bg-white dark:bg-[#2c2c2e]"
                             checked={leaderboard?.length > 0 && selectedStudents.size === leaderboard?.length}
                             onChange={toggleSelectAll}
                         />
                     </th>
-                    <th className="px-6 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-[#8E8E93]">Rank</th>
+                    <th className="px-6 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-gray-500">Rank</th>
                     <th 
-                        className="group cursor-pointer px-6 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] transition-colors hover:bg-gray-50"
+                        className="group cursor-pointer px-6 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-gray-500 transition-colors hover:bg-gray-50 dark:hover:bg-[#2c2c2e]"
                         onClick={() => handleSort('name')}
                     >
                         <div className="flex items-center gap-1">
                             Student
-                            <div className="text-[#C7C7CC] group-hover:text-[#8E8E93]">
+                            <div className="text-[#C7C7CC] dark:text-gray-600 group-hover:text-[#8E8E93] dark:group-hover:text-gray-400">
                                 {sortConfig.key === 'name' ? (
                                     sortConfig.direction === 'asc' ? <ArrowUp className="h-3 w-3"/> : <ArrowDown className="h-3 w-3"/>
                                 ) : <ArrowUpDown className="h-3 w-3"/>}
@@ -604,53 +629,53 @@ const ClassDetails: React.FC = () => {
                         </div>
                     </th>
                     <th 
-                        className="group cursor-pointer px-6 py-3 text-right text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] transition-colors hover:bg-gray-50"
+                        className="group cursor-pointer px-6 py-3 text-right text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-gray-500 transition-colors hover:bg-gray-50 dark:hover:bg-[#2c2c2e]"
                         onClick={() => handleSort('total')}
                     >
                         <div className="flex items-center justify-end gap-1">
                             Points
-                            <div className="text-[#C7C7CC] group-hover:text-[#8E8E93]">
+                            <div className="text-[#C7C7CC] dark:text-gray-600 group-hover:text-[#8E8E93] dark:group-hover:text-gray-400">
                                 {sortConfig.key === 'total' ? (
                                     sortConfig.direction === 'asc' ? <ArrowUp className="h-3 w-3"/> : <ArrowDown className="h-3 w-3"/>
                                 ) : <ArrowUpDown className="h-3 w-3"/>}
                             </div>
                         </div>
                     </th>
-                    <th className="px-6 py-3 text-right text-[11px] font-bold uppercase tracking-wider text-[#8E8E93]">Actions</th>
+                    <th className="px-6 py-3 text-right text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-gray-500">Actions</th>
                 </tr>
                 </thead>
-                <tbody className="divide-y divide-[#E5E5EA] bg-white">
+                <tbody className="divide-y divide-[#E5E5EA] dark:divide-[#2c2c2e] bg-white dark:bg-[#1c1c1e]">
                 {sortedLeaderboard.map((entry: any, index: number) => (
                     <tr 
                         key={entry.studentId} 
-                        className={`group transition-colors ${selectedStudents.has(entry.studentId) ? 'bg-[#F2F2F7]' : 'hover:bg-[#F2F2F7]/50'}`}
+                        className={`group transition-colors ${selectedStudents.has(entry.studentId) ? 'bg-[#F2F2F7] dark:bg-[#2c2c2e]' : 'hover:bg-[#F2F2F7]/50 dark:hover:bg-[#2c2c2e]/50'}`}
                     >
                     <td className="px-6 py-4">
                         <input 
                             type="checkbox"
-                            className="rounded h-4 w-4 border-[#C7C7CC] text-[#007AFF] focus:ring-[#007AFF]"
+                            className="rounded h-4 w-4 border-[#C7C7CC] dark:border-gray-600 text-[#007AFF] focus:ring-[#007AFF] bg-white dark:bg-[#2c2c2e]"
                             checked={selectedStudents.has(entry.studentId)}
                             onChange={() => toggleSelect(entry.studentId)}
                         />
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-[15px] font-semibold text-[#1C1C1E] tabular-nums">
-                        {entry.total === 0 && !entry.hasNegativeHistory ? <span className="text-[#C7C7CC]">-</span> : index + 1}
+                    <td className="whitespace-nowrap px-6 py-4 text-[15px] font-semibold text-[#1C1C1E] dark:text-white tabular-nums">
+                        {entry.total === 0 && !entry.hasNegativeHistory ? <span className="text-[#C7C7CC] dark:text-gray-600">-</span> : index + 1}
                     </td>
                     <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                             <div>
                                 <div className="flex items-center gap-2">
-                                    <span className="text-[15px] font-medium text-[#1C1C1E]">{entry.student.name}</span>
+                                    <span className="text-[15px] font-medium text-[#1C1C1E] dark:text-white">{entry.student.name}</span>
                                     {entry.badges?.includes('TOP_1') && <span title="Top #1" className="cursor-help text-lg drop-shadow-sm">🥇</span>}
                                     {entry.badges?.includes('MOST_IMPROVED') && <span title="Most Improved This Week" className="cursor-help text-lg drop-shadow-sm">🔥</span>}
                                     {entry.badges?.includes('BIGGEST_CLIMBER') && <span title="Biggest Rank Climber" className="cursor-help text-lg drop-shadow-sm">📈</span>}
                                 </div>
-                                <div className="text-[13px] text-[#8E8E93]">{entry.student.email}</div>
+                                <div className="text-[13px] text-[#8E8E93] dark:text-gray-400">{entry.student.email}</div>
                             </div>
                         </div>
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-right">
-                        <span className={`inline-flex items-center rounded-full px-3 py-1 text-[13px] font-bold tabular-nums ${entry.total > 0 ? 'bg-[#34C759]/10 text-[#34C759]' : entry.total < 0 ? 'bg-[#FF3B30]/10 text-[#FF3B30]' : 'bg-[#E5E5EA] text-[#8E8E93]'}`}>
+                        <span className={`inline-flex items-center rounded-full px-3 py-1 text-[13px] font-bold tabular-nums ${entry.total > 0 ? 'bg-[#34C759]/10 text-[#34C759] dark:text-[#32d74b]' : entry.total < 0 ? 'bg-[#FF3B30]/10 text-[#FF3B30] dark:text-[#ff453a]' : 'bg-[#E5E5EA] dark:bg-[#3a3a3c] text-[#8E8E93] dark:text-gray-400'}`}>
                             {entry.total > 0 && '+'}{entry.total}
                         </span>
                     </td>
@@ -658,22 +683,36 @@ const ClassDetails: React.FC = () => {
                         <div className="flex justify-end items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                             onClick={() => openAdjustModal(entry.studentId, entry.student.name, 10)}
-                            className="flex h-8 w-8 items-center justify-center rounded-full bg-[#34C759]/10 text-[#34C759] transition-colors hover:bg-[#34C759]/20"
+                            className="flex h-8 w-8 items-center justify-center rounded-full bg-[#34C759]/10 text-[#34C759] dark:text-[#32d74b] transition-colors hover:bg-[#34C759]/20"
                             title="Add points"
                         >
                             <Plus className="h-4 w-4" />
                         </button>
                         <button
                             onClick={() => openAdjustModal(entry.studentId, entry.student.name, -10)}
-                            className="flex h-8 w-8 items-center justify-center rounded-full bg-[#FF9500]/10 text-[#FF9500] transition-colors hover:bg-[#FF9500]/20"
+                            className="flex h-8 w-8 items-center justify-center rounded-full bg-[#FF9500]/10 text-[#FF9500] dark:text-[#ff9f0a] transition-colors hover:bg-[#FF9500]/20"
                             title="Penalty"
                         >
                             <Minus className="h-4 w-4" />
                         </button>
-                        <div className="h-4 w-px bg-[#E5E5EA]"></div>
+                        <div className="h-4 w-px bg-[#E5E5EA] dark:bg-[#3a3a3c]"></div>
+                        <button
+                            onClick={async () => {
+                                const success = await copyToClipboard(`${window.location.origin}/s/${entry.studentId}`);
+                                if (success) {
+                                    alert('Student Progress Link copied to clipboard!');
+                                } else {
+                                    alert('Failed to copy link. Please manually copy the URL.');
+                                }
+                            }}
+                            className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 transition-colors hover:bg-blue-100 dark:hover:bg-blue-900/40"
+                            title="Copy Student Progress Link"
+                        >
+                            <LinkIcon className="h-4 w-4" />
+                        </button>
                         <button 
                             onClick={() => handleDelete(entry.studentId, entry.student.name)}
-                            className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-[#8E8E93] transition-colors hover:bg-[#FF3B30] hover:text-white"
+                            className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-[#2c2c2e] text-[#8E8E93] dark:text-gray-400 transition-colors hover:bg-[#FF3B30] hover:text-white"
                             title="Remove Student"
                         >
                             <Trash2 className="h-4 w-4" />
@@ -687,11 +726,11 @@ const ClassDetails: React.FC = () => {
           </div>
           {leaderboard?.length === 0 && (
               <div className="flex flex-col items-center justify-center py-20 text-center">
-                  <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#F2F2F7]">
-                      <UserPlus className="h-8 w-8 text-[#C7C7CC]" />
+                  <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#F2F2F7] dark:bg-[#2c2c2e]">
+                      <UserPlus className="h-8 w-8 text-[#C7C7CC] dark:text-gray-500" />
                   </div>
-                  <h3 className="text-lg font-bold text-[#1C1C1E]">No students enrolled</h3>
-                  <p className="max-w-xs text-[13px] text-[#8E8E93]">Get started by importing a CSV file or enrolling students manually.</p>
+                  <h3 className="text-lg font-bold text-[#1C1C1E] dark:text-white">No students enrolled</h3>
+                  <p className="max-w-xs text-[13px] text-[#8E8E93] dark:text-gray-400">Get started by importing a CSV file or enrolling students manually.</p>
               </div>
           )}
         </div>
@@ -699,19 +738,19 @@ const ClassDetails: React.FC = () => {
 
         {/* Assistants Management (Admin Only visual check, backend protected too) */}
         {classDetails?.assistants && (
-            <div className="mt-8 rounded-2xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)] ring-1 ring-black/5">
-                <h3 className="mb-1 text-lg font-bold text-[#1C1C1E]">Teaching Assistants</h3>
-                <p className="mb-6 text-[13px] text-[#8E8E93]">Manage assistants who can help grade the leaderboard.</p>
+            <div className="mt-8 rounded-2xl bg-white dark:bg-[#1c1c1e] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)] ring-1 ring-black/5 dark:ring-white/10">
+                <h3 className="mb-1 text-lg font-bold text-[#1C1C1E] dark:text-white">Teaching Assistants</h3>
+                <p className="mb-6 text-[13px] text-[#8E8E93] dark:text-gray-400">Manage assistants who can help grade the leaderboard.</p>
                 
                 <div className="grid gap-6 lg:grid-cols-2">
                     <div>
                          {user?.role !== 'STUDENT_ASSISTANT' && (
-                            <form onSubmit={handleAddAssistant} className="rounded-xl bg-[#F2F2F7] p-5">
-                                <h4 className="mb-3 text-[13px] font-bold uppercase tracking-wider text-[#8E8E93]">Add New Assistant</h4>
+                            <form onSubmit={handleAddAssistant} className="rounded-xl bg-[#F2F2F7] dark:bg-[#2c2c2e] p-5">
+                                <h4 className="mb-3 text-[13px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-gray-400">Add New Assistant</h4>
                                 <div className="space-y-3">
                                     <input
                                         placeholder="Full Name"
-                                        className="w-full rounded-lg border-0 bg-white px-3 py-2 text-[15px] shadow-sm focus:ring-2 focus:ring-[#007AFF]"
+                                        className="w-full rounded-lg border-0 bg-white dark:bg-[#1c1c1e] px-3 py-2 text-[15px] text-[#1C1C1E] dark:text-white shadow-sm focus:ring-2 focus:ring-[#007AFF]"
                                         value={newAssistant.name}
                                         onChange={(e) => setNewAssistant({ ...newAssistant, name: e.target.value })}
                                         required
@@ -719,7 +758,7 @@ const ClassDetails: React.FC = () => {
                                     <input
                                         placeholder="Email Address"
                                         type="email"
-                                        className="w-full rounded-lg border-0 bg-white px-3 py-2 text-[15px] shadow-sm focus:ring-2 focus:ring-[#007AFF]"
+                                        className="w-full rounded-lg border-0 bg-white dark:bg-[#1c1c1e] px-3 py-2 text-[15px] text-[#1C1C1E] dark:text-white shadow-sm focus:ring-2 focus:ring-[#007AFF]"
                                         value={newAssistant.email}
                                         onChange={(e) => setNewAssistant({ ...newAssistant, email: e.target.value })}
                                         required
@@ -727,7 +766,7 @@ const ClassDetails: React.FC = () => {
                                     <input
                                         placeholder="Password (min 8 chars)"
                                         type="password"
-                                        className="w-full rounded-lg border-0 bg-white px-3 py-2 text-[15px] shadow-sm focus:ring-2 focus:ring-[#007AFF]"
+                                        className="w-full rounded-lg border-0 bg-white dark:bg-[#1c1c1e] px-3 py-2 text-[15px] text-[#1C1C1E] dark:text-white shadow-sm focus:ring-2 focus:ring-[#007AFF]"
                                         value={newAssistant.password}
                                         onChange={(e) => setNewAssistant({ ...newAssistant, password: e.target.value })}
                                         required
@@ -744,23 +783,23 @@ const ClassDetails: React.FC = () => {
                          )}
                     </div>
                     <div>
-                         <h4 className="mb-3 ml-1 text-[13px] font-bold uppercase tracking-wider text-[#8E8E93]">Current Assistants</h4>
+                         <h4 className="mb-3 ml-1 text-[13px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-gray-400">Current Assistants</h4>
                          <ul className="space-y-2">
                             {classDetails?.assistants?.map((assistant: any) => (
-                            <li key={assistant.userId} className="flex items-center justify-between rounded-xl bg-white p-3 ring-1 ring-black/5">
+                            <li key={assistant.userId} className="flex items-center justify-between rounded-xl bg-white dark:bg-[#2c2c2e] p-3 ring-1 ring-black/5 dark:ring-white/5">
                                 <div className="flex items-center gap-3">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F2F2F7] text-[#8E8E93]">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F2F2F7] dark:bg-[#3a3a3c] text-[#8E8E93] dark:text-gray-400">
                                     <Shield className="h-5 w-5" />
                                 </div>
                                 <div>
-                                    <p className="text-[15px] font-semibold text-[#1C1C1E]">{assistant.name}</p>
-                                    <p className="text-[13px] text-[#8E8E93]">{assistant.email}</p>
+                                    <p className="text-[15px] font-semibold text-[#1C1C1E] dark:text-white">{assistant.name}</p>
+                                    <p className="text-[13px] text-[#8E8E93] dark:text-gray-400">{assistant.email}</p>
                                 </div>
                                 </div>
                                 {user?.role !== 'STUDENT_ASSISTANT' && (
                                     <button
                                     onClick={() => removeAssistantMutation.mutate(assistant.userId)}
-                                    className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F2F2F7] text-[#8E8E93] hover:bg-[#FF3B30] hover:text-white transition-colors"
+                                    className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F2F2F7] dark:bg-[#3a3a3c] text-[#8E8E93] dark:text-gray-400 hover:bg-[#FF3B30] hover:text-white transition-colors"
                                     title="Remove Assistant"
                                     >
                                     <UserX className="h-4 w-4" />
@@ -781,15 +820,15 @@ const ClassDetails: React.FC = () => {
       {/* Help Modal */}
       {isHelpOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/20 backdrop-blur-sm animate-in fade-in" onClick={() => setIsHelpOpen(false)} />
-          <div className="relative w-full max-w-2xl overflow-hidden rounded-[24px] bg-white shadow-2xl animate-in zoom-in-95">
-            <div className="flex items-center justify-between border-b border-[#E5E5EA] bg-[#F2F2F7]/80 px-6 py-4 backdrop-blur-xl">
-                <h3 className="text-[17px] font-semibold text-[#1C1C1E] flex items-center gap-2">
+          <div className="absolute inset-0 bg-black/20 dark:bg-black/60 backdrop-blur-sm animate-in fade-in" onClick={() => setIsHelpOpen(false)} />
+          <div className="relative w-full max-w-2xl overflow-hidden rounded-[24px] bg-white dark:bg-[#1c1c1e] shadow-2xl animate-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-[#E5E5EA] dark:border-[#2c2c2e] bg-[#F2F2F7]/80 dark:bg-[#1c1c1e]/80 px-6 py-4 backdrop-blur-xl">
+                <h3 className="text-[17px] font-semibold text-[#1C1C1E] dark:text-white flex items-center gap-2">
                     <HelpCircle className="h-5 w-5 text-[#007AFF]" /> Leaderboard Guide
                 </h3>
                 <button 
                     onClick={() => setIsHelpOpen(false)} 
-                    className="flex h-8 w-8 items-center justify-center rounded-full bg-[#E5E5EA] text-[#8E8E93] hover:bg-[#D1D1D6] hover:text-[#1C1C1E] transition-colors"
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-[#E5E5EA] dark:bg-[#2c2c2e] text-[#8E8E93] dark:text-gray-400 hover:bg-[#D1D1D6] dark:hover:bg-[#3a3a3c] hover:text-[#1C1C1E] dark:hover:text-white transition-colors"
                 >
                     <X className="h-4 w-4" />
                 </button>
@@ -798,41 +837,41 @@ const ClassDetails: React.FC = () => {
             <div className="p-6 overflow-y-auto max-h-[70vh]">
                 <div className="space-y-6">
                     <div>
-                        <h4 className="mb-3 text-[15px] font-semibold text-[#1C1C1E]">1. Managing Students</h4>
+                        <h4 className="mb-3 text-[15px] font-semibold text-[#1C1C1E] dark:text-white">1. Managing Students</h4>
                         <div className="grid gap-3 sm:grid-cols-2">
-                            <div className="rounded-xl bg-[#F2F2F7] p-4">
+                            <div className="rounded-xl bg-[#F2F2F7] dark:bg-[#2c2c2e] p-4">
                                 <span className="mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-[#007AFF] text-white">
                                     <UserPlus className="h-4 w-4" />
                                 </span>
-                                <h5 className="font-semibold text-[#1C1C1E]">Enroll Student</h5>
-                                <p className="mt-1 text-[13px] text-[#8E8E93]">Add a single student manually using their Name and Email address.</p>
+                                <h5 className="font-semibold text-[#1C1C1E] dark:text-white">Enroll Student</h5>
+                                <p className="mt-1 text-[13px] text-[#8E8E93] dark:text-gray-400">Add a single student manually using their Name and Email address.</p>
                             </div>
-                            <div className="rounded-xl bg-[#F2F2F7] p-4">
-                                <span className="mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-sm">
-                                    <Upload className="h-4 w-4 text-[#1C1C1E]" />
+                            <div className="rounded-xl bg-[#F2F2F7] dark:bg-[#2c2c2e] p-4">
+                                <span className="mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-white dark:bg-[#3a3a3c] shadow-sm">
+                                    <Upload className="h-4 w-4 text-[#1C1C1E] dark:text-white" />
                                 </span>
-                                <h5 className="font-semibold text-[#1C1C1E]">Import CSV</h5>
-                                <p className="mt-1 text-[13px] text-[#8E8E93]">Bulk enroll students by uploading a CSV file. Use the "Template" button to see the format.</p>
+                                <h5 className="font-semibold text-[#1C1C1E] dark:text-white">Import CSV</h5>
+                                <p className="mt-1 text-[13px] text-[#8E8E93] dark:text-gray-400">Bulk enroll students by uploading a CSV file. Use the "Template" button to see the format.</p>
                             </div>
                         </div>
                     </div>
 
                     <div>
-                        <h4 className="mb-3 text-[15px] font-semibold text-[#1C1C1E]">2. Scoring</h4>
-                        <ul className="space-y-3 rounded-xl border border-[#E5E5EA] p-4">
-                             <li className="flex gap-3 text-[14px] text-[#1C1C1E]">
+                        <h4 className="mb-3 text-[15px] font-semibold text-[#1C1C1E] dark:text-white">2. Scoring</h4>
+                        <ul className="space-y-3 rounded-xl border border-[#E5E5EA] dark:border-[#2c2c2e] p-4">
+                             <li className="flex gap-3 text-[14px] text-[#1C1C1E] dark:text-gray-300">
                                 <div className="mt-1 h-5 w-5 flex-shrink-0 items-center justify-center rounded bg-[#34C759]/10 text-[#34C759] flex">
                                     <Plus className="h-3 w-3" />
                                 </div>
                                 <span><span className="font-semibold">Award Points:</span> Hover over a student row and click the (+) button to award points.</span>
                             </li>
-                             <li className="flex gap-3 text-[14px] text-[#1C1C1E]">
+                             <li className="flex gap-3 text-[14px] text-[#1C1C1E] dark:text-gray-300">
                                 <div className="mt-1 h-5 w-5 flex-shrink-0 items-center justify-center rounded bg-[#FF3B30]/10 text-[#FF3B30] flex">
                                     <Minus className="h-3 w-3" />
                                 </div>
                                 <span><span className="font-semibold">Penalty:</span> Use the (-) button to deduct points for infractions or missed deadlines.</span>
                             </li>
-                            <li className="flex gap-3 text-[14px] text-[#1C1C1E]">
+                            <li className="flex gap-3 text-[14px] text-[#1C1C1E] dark:text-gray-300">
                                 <div className="mt-1 h-5 w-5 flex-shrink-0 items-center justify-center rounded bg-[#007AFF]/10 text-[#007AFF] flex">
                                     <Check className="h-3 w-3" />
                                 </div>
@@ -842,25 +881,25 @@ const ClassDetails: React.FC = () => {
                     </div>
 
                     <div>
-                        <h4 className="mb-3 text-[15px] font-semibold text-[#1C1C1E]">3. Sharing & Data</h4>
+                        <h4 className="mb-3 text-[15px] font-semibold text-[#1C1C1E] dark:text-white">3. Sharing & Data</h4>
                          <div className="grid gap-3 sm:grid-cols-3">
-                            <div className="rounded-xl border border-[#E5E5EA] p-3">
-                                <div className="font-semibold text-[#1C1C1E] text-[13px] flex items-center gap-2 mb-1">
+                            <div className="rounded-xl border border-[#E5E5EA] dark:border-[#2c2c2e] p-3">
+                                <div className="font-semibold text-[#1C1C1E] dark:text-white text-[13px] flex items-center gap-2 mb-1">
                                     <Download className="h-3.5 w-3.5" /> Export
                                 </div>
-                                <p className="text-[12px] text-[#8E8E93]">Download the current leaderboard as a CSV file for grading.</p>
+                                <p className="text-[12px] text-[#8E8E93] dark:text-gray-400">Download the current leaderboard as a CSV file for grading.</p>
                             </div>
-                            <div className="rounded-xl border border-[#E5E5EA] p-3">
-                                <div className="font-semibold text-[#1C1C1E] text-[13px] flex items-center gap-2 mb-1">
+                            <div className="rounded-xl border border-[#E5E5EA] dark:border-[#2c2c2e] p-3">
+                                <div className="font-semibold text-[#1C1C1E] dark:text-white text-[13px] flex items-center gap-2 mb-1">
                                     <Code className="h-3.5 w-3.5" /> Embed
                                 </div>
-                                <p className="text-[12px] text-[#8E8E93]">Get an iframe code to display this leaderboard on Moodle or Canvas.</p>
+                                <p className="text-[12px] text-[#8E8E93] dark:text-gray-400">Get an iframe code to display this leaderboard on Moodle or Canvas.</p>
                             </div>
-                             <div className="rounded-xl border border-[#E5E5EA] p-3">
-                                <div className="font-semibold text-[#1C1C1E] text-[13px] flex items-center gap-2 mb-1">
+                             <div className="rounded-xl border border-[#E5E5EA] dark:border-[#2c2c2e] p-3">
+                                <div className="font-semibold text-[#1C1C1E] dark:text-white text-[13px] flex items-center gap-2 mb-1">
                                     <Settings className="h-3.5 w-3.5" /> Settings
                                 </div>
-                                <p className="text-[12px] text-[#8E8E93]">Change the public "Slug" URL or make the leaderboard private.</p>
+                                <p className="text-[12px] text-[#8E8E93] dark:text-gray-400">Change the public "Slug" URL or make the leaderboard private.</p>
                             </div>
                         </div>
                     </div>
@@ -873,20 +912,20 @@ const ClassDetails: React.FC = () => {
       {/* Settings Modal - Apple Standard Modal */}
       {isSettingsOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
-          <div className="absolute inset-0 bg-black/20 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setIsSettingsOpen(false)}></div>
-          <div className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl animate-in zoom-in-95 duration-200 scale-100">
-             <div className="bg-[#F2F2F7]/80 px-4 py-3 border-b border-[#E5E5EA] flex justify-between items-center backdrop-blur-xl">
-                 <h3 className="text-[17px] font-semibold text-[#1C1C1E]">Class Settings</h3>
-                 <button onClick={() => setIsSettingsOpen(false)} className="rounded-full bg-[#E5E5EA] p-1 text-[#8E8E93] hover:bg-[#D1D1D6]">
+          <div className="absolute inset-0 bg-black/20 dark:bg-black/60 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setIsSettingsOpen(false)}></div>
+          <div className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white dark:bg-[#1c1c1e] shadow-2xl animate-in zoom-in-95 duration-200 scale-100">
+             <div className="bg-[#F2F2F7]/80 dark:bg-[#2c2c2e]/80 px-4 py-3 border-b border-[#E5E5EA] dark:border-[#3a3a3c] flex justify-between items-center backdrop-blur-xl">
+                 <h3 className="text-[17px] font-semibold text-[#1C1C1E] dark:text-white">Class Settings</h3>
+                 <button onClick={() => setIsSettingsOpen(false)} className="rounded-full bg-[#E5E5EA] dark:bg-[#3a3a3c] p-1 text-[#8E8E93] dark:text-gray-400 hover:bg-[#D1D1D6] dark:hover:bg-[#4a4a4c]">
                     <Check className="h-4 w-4 rotate-45" />
                  </button>
              </div>
              
              <form onSubmit={handleSettingsSave} className="p-0">
                 <div className="p-4 space-y-4">
-                    <div className="rounded-xl bg-[#F2F2F7] p-2">
-                        <div className="flex items-center justify-between rounded-lg bg-white px-4 py-3 shadow-sm">
-                            <span className="text-[15px] font-medium text-[#1C1C1E]">Public Access</span>
+                    <div className="rounded-xl bg-[#F2F2F7] dark:bg-[#2c2c2e] p-2">
+                        <div className="flex items-center justify-between rounded-lg bg-white dark:bg-[#1c1c1e] px-4 py-3 shadow-sm">
+                            <span className="text-[15px] font-medium text-[#1C1C1E] dark:text-white">Public Access</span>
                             <div className="relative inline-block w-[51px] align-middle select-none transition duration-200 ease-in">
                                 <input 
                                     type="checkbox" 
@@ -894,40 +933,40 @@ const ClassDetails: React.FC = () => {
                                     onChange={(e) => setSettingsForm({ ...settingsForm, isPublic: e.target.checked })}
                                     className="peer absolute block w-6 h-6 rounded-full bg-white border-0 appearance-none cursor-pointer shadow-sm transition-all duration-300 ease-in-out left-[2px] top-[2px] checked:translate-x-[21px]"
                                 />
-                                <div className={`block overflow-hidden h-[31px] rounded-full cursor-pointer transition-colors duration-300 ease-in-out ${settingsForm.isPublic ? 'bg-[#34C759]' : 'bg-[#E5E5EA]'}`}></div>
+                                <div className={`block overflow-hidden h-[31px] rounded-full cursor-pointer transition-colors duration-300 ease-in-out ${settingsForm.isPublic ? 'bg-[#34C759]' : 'bg-[#E5E5EA] dark:bg-[#3a3a3c]'}`}></div>
                             </div>
                         </div>
-                        <p className="px-4 py-2 text-[11px] text-[#8E8E93]">
+                        <p className="px-4 py-2 text-[11px] text-[#8E8E93] dark:text-gray-400">
                             If disabled, only enrolled students and admins can view the leaderboard.
                         </p>
                     </div>
 
                     <div className="space-y-1">
-                        <label className="ml-1 text-[13px] font-medium text-[#8E8E93]">CUSTOM URL</label>
-                        <div className="flex rounded-lg bg-[#F2F2F7] px-3 py-2 ring-1 ring-transparent focus-within:ring-[#007AFF] transition-all">
-                            <span className="flex select-none items-center text-[#8E8E93] text-[15px]">/p/</span>
+                        <label className="ml-1 text-[13px] font-medium text-[#8E8E93] dark:text-gray-400">CUSTOM URL</label>
+                        <div className="flex rounded-lg bg-[#F2F2F7] dark:bg-[#2c2c2e] px-3 py-2 ring-1 ring-transparent focus-within:ring-[#007AFF] transition-all">
+                            <span className="flex select-none items-center text-[#8E8E93] dark:text-gray-500 text-[15px]">/p/</span>
                             <input
                                 type="text"
                                 value={settingsForm.publicSlug}
                                 onChange={(e) => setSettingsForm({ ...settingsForm, publicSlug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
-                                className="block flex-1 border-0 bg-transparent py-0 pl-1 text-[#1C1C1E] placeholder:text-[#C7C7CC] focus:ring-0 text-[15px]"
+                                className="block flex-1 border-0 bg-transparent py-0 pl-1 text-[#1C1C1E] dark:text-white placeholder:text-[#C7C7CC] focus:ring-0 text-[15px]"
                             />
                         </div>
                     </div>
                 </div>
 
-                <div className="flex gap-0 border-t border-[#E5E5EA]">
+                <div className="flex gap-0 border-t border-[#E5E5EA] dark:border-[#3a3a3c]">
                     <button
                         type="button"
                         onClick={() => setIsSettingsOpen(false)}
-                        className="flex-1 py-4 text-[17px] text-[#007AFF] hover:bg-[#F2F2F7] active:bg-[#E5E5EA] transition-colors border-r border-[#E5E5EA]"
+                        className="flex-1 py-4 text-[17px] text-[#007AFF] hover:bg-[#F2F2F7] dark:hover:bg-[#2c2c2e] active:bg-[#E5E5EA] dark:active:bg-[#3a3a3c] transition-colors border-r border-[#E5E5EA] dark:border-[#3a3a3c]"
                     >
                         Cancel
                     </button>
                     <button
                         type="submit"
                         disabled={updateSettingsMutation.isPending}
-                        className="flex-1 py-4 text-[17px] font-semibold text-[#007AFF] hover:bg-[#F2F2F7] active:bg-[#E5E5EA] transition-colors disabled:opacity-50"
+                        className="flex-1 py-4 text-[17px] font-semibold text-[#007AFF] hover:bg-[#F2F2F7] dark:hover:bg-[#2c2c2e] active:bg-[#E5E5EA] dark:active:bg-[#3a3a3c] transition-colors disabled:opacity-50"
                     >
                         {updateSettingsMutation.isPending ? 'Saving...' : 'Save'}
                     </button>
@@ -940,42 +979,42 @@ const ClassDetails: React.FC = () => {
       {/* Embed Modal */}
       {isEmbedOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
-          <div className="absolute inset-0 bg-black/20 backdrop-blur-sm animate-in fade-in" onClick={() => setIsEmbedOpen(false)}></div>
-          <div className="relative w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl animate-in zoom-in-95">
-             <div className="flex items-center justify-between border-b border-[#E5E5EA] bg-[#F2F2F7]/80 px-6 py-4 backdrop-blur-xl">
-                <h3 className="text-[17px] font-semibold text-[#1C1C1E]">Embed Leaderboard</h3>
-                <button onClick={() => setIsEmbedOpen(false)} className="rounded-full p-1 text-[#8E8E93] hover:bg-[#D1D1D6] transition-colors"><Check className="h-5 w-5 rotate-45" /></button>
+          <div className="absolute inset-0 bg-black/20 dark:bg-black/60 backdrop-blur-sm animate-in fade-in" onClick={() => setIsEmbedOpen(false)}></div>
+          <div className="relative w-full max-w-2xl overflow-hidden rounded-2xl bg-white dark:bg-[#1c1c1e] shadow-2xl animate-in zoom-in-95">
+             <div className="flex items-center justify-between border-b border-[#E5E5EA] dark:border-[#2c2c2e] bg-[#F2F2F7]/80 dark:bg-[#2c2c2e]/80 px-6 py-4 backdrop-blur-xl">
+                <h3 className="text-[17px] font-semibold text-[#1C1C1E] dark:text-white">Embed Leaderboard</h3>
+                <button onClick={() => setIsEmbedOpen(false)} className="rounded-full p-1 text-[#8E8E93] dark:text-gray-400 hover:bg-[#D1D1D6] dark:hover:bg-[#3a3a3c] transition-colors"><Check className="h-5 w-5 rotate-45" /></button>
              </div>
              
              <div className="p-6 grid gap-8 md:grid-cols-2">
                  <div className="space-y-4">
-                     <p className="text-[13px] text-[#8E8E93]">
+                     <p className="text-[13px] text-[#8E8E93] dark:text-gray-400">
                          Copy this code to embed the leaderboard in Moodle, Canvas, Notion, or any other website.
                      </p>
                      
                      <div className="grid grid-cols-2 gap-4">
                          <div>
-                             <label className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-[#8E8E93]">Width</label>
+                             <label className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-gray-400">Width</label>
                              <input 
                                 type="text" 
                                 value={embedConfig.width}
                                 onChange={(e) => setEmbedConfig({...embedConfig, width: e.target.value})}
-                                className="w-full rounded-lg border-0 bg-[#F2F2F7] px-3 py-2 text-[15px] text-[#1C1C1E] focus:ring-2 focus:ring-[#007AFF]"
+                                className="w-full rounded-lg border-0 bg-[#F2F2F7] dark:bg-[#2c2c2e] px-3 py-2 text-[15px] text-[#1C1C1E] dark:text-white focus:ring-2 focus:ring-[#007AFF]"
                              />
                          </div>
                          <div>
-                             <label className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-[#8E8E93]">Height</label>
+                             <label className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-gray-400">Height</label>
                              <input 
                                 type="text" 
                                 value={embedConfig.height}
                                 onChange={(e) => setEmbedConfig({...embedConfig, height: e.target.value})}
-                                className="w-full rounded-lg border-0 bg-[#F2F2F7] px-3 py-2 text-[15px] text-[#1C1C1E] focus:ring-2 focus:ring-[#007AFF]"
+                                className="w-full rounded-lg border-0 bg-[#F2F2F7] dark:bg-[#2c2c2e] px-3 py-2 text-[15px] text-[#1C1C1E] dark:text-white focus:ring-2 focus:ring-[#007AFF]"
                              />
                          </div>
                      </div>
 
-                     <div className="group relative rounded-xl border border-[#E5E5EA] bg-[#F9F9F9] p-3 transition-colors hover:border-[#D1D1D6]">
-                        <pre className="overflow-x-auto whitespace-pre-wrap font-mono text-[11px] text-[#1C1C1E] leading-relaxed">
+                     <div className="group relative rounded-xl border border-[#E5E5EA] dark:border-[#3a3a3c] bg-[#F9F9F9] dark:bg-[#2c2c2e] p-3 transition-colors hover:border-[#D1D1D6] dark:hover:border-[#4a4a4c]">
+                        <pre className="overflow-x-auto whitespace-pre-wrap font-mono text-[11px] text-[#1C1C1E] dark:text-gray-300 leading-relaxed">
 {`<iframe 
   src="${window.location.origin}/p/${classDetails?.publicSlug}" 
   width="${embedConfig.width}" 
@@ -985,17 +1024,17 @@ const ClassDetails: React.FC = () => {
                         </pre>
                         <button 
                             onClick={copyEmbedCode}
-                            className="absolute right-2 top-2 rounded-lg bg-white p-2 shadow-sm ring-1 ring-black/5 hover:bg-[#F2F2F7] transition-all active:scale-95"
+                            className="absolute right-2 top-2 rounded-lg bg-white dark:bg-[#1c1c1e] p-2 shadow-sm ring-1 ring-black/5 dark:ring-white/10 hover:bg-[#F2F2F7] dark:hover:bg-[#3a3a3c] transition-all active:scale-95"
                             title="Copy Code"
                         >
-                            {isCopied ? <Check className="h-4 w-4 text-[#34C759]" /> : <Copy className="h-4 w-4 text-[#8E8E93]" />}
+                            {isCopied ? <Check className="h-4 w-4 text-[#34C759]" /> : <Copy className="h-4 w-4 text-[#8E8E93] dark:text-gray-400" />}
                         </button>
                      </div>
                  </div>
 
-                 <div className="overflow-hidden rounded-xl border border-[#E5E5EA] bg-[#F2F2F7]">
-                     <div className="border-b border-[#E5E5EA] bg-[#FFFFFF]/50 px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-[#8E8E93]">Preview</div>
-                     <div className="relative h-[280px] w-full bg-[#E5E5EA]/50">
+                 <div className="overflow-hidden rounded-xl border border-[#E5E5EA] dark:border-[#3a3a3c] bg-[#F2F2F7] dark:bg-[#2c2c2e]">
+                     <div className="border-b border-[#E5E5EA] dark:border-[#3a3a3c] bg-[#FFFFFF]/50 dark:bg-[#1c1c1e]/50 px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-[#8E8E93] dark:text-gray-400">Preview</div>
+                     <div className="relative h-[280px] w-full bg-[#E5E5EA]/50 dark:bg-[#3a3a3c]/50">
                         {classDetails?.publicSlug ? (
                             <iframe 
                                 src={`${window.location.origin}/p/${classDetails.publicSlug}`}
@@ -1004,7 +1043,7 @@ const ClassDetails: React.FC = () => {
                                 style={{ transform: 'scale(0.75)', transformOrigin: 'top left', width: '133.33%', height: '133.33%' }}
                             />
                         ) : (
-                             <div className="flex h-full w-full items-center justify-center text-[#8E8E93]">
+                             <div className="flex h-full w-full items-center justify-center text-[#8E8E93] dark:text-gray-400">
                                  Preview Unavailable
                              </div>
                         )}
@@ -1018,37 +1057,37 @@ const ClassDetails: React.FC = () => {
       {/* Adjust Points Modal - Apple Style Action Sheet / Dialog */}
       {adjustData.isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/20 backdrop-blur-sm animate-in fade-in" onClick={() => setAdjustData({ ...adjustData, isOpen: false })}></div>
-          <div className="relative w-full max-w-sm overflow-hidden rounded-[20px] bg-white shadow-2xl animate-in zoom-in-95">
+          <div className="absolute inset-0 bg-black/20 dark:bg-black/60 backdrop-blur-sm animate-in fade-in" onClick={() => setAdjustData({ ...adjustData, isOpen: false })}></div>
+          <div className="relative w-full max-w-sm overflow-hidden rounded-[20px] bg-white dark:bg-[#1c1c1e] shadow-2xl animate-in zoom-in-95">
             <div className="p-6 text-center">
-                <div className={`mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full ${adjustData.delta > 0 ? 'bg-[#34C759]/10 text-[#34C759]' : 'bg-[#FF3B30]/10 text-[#FF3B30]'}`}>
+                <div className={`mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full ${adjustData.delta > 0 ? 'bg-[#34C759]/10 text-[#34C759] dark:text-[#32d74b]' : 'bg-[#FF3B30]/10 text-[#FF3B30] dark:text-[#ff453a]'}`}>
                    {adjustData.delta > 0 ? <Plus className="h-6 w-6" /> : <Minus className="h-6 w-6" />}
                 </div>
-                <h3 className="text-[17px] font-semibold text-[#1C1C1E]">
+                <h3 className="text-[17px] font-semibold text-[#1C1C1E] dark:text-white">
                 {adjustData.delta > 0 ? 'Award Points' : 'Penalty Points'}
                 </h3>
-                <p className="mt-1 text-[13px] text-[#8E8E93]">
-                {adjustData.studentName} will {adjustData.delta > 0 ? 'receive' : 'lose'} <span className="font-semibold text-[#1C1C1E]">{Math.abs(adjustData.delta)} points</span>.
+                <p className="mt-1 text-[13px] text-[#8E8E93] dark:text-gray-400">
+                {adjustData.studentName} will {adjustData.delta > 0 ? 'receive' : 'lose'} <span className="font-semibold text-[#1C1C1E] dark:text-white">{Math.abs(adjustData.delta)} points</span>.
                 </p>
                 
                 <form onSubmit={handleConfirmAdjust} className="mt-6 text-left">
                      <div className="space-y-4">
                          <div>
-                             <label className="mb-1 ml-1 block text-[12px] font-medium text-[#8E8E93]">AMOUNT</label>
+                             <label className="mb-1 ml-1 block text-[12px] font-medium text-[#8E8E93] dark:text-gray-400">AMOUNT</label>
                              <input
                                 type="number"
-                                className="w-full rounded-xl border-0 bg-[#F2F2F7] px-4 py-3 text-center text-[20px] font-bold text-[#1C1C1E] focus:ring-0"
+                                className="w-full rounded-xl border-0 bg-[#F2F2F7] dark:bg-[#2c2c2e] px-4 py-3 text-center text-[20px] font-bold text-[#1C1C1E] dark:text-white focus:ring-0"
                                 value={adjustData.delta}
                                 onChange={(e) => setAdjustData({ ...adjustData, delta: parseInt(e.target.value) || 0 })}
                                 required
                             />
                          </div>
                          <div>
-                            <label className="mb-1 ml-1 block text-[12px] font-medium text-[#8E8E93]">REASON</label>
+                            <label className="mb-1 ml-1 block text-[12px] font-medium text-[#8E8E93] dark:text-gray-400">REASON</label>
                             <input
                                 type="text"
                                 placeholder="e.g. Good Participation"
-                                className="w-full rounded-xl border-0 bg-[#F2F2F7] px-4 py-3 text-[15px] text-[#1C1C1E] placeholder:text-[#C7C7CC] focus:ring-2 focus:ring-[#007AFF]"
+                                className="w-full rounded-xl border-0 bg-[#F2F2F7] dark:bg-[#2c2c2e] px-4 py-3 text-[15px] text-[#1C1C1E] dark:text-white placeholder:text-[#C7C7CC] focus:ring-2 focus:ring-[#007AFF]"
                                 value={adjustData.reason}
                                 onChange={(e) => setAdjustData({ ...adjustData, reason: e.target.value })}
                                 required
@@ -1060,7 +1099,7 @@ const ClassDetails: React.FC = () => {
                         <button
                             type="button"
                             onClick={() => setAdjustData({ ...adjustData, isOpen: false })}
-                            className="rounded-xl bg-[#F2F2F7] py-3 text-[15px] font-semibold text-[#1C1C1E] hover:bg-[#E5E5EA] transition-colors"
+                            className="rounded-xl bg-[#F2F2F7] dark:bg-[#2c2c2e] py-3 text-[15px] font-semibold text-[#1C1C1E] dark:text-white hover:bg-[#E5E5EA] dark:hover:bg-[#3a3a3c] transition-colors"
                         >
                             Cancel
                         </button>
@@ -1081,27 +1120,27 @@ const ClassDetails: React.FC = () => {
       {/* Bulk Adjust Modal */}
       {bulkAdjustData.isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/20 backdrop-blur-sm animate-in fade-in" onClick={() => setBulkAdjustData({ ...bulkAdjustData, isOpen: false })}></div>
-          <div className="relative w-full max-w-sm overflow-hidden rounded-[20px] bg-white shadow-2xl animate-in zoom-in-95">
+          <div className="absolute inset-0 bg-black/20 dark:bg-black/60 backdrop-blur-sm animate-in fade-in" onClick={() => setBulkAdjustData({ ...bulkAdjustData, isOpen: false })}></div>
+          <div className="relative w-full max-w-sm overflow-hidden rounded-[20px] bg-white dark:bg-[#1c1c1e] shadow-2xl animate-in zoom-in-95">
              <div className="p-6 text-center">
-                 <div className={`mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full ${bulkAdjustData.mode === 'add' ? 'bg-[#34C759]/10 text-[#34C759]' : 'bg-[#FF3B30]/10 text-[#FF3B30]'}`}>
+                 <div className={`mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full ${bulkAdjustData.mode === 'add' ? 'bg-[#34C759]/10 text-[#34C759] dark:text-[#32d74b]' : 'bg-[#FF3B30]/10 text-[#FF3B30] dark:text-[#ff453a]'}`}>
                    {bulkAdjustData.mode === 'add' ? <Plus className="h-6 w-6" /> : <Minus className="h-6 w-6" />}
                 </div>
-                <h3 className="text-[17px] font-semibold text-[#1C1C1E]">
+                <h3 className="text-[17px] font-semibold text-[#1C1C1E] dark:text-white">
                     Bulk {bulkAdjustData.mode === 'add' ? 'Award' : 'Penalty'}
                 </h3>
-                <p className="mt-1 text-[13px] text-[#8E8E93]">
-                    Apply to <span className="font-semibold text-[#1C1C1E]">{selectedStudents.size} selected students</span>.
+                <p className="mt-1 text-[13px] text-[#8E8E93] dark:text-gray-400">
+                    Apply to <span className="font-semibold text-[#1C1C1E] dark:text-white">{selectedStudents.size} selected students</span>.
                 </p>
 
                 <form onSubmit={handleConfirmBulkAdjust} className="mt-6 text-left">
                      <div className="space-y-4">
                          <div>
-                             <label className="mb-1 ml-1 block text-[12px] font-medium text-[#8E8E93]">AMOUNT</label>
+                             <label className="mb-1 ml-1 block text-[12px] font-medium text-[#8E8E93] dark:text-gray-400">AMOUNT</label>
                              <input
                                 type="number"
                                 min="1"
-                                className="w-full rounded-xl border-0 bg-[#F2F2F7] px-4 py-3 text-center text-[20px] font-bold text-[#1C1C1E] focus:ring-0"
+                                className="w-full rounded-xl border-0 bg-[#F2F2F7] dark:bg-[#2c2c2e] px-4 py-3 text-center text-[20px] font-bold text-[#1C1C1E] dark:text-white focus:ring-0"
                                 value={Math.abs(bulkAdjustData.delta)}
                                 onChange={(e) => {
                                     const val = Math.abs(parseInt(e.target.value) || 0);
@@ -1114,11 +1153,11 @@ const ClassDetails: React.FC = () => {
                             />
                          </div>
                          <div>
-                            <label className="mb-1 ml-1 block text-[12px] font-medium text-[#8E8E93]">REASON</label>
+                            <label className="mb-1 ml-1 block text-[12px] font-medium text-[#8E8E93] dark:text-gray-400">REASON</label>
                             <input
                                 type="text"
                                 placeholder={bulkAdjustData.mode === 'add' ? "e.g. Group Activity Winner" : "e.g. Late Submission"}
-                                className="w-full rounded-xl border-0 bg-[#F2F2F7] px-4 py-3 text-[15px] text-[#1C1C1E] placeholder:text-[#C7C7CC] focus:ring-2 focus:ring-[#007AFF]"
+                                className="w-full rounded-xl border-0 bg-[#F2F2F7] dark:bg-[#2c2c2e] px-4 py-3 text-[15px] text-[#1C1C1E] dark:text-white placeholder:text-[#C7C7CC] focus:ring-2 focus:ring-[#007AFF]"
                                 value={bulkAdjustData.reason}
                                 onChange={(e) => setBulkAdjustData({ ...bulkAdjustData, reason: e.target.value })}
                                 required
@@ -1130,7 +1169,7 @@ const ClassDetails: React.FC = () => {
                         <button
                             type="button"
                             onClick={() => setBulkAdjustData({ ...bulkAdjustData, isOpen: false })}
-                            className="rounded-xl bg-[#F2F2F7] py-3 text-[15px] font-semibold text-[#1C1C1E] hover:bg-[#E5E5EA] transition-colors"
+                            className="rounded-xl bg-[#F2F2F7] dark:bg-[#2c2c2e] py-3 text-[15px] font-semibold text-[#1C1C1E] dark:text-white hover:bg-[#E5E5EA] dark:hover:bg-[#3a3a3c] transition-colors"
                         >
                             Cancel
                         </button>

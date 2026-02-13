@@ -7,6 +7,7 @@ import ClassDetails from '@/pages/ClassDetails';
 import PublicLeaderboard from '@/pages/PublicLeaderboard';
 import Profile from '@/pages/Profile';
 import AdminUsers from '@/pages/admin/Users';
+import StudentProgress from '@/pages/StudentProgress';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 const App: React.FC = () => {
@@ -15,6 +16,7 @@ const App: React.FC = () => {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/p/:slug" element={<PublicLeaderboard />} />
+      <Route path="/s/:id" element={<StudentProgress />} />
       
       <Route element={<ProtectedRoute />}>
         <Route path="/" element={<Dashboard />} />

@@ -62,19 +62,19 @@ const Profile: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen justify-center bg-[#F2F2F7] p-4 sm:p-6 lg:p-8">
+    <div className="flex min-h-screen justify-center bg-[#F2F2F7] dark:bg-black p-4 sm:p-6 lg:p-8 transition-colors">
       <div className="w-full max-w-2xl">
         <header className="mb-8 flex items-center gap-4">
           <Link 
             to="/dashboard" 
-            className="group flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#8E8E93] shadow-sm ring-1 ring-black/5 transition-all hover:bg-[#E5E5EA] hover:text-[#1C1C1E] active:scale-95"
+            className="group flex h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-[#1c1c1e] text-[#8E8E93] dark:text-gray-400 shadow-sm ring-1 ring-black/5 dark:ring-white/10 transition-all hover:bg-[#E5E5EA] dark:hover:bg-[#2c2c2e] hover:text-[#1C1C1E] dark:hover:text-white active:scale-95"
           >
             <ArrowLeft className="h-5 w-5 transition-transform group-hover:-translate-x-0.5" />
           </Link>
-          <h1 className="text-3xl font-bold tracking-tight text-[#1C1C1E]">Edit Profile</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-[#1C1C1E] dark:text-white">Edit Profile</h1>
         </header>
 
-        <div className="overflow-hidden rounded-[20px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] ring-1 ring-black/5">
+        <div className="overflow-hidden rounded-[20px] bg-white dark:bg-[#1c1c1e] shadow-[0_2px_8px_rgba(0,0,0,0.04)] ring-1 ring-black/5 dark:ring-white/10 transition-colors">
           <div className="p-8">
             {message && (
               <div className={`mb-8 flex items-center gap-3 rounded-2xl p-4 text-[15px] font-medium ${
@@ -88,57 +88,57 @@ const Profile: React.FC = () => {
             <form onSubmit={handleSubmit} className="space-y-8">
               <div className="space-y-5">
                 <div>
-                    <label className="mb-1.5 block text-[13px] font-bold uppercase tracking-wider text-[#8E8E93]">Email Address</label>
+                    <label className="mb-1.5 block text-[13px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-gray-400">Email Address</label>
                     <input
                     type="email"
                     value={user?.email || ''}
                     disabled
-                    className="w-full rounded-xl border-0 bg-[#F2F2F7] px-4 py-3.5 text-[17px] text-[#8E8E93] cursor-not-allowed opacity-75"
+                    className="w-full rounded-xl border-0 bg-[#F2F2F7] dark:bg-[#2c2c2e] px-4 py-3.5 text-[17px] text-[#8E8E93] dark:text-gray-500 cursor-not-allowed opacity-75 transition-colors"
                     />
-                    <p className="mt-2 text-[13px] text-[#8E8E93]">Email address cannot be changed.</p>
+                    <p className="mt-2 text-[13px] text-[#8E8E93] dark:text-gray-500">Email address cannot be changed.</p>
                 </div>
 
                 <div>
-                    <label className="mb-1.5 block text-[13px] font-bold uppercase tracking-wider text-[#8E8E93]">Full Name</label>
+                    <label className="mb-1.5 block text-[13px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-gray-400">Full Name</label>
                     <input
                         type="text"
                         required
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        className="w-full rounded-xl border-0 bg-[#F2F2F7] px-4 py-3.5 text-[17px] text-[#1C1C1E] placeholder:text-[#C7C7CC] focus:ring-2 focus:ring-[#007AFF] transition-all"
+                        className="w-full rounded-xl border-0 bg-[#F2F2F7] dark:bg-[#2c2c2e] px-4 py-3.5 text-[17px] text-[#1C1C1E] dark:text-white placeholder:text-[#C7C7CC] dark:placeholder:text-gray-600 focus:ring-2 focus:ring-[#007AFF] transition-all"
                     />
                 </div>
               </div>
 
-              <div className="rounded-2xl bg-[#F2F2F7]/50 p-6 space-y-5 ring-1 ring-black/5">
-                <h3 className="text-[17px] font-semibold text-[#1C1C1E]">Change Password</h3>
+              <div className="rounded-2xl bg-[#F2F2F7]/50 dark:bg-[#2c2c2e]/50 p-6 space-y-5 ring-1 ring-black/5 dark:ring-white/10 transition-colors">
+                <h3 className="text-[17px] font-semibold text-[#1C1C1E] dark:text-white">Change Password</h3>
                 <div>
-                   <label className="mb-1.5 block text-[13px] font-bold uppercase tracking-wider text-[#8E8E93]">Current Password</label>
+                   <label className="mb-1.5 block text-[13px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-gray-400">Current Password</label>
                    <input
                         type="password"
                         value={oldPassword}
                         onChange={(e) => setOldPassword(e.target.value)}
                         placeholder="Required to set new password"
-                        className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-[17px] text-[#1C1C1E] placeholder:text-[#C7C7CC] shadow-sm focus:ring-2 focus:ring-[#007AFF] transition-all"
+                        className="w-full rounded-xl border-0 bg-white dark:bg-[#1c1c1e] px-4 py-3.5 text-[17px] text-[#1C1C1E] dark:text-white placeholder:text-[#C7C7CC] dark:placeholder:text-gray-600 shadow-sm focus:ring-2 focus:ring-[#007AFF] transition-all"
                     />
                 </div>
                 <div className="grid gap-5 sm:grid-cols-2">
                     <div>
-                        <label className="mb-1.5 block text-[13px] font-bold uppercase tracking-wider text-[#8E8E93]">New Password</label>
+                        <label className="mb-1.5 block text-[13px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-gray-400">New Password</label>
                         <input
                             type="password"
                             value={newPassword}
                             onChange={(e) => setNewPassword(e.target.value)}
-                            className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-[17px] text-[#1C1C1E] placeholder:text-[#C7C7CC] shadow-sm focus:ring-2 focus:ring-[#007AFF] transition-all"
+                            className="w-full rounded-xl border-0 bg-white dark:bg-[#1c1c1e] px-4 py-3.5 text-[17px] text-[#1C1C1E] dark:text-white placeholder:text-[#C7C7CC] dark:placeholder:text-gray-600 shadow-sm focus:ring-2 focus:ring-[#007AFF] transition-all"
                         />
                     </div>
                     <div>
-                        <label className="mb-1.5 block text-[13px] font-bold uppercase tracking-wider text-[#8E8E93]">Confirm Password</label>
+                        <label className="mb-1.5 block text-[13px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-gray-400">Confirm Password</label>
                         <input
                             type="password"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="w-full rounded-xl border-0 bg-white px-4 py-3.5 text-[17px] text-[#1C1C1E] placeholder:text-[#C7C7CC] shadow-sm focus:ring-2 focus:ring-[#007AFF] transition-all"
+                            className="w-full rounded-xl border-0 bg-white dark:bg-[#1c1c1e] px-4 py-3.5 text-[17px] text-[#1C1C1E] dark:text-white placeholder:text-[#C7C7CC] dark:placeholder:text-gray-600 shadow-sm focus:ring-2 focus:ring-[#007AFF] transition-all"
                         />
                     </div>
                 </div>
