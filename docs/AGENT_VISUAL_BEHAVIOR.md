@@ -25,81 +25,81 @@ module.exports = {
       colors: {
         // Primary (GitHub blue-gray)
         primary: {
-          50: '#f6f8fa',
-          100: '#eaeef2',
-          200: '#d0d7de',
-          300: '#afb8c1',
-          400: '#8c959f',
-          500: '#6e7781', // Main
-          600: '#57606a',
-          700: '#424a53',
-          800: '#32383f',
-          900: '#24292f',
+          50: "#f6f8fa",
+          100: "#eaeef2",
+          200: "#d0d7de",
+          300: "#afb8c1",
+          400: "#8c959f",
+          500: "#6e7781", // Main
+          600: "#57606a",
+          700: "#424a53",
+          800: "#32383f",
+          900: "#24292f",
         },
         // Accent (GitHub blue)
         accent: {
-          50: '#ddf4ff',
-          100: '#b6e3ff',
-          200: '#80ccff',
-          300: '#54aeff',
-          400: '#218bff',
-          500: '#0969da', // Main
-          600: '#0550ae',
-          700: '#033d8b',
-          800: '#0a3069',
-          900: '#002155',
+          50: "#ddf4ff",
+          100: "#b6e3ff",
+          200: "#80ccff",
+          300: "#54aeff",
+          400: "#218bff",
+          500: "#0969da", // Main
+          600: "#0550ae",
+          700: "#033d8b",
+          800: "#0a3069",
+          900: "#002155",
         },
         // Success (GitHub green)
         success: {
-          50: '#dafbe1',
-          100: '#aceebb',
-          200: '#6fdd8b',
-          300: '#4ac26b',
-          400: '#2da44e', // Main
-          500: '#1a7f37',
-          600: '#116329',
-          700: '#044f1e',
-          800: '#003d16',
-          900: '#002d11',
+          50: "#dafbe1",
+          100: "#aceebb",
+          200: "#6fdd8b",
+          300: "#4ac26b",
+          400: "#2da44e", // Main
+          500: "#1a7f37",
+          600: "#116329",
+          700: "#044f1e",
+          800: "#003d16",
+          900: "#002d11",
         },
         // Warning (GitHub yellow)
         warning: {
-          50: '#fff8c5',
-          100: '#fae17d',
-          200: '#eac54f',
-          300: '#d4a72c',
-          400: '#bf8700', // Main
-          500: '#9a6700',
-          600: '#7d4e00',
-          700: '#633c01',
-          800: '#4d2d00',
-          900: '#3b2300',
+          50: "#fff8c5",
+          100: "#fae17d",
+          200: "#eac54f",
+          300: "#d4a72c",
+          400: "#bf8700", // Main
+          500: "#9a6700",
+          600: "#7d4e00",
+          700: "#633c01",
+          800: "#4d2d00",
+          900: "#3b2300",
         },
         // Danger (GitHub red)
         danger: {
-          50: '#ffebe9',
-          100: '#ffcecb',
-          200: '#ffaba8',
-          300: '#ff8182',
-          400: '#fa4549',
-          500: '#cf222e', // Main
-          600: '#a40e26',
-          700: '#82071e',
-          800: '#660018',
-          900: '#4c0014',
+          50: "#ffebe9",
+          100: "#ffcecb",
+          200: "#ffaba8",
+          300: "#ff8182",
+          400: "#fa4549",
+          500: "#cf222e", // Main
+          600: "#a40e26",
+          700: "#82071e",
+          800: "#660018",
+          900: "#4c0014",
         },
         // Neutral (GitHub gray)
         neutral: {
-          50: '#f6f8fa',
-          100: '#eaeef2',
-          200: '#d0d7de',
-          300: '#afb8c1',
-          400: '#8c959f',
-          500: '#6e7781',
-          600: '#57606a',
-          700: '#424a53',
-          800: '#32383f',
-          900: '#24292f',
+          50: "#f6f8fa",
+          100: "#eaeef2",
+          200: "#d0d7de",
+          300: "#afb8c1",
+          400: "#8c959f",
+          500: "#6e7781",
+          600: "#57606a",
+          700: "#424a53",
+          800: "#32383f",
+          900: "#24292f",
         },
       },
     },
@@ -149,22 +149,22 @@ module.exports = {
 
 ```tsx
 // Page Background
-className = 'bg-neutral-50';
+className = "bg-neutral-50";
 
 // Card (elevated)
-className = 'bg-white border border-neutral-200';
+className = "bg-white border border-neutral-200";
 
 // Nested Section
-className = 'bg-neutral-50 border-t border-neutral-200';
+className = "bg-neutral-50 border-t border-neutral-200";
 
 // Interactive Hover
-className = 'hover:border-accent-500 hover:bg-accent-50';
+className = "hover:border-accent-500 hover:bg-accent-50";
 
 // Active State
-className = 'border-2 border-accent-500 bg-accent-50';
+className = "border-2 border-accent-500 bg-accent-50";
 
 // Disabled
-className = 'border border-neutral-200 bg-neutral-100 opacity-50';
+className = "border border-neutral-200 bg-neutral-100 opacity-50";
 ```
 
 ## SCSS Module Pattern
@@ -233,7 +233,7 @@ $transition-slow: 300ms;
 
 ```scss
 // styles/_mixins.scss
-@use 'variables' as *;
+@use "variables" as *;
 
 // Flat card with border
 @mixin flat-card($border-width: 1px) {
@@ -334,7 +334,7 @@ $transition-slow: 300ms;
     cursor: not-allowed;
   }
 
-  &[aria-invalid='true'] {
+  &[aria-invalid="true"] {
     border-color: $danger-500;
 
     &:focus {
@@ -350,8 +350,8 @@ $transition-slow: 300ms;
 
 ```scss
 // components/ItemCard/ItemCard.module.scss
-@use '@/styles/variables' as *;
-@use '@/styles/mixins' as *;
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
 
 .card {
   @include flat-card-interactive;
@@ -420,8 +420,8 @@ $transition-slow: 300ms;
 
 ```scss
 // styles/components/_button.scss
-@use '../variables' as *;
-@use '../mixins' as *;
+@use "../variables" as *;
+@use "../mixins" as *;
 
 .btn {
   @include button-base;
@@ -474,8 +474,8 @@ $transition-slow: 300ms;
 
 ```scss
 // styles/components/_form.scss
-@use '../variables' as *;
-@use '../mixins' as *;
+@use "../variables" as *;
+@use "../mixins" as *;
 
 .form-group {
   margin-bottom: $spacing-4;
@@ -493,7 +493,7 @@ $transition-slow: 300ms;
   margin-bottom: $spacing-2;
 
   &--required::after {
-    content: '*';
+    content: "*";
     color: $danger-500;
     margin-left: $spacing-1;
   }
@@ -562,8 +562,8 @@ $transition-slow: 300ms;
 
 ```scss
 // styles/components/_table.scss
-@use '../variables' as *;
-@use '../mixins' as *;
+@use "../variables" as *;
+@use "../mixins" as *;
 
 .table-container {
   overflow-x: auto;
@@ -621,14 +621,14 @@ $transition-slow: 300ms;
 
 ```tsx
 // components/ItemCard/ItemCard.tsx
-import React from 'react';
-import styles from './ItemCard.module.scss';
+import React from "react";
+import styles from "./ItemCard.module.scss";
 
 interface ItemCardProps {
   title: string;
   priority: number;
   details: number;
-  variant?: 'default' | 'highlighted';
+  variant?: "default" | "highlighted";
   onClick?: () => void;
 }
 
@@ -636,14 +636,14 @@ export const ItemCard: React.FC<ItemCardProps> = ({
   title,
   priority,
   details,
-  variant = 'default',
+  variant = "default",
   onClick,
 }) => {
   return (
     <div
       className={`
         ${styles.card}
-        ${variant === 'highlighted' ? styles['card--highlighted'] : ''}
+        ${variant === "highlighted" ? styles["card--highlighted"] : ""}
       `}
       onClick={onClick}
     >
@@ -662,11 +662,11 @@ export const ItemCard: React.FC<ItemCardProps> = ({
 
       {/* Body: Use SCSS module for complex structure */}
       <div className={styles.card__body}>
-        <div className={styles['card__body-item']}>
+        <div className={styles["card__body-item"]}>
           <ClockIcon className="w-5 h-5" />
           <span>Priority: {priority}</span>
         </div>
-        <div className={styles['card__body-item']}>
+        <div className={styles["card__body-item"]}>
           <QuestionIcon className="w-5 h-5" />
           <span>Details: {details}</span>
         </div>

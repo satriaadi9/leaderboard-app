@@ -345,7 +345,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER}']
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -364,13 +364,13 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1'
+          cpus: "1"
           memory: 1G
         reservations:
-          cpus: '0.5'
+          cpus: "0.5"
           memory: 512M
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -378,8 +378,8 @@ services:
     logging:
       driver: json-file
       options:
-        max-size: '10m'
-        max-file: '3'
+        max-size: "10m"
+        max-file: "3"
 ```
 
 ## Troubleshooting
@@ -501,11 +501,11 @@ networks:
 ```yaml
 # Bad
 ports:
-  - '5432:5432' # Exposes PostgreSQL to host
+  - "5432:5432" # Exposes PostgreSQL to host
 
 # Good
 expose:
-  - '5432' # Only within Docker network
+  - "5432" # Only within Docker network
 ```
 
 ## Bash Aliases

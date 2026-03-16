@@ -180,7 +180,7 @@
 
 ```tsx
 // When you need different UI for different screens
-import { useScreenFlags } from '@/hooks/useResponsive';
+import { useScreenFlags } from "@/hooks/useResponsive";
 
 function Component() {
   const { isMobile, isTablet, isDesktop } = useScreenFlags();

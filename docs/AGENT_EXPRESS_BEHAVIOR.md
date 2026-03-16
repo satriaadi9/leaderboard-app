@@ -45,18 +45,22 @@ backend/src/
 
 ```typescript
 // controllers/item.controller.ts
-import { Request, Response, NextFunction } from 'express';
-import { itemService } from '@/services/item.service';
-import { AppError } from '@/utils/errors';
+import { Request, Response, NextFunction } from "express";
+import { itemService } from "@/services/item.service";
+import { AppError } from "@/utils/errors";
 
 export const itemController = {
-  async getItemById(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async getItemById(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       const { id } = req.params;
       const item = await itemService.getItemById(id);
 
       if (!item) {
-        throw new AppError('Item not found', 404);
+        throw new AppError("Item not found", 404);
       }
 
       res.json({
@@ -68,7 +72,11 @@ export const itemController = {
     }
   },
 
-  async createItem(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async createItem(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       const ownerId = req.user!.id;
       const item = await itemService.createItem(ownerId, req.body);
@@ -76,7 +84,7 @@ export const itemController = {
       res.status(201).json({
         success: true,
         data: item,
-        message: 'Item created successfully',
+        message: "Item created successfully",
       });
     } catch (error) {
       next(error);
@@ -117,10 +125,10 @@ export const itemController = {
 
 ```typescript
 // services/item.service.ts
-import { prisma } from '@/config/database';
-import { redis } from '@/config/redis';
-import { AppError } from '@/utils/errors';
-import { logger } from '@/utils/logger';
+import { prisma } from "@/config/database";
+import { redis } from "@/config/redis";
+import { AppError } from "@/utils/errors";
+import { logger } from "@/utils/logger";
 
 export const itemService = {
   async getItemById(itemId: string) {
@@ -134,7 +142,7 @@ export const itemService = {
     const item = await prisma.item.findUnique({
       where: { id: itemId },
       include: {
-        details: { orderBy: { order: 'asc' } },
+        details: { orderBy: { order: "asc" } },
         owner: { select: { id: true, name: true } },
       },
     });
@@ -152,7 +160,7 @@ export const itemService = {
     this.validateItemData(data);
 
     // Use transaction for atomic operations
-    const item = await prisma.$transaction(async tx => {
+    const item = await prisma.$transaction(async (tx) => {
       return await tx.item.create({
         data: {
           title: data.title,
@@ -179,20 +187,20 @@ export const itemService = {
     const item = await prisma.item.findUnique({ where: { id: itemId } });
 
     if (!item) {
-      throw new AppError('Item not found', 404);
+      throw new AppError("Item not found", 404);
     }
 
     if (item.ownerId !== ownerId) {
-      throw new AppError('Unauthorized to update this item', 403);
+      throw new AppError("Unauthorized to update this item", 403);
     }
 
     // Business rule: no updates during active tasks
     const activeTasks = await prisma.task.count({
-      where: { itemId, status: 'IN_PROGRESS' },
+      where: { itemId, status: "IN_PROGRESS" },
     });
 
     if (activeTasks > 0) {
-      throw new AppError('Cannot update item with active tasks', 400);
+      throw new AppError("Cannot update item with active tasks", 400);
     }
 
     // Update and invalidate cache
@@ -208,11 +216,11 @@ export const itemService = {
 
   validateItemData(data: CreateItemData): void {
     if (!data.title?.trim()) {
-      throw new AppError('Item title is required', 400);
+      throw new AppError("Item title is required", 400);
     }
 
     if (!data.details?.length) {
-      throw new AppError('Item must have at least one detail', 400);
+      throw new AppError("Item must have at least one detail", 400);
     }
 
     data.details.forEach((d, i) => {
@@ -248,14 +256,14 @@ export const itemService = {
 
 ```typescript
 // middleware/auth.ts
-import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
-import { AppError } from '@/utils/errors';
+import { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
+import { AppError } from "@/utils/errors";
 
 interface JwtPayload {
   id: string;
   email: string;
-  role: 'ADMIN' | 'USER';
+  role: "ADMIN" | "USER";
 }
 
 declare global {
@@ -266,12 +274,16 @@ declare global {
   }
 }
 
-export const authenticate = (req: Request, res: Response, next: NextFunction): void => {
+export const authenticate = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void => {
   try {
     const authHeader = req.headers.authorization;
 
-    if (!authHeader?.startsWith('Bearer ')) {
-      throw new AppError('No token provided', 401);
+    if (!authHeader?.startsWith("Bearer ")) {
+      throw new AppError("No token provided", 401);
     }
 
     const token = authHeader.substring(7);
@@ -281,23 +293,23 @@ export const authenticate = (req: Request, res: Response, next: NextFunction): v
     next();
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
-      next(new AppError('Invalid token', 401));
+      next(new AppError("Invalid token", 401));
     } else if (error instanceof jwt.TokenExpiredError) {
-      next(new AppError('Token expired', 401));
+      next(new AppError("Token expired", 401));
     } else {
       next(error);
     }
   }
 };
 
-export const authorize = (...roles: ('ADMIN' | 'USER')[]) => {
+export const authorize = (...roles: ("ADMIN" | "USER")[]) => {
   return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {
-      return next(new AppError('Authentication required', 401));
+      return next(new AppError("Authentication required", 401));
     }
 
     if (!roles.includes(req.user.role)) {
-      return next(new AppError('Insufficient permissions', 403));
+      return next(new AppError("Insufficient permissions", 403));
     }
 
     next();
@@ -309,12 +321,16 @@ export const authorize = (...roles: ('ADMIN' | 'USER')[]) => {
 
 ```typescript
 // middleware/validate.ts
-import { Request, Response, NextFunction } from 'express';
-import { AnyZodObject, ZodError } from 'zod';
-import { AppError } from '@/utils/errors';
+import { Request, Response, NextFunction } from "express";
+import { AnyZodObject, ZodError } from "zod";
+import { AppError } from "@/utils/errors";
 
 export const validate = (schema: AnyZodObject) => {
-  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  return async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       await schema.parseAsync({
         body: req.body,
@@ -324,11 +340,11 @@ export const validate = (schema: AnyZodObject) => {
       next();
     } catch (error) {
       if (error instanceof ZodError) {
-        const errors = error.errors.map(err => ({
-          field: err.path.join('.'),
+        const errors = error.errors.map((err) => ({
+          field: err.path.join("."),
           message: err.message,
         }));
-        next(new AppError('Validation failed', 400, errors));
+        next(new AppError("Validation failed", 400, errors));
       } else {
         next(error);
       }
@@ -341,11 +357,16 @@ export const validate = (schema: AnyZodObject) => {
 
 ```typescript
 // middleware/errorHandler.ts
-import { Request, Response, NextFunction } from 'express';
-import { AppError } from '@/utils/errors';
-import { logger } from '@/utils/logger';
+import { Request, Response, NextFunction } from "express";
+import { AppError } from "@/utils/errors";
+import { logger } from "@/utils/logger";
 
-export const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction): void => {
+export const errorHandler = (
+  err: Error,
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void => {
   // Log error
   logger.error({
     message: err.message,
@@ -366,10 +387,10 @@ export const errorHandler = (err: Error, req: Request, res: Response, next: Next
   }
 
   // Handle Prisma errors
-  if (err.name === 'PrismaClientKnownRequestError') {
+  if (err.name === "PrismaClientKnownRequestError") {
     res.status(400).json({
       success: false,
-      message: 'Database operation failed',
+      message: "Database operation failed",
     });
     return;
   }
@@ -377,7 +398,7 @@ export const errorHandler = (err: Error, req: Request, res: Response, next: Next
   // Unknown errors
   res.status(500).json({
     success: false,
-    message: 'Internal server error',
+    message: "Internal server error",
   });
 };
 ```
@@ -386,35 +407,48 @@ export const errorHandler = (err: Error, req: Request, res: Response, next: Next
 
 ```typescript
 // routes/item.routes.ts
-import { Router } from 'express';
-import { itemController } from '@/controllers/item.controller';
-import { authenticate, authorize } from '@/middleware/auth';
-import { validate } from '@/middleware/validate';
-import { createItemSchema, updateItemSchema } from '@/validators/item.validator';
+import { Router } from "express";
+import { itemController } from "@/controllers/item.controller";
+import { authenticate, authorize } from "@/middleware/auth";
+import { validate } from "@/middleware/validate";
+import {
+  createItemSchema,
+  updateItemSchema,
+} from "@/validators/item.validator";
 
 const router = Router();
 
 // Admin routes
-router.get('/admin/items', authenticate, authorize('ADMIN'), itemController.getAdminItems);
+router.get(
+  "/admin/items",
+  authenticate,
+  authorize("ADMIN"),
+  itemController.getAdminItems,
+);
 
 router.post(
-  '/admin/items',
+  "/admin/items",
   authenticate,
-  authorize('ADMIN'),
+  authorize("ADMIN"),
   validate(createItemSchema),
-  itemController.createItem
+  itemController.createItem,
 );
 
 router.put(
-  '/admin/items/:id',
+  "/admin/items/:id",
   authenticate,
-  authorize('ADMIN'),
+  authorize("ADMIN"),
   validate(updateItemSchema),
-  itemController.updateItem
+  itemController.updateItem,
 );
 
 // User routes
-router.get('/user/items', authenticate, authorize('USER'), itemController.getUserItems);
+router.get(
+  "/user/items",
+  authenticate,
+  authorize("USER"),
+  itemController.getUserItems,
+);
 
 export default router;
 ```
@@ -423,7 +457,7 @@ export default router;
 
 ```typescript
 // validators/item.validator.ts
-import { z } from 'zod';
+import { z } from "zod";
 
 export const createItemSchema = z.object({
   body: z.object({
@@ -436,7 +470,7 @@ export const createItemSchema = z.object({
           content: z.string().min(1),
           type: z.string(),
           order: z.number().int().min(0),
-        })
+        }),
       )
       .min(1)
       .max(100),
@@ -462,7 +496,7 @@ export const updateItemSchema = z.object({
 
 ```typescript
 // ✅ Use transactions for multi-step operations
-await prisma.$transaction(async tx => {
+await prisma.$transaction(async (tx) => {
   const item = await tx.item.create({ data: itemData });
   const tasks = await tx.task.createMany({ data: taskData });
   return { item, tasks };
@@ -476,7 +510,7 @@ await prisma.$transaction(async tx => {
 const item = await prisma.item.findUnique({
   where: { id },
   include: {
-    details: { orderBy: { order: 'asc' } },
+    details: { orderBy: { order: "asc" } },
     owner: { select: { id: true, name: true } },
   },
 });
@@ -500,9 +534,9 @@ const items = await prisma.item.findMany({
 
 ```typescript
 // app.ts
-import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
-import cors from 'cors';
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+import cors from "cors";
 
 // Security headers
 app.use(helmet());
@@ -512,7 +546,7 @@ app.use(
   cors({
     origin: process.env.CORS_ORIGIN,
     credentials: true,
-  })
+  }),
 );
 
 // Rate limiting
@@ -520,14 +554,14 @@ const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 min
   max: 100, // 100 requests per IP
 });
-app.use('/api/', limiter);
+app.use("/api/", limiter);
 
 // Strict limit for auth
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 5,
 });
-app.use('/api/auth/login', authLimiter);
+app.use("/api/auth/login", authLimiter);
 ```
 
 ## Response Format

@@ -27,6 +27,7 @@ import {
   Globe
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { useEventLogger } from '@/hooks/useEventLogger';
 
 type SortConfig = {
   key: string;
@@ -37,6 +38,7 @@ const ClassDetails: React.FC = () => {
   const { user } = useAuth();
   const { id } = useParams<{ id: string }>();
   const queryClient = useQueryClient();
+  const { logEvent } = useEventLogger();
   const [isEnrolling, setIsEnrolling] = useState(false);
   const [enrollData, setEnrollData] = useState({ name: '', email: '' });
   const [isImporting, setIsImporting] = useState(false);
@@ -379,11 +381,19 @@ const ClassDetails: React.FC = () => {
       addAssistantMutation.mutate(newAssistant);
   };
 
+  React.useEffect(() => {
+    if (id) {
+       logEvent('PAGE_VIEW', { page: 'ClassDetails', classId: id });
+    }
+  }, [id, logEvent]);
+
   const handleExport = () => {
       if (!leaderboard || leaderboard.length === 0) {
           alert("No data to export");
           return;
       }
+      
+      logEvent('EXPORT_USAGE', { format: 'csv', classId: id });
       
       const headers = ["User ID,User Name,Email Address,Points"];
       const rows = leaderboard.map((entry: any) => {

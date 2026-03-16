@@ -7,6 +7,7 @@ import ClassDetails from '@/pages/ClassDetails';
 import PublicLeaderboard from '@/pages/PublicLeaderboard';
 import Profile from '@/pages/Profile';
 import AdminUsers from '@/pages/admin/Users';
+import EventLogs from '@/pages/admin/EventLogs';
 import StudentProgress from '@/pages/StudentProgress';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
@@ -23,6 +24,7 @@ const App: React.FC = () => {
         <Route path="/class/:id" element={<ClassDetails />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/admin/users" element={<AdminUsers />} />
+        <Route path="/admin/events" element={<EventLogs />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

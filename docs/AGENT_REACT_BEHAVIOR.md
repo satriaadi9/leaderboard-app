@@ -99,13 +99,15 @@ const [count, setCount] = useState(0);
 const [user, setUser] = useState<User | null>(null);
 
 // ✅ Object state (immutable updates)
-const [form, setForm] = useState({ title: '', duration: 60 });
-setForm(prev => ({ ...prev, title: 'New' }));
+const [form, setForm] = useState({ title: "", duration: 60 });
+setForm((prev) => ({ ...prev, title: "New" }));
 
 // ✅ Array state (immutable updates)
-setItems(prev => [...prev, newItem]); // Add
-setItems(prev => prev.filter(item => item.id !== id)); // Remove
-setItems(prev => prev.map(item => (item.id === id ? { ...item, ...updates } : item))); // Update
+setItems((prev) => [...prev, newItem]); // Add
+setItems((prev) => prev.filter((item) => item.id !== id)); // Remove
+setItems((prev) =>
+  prev.map((item) => (item.id === id ? { ...item, ...updates } : item)),
+); // Update
 ```
 
 ### Complex State (useReducer)
@@ -119,17 +121,17 @@ interface State {
 }
 
 type Action =
-  | { type: 'FETCH_START' }
-  | { type: 'FETCH_SUCCESS'; payload: Item[] }
-  | { type: 'FETCH_ERROR'; payload: string };
+  | { type: "FETCH_START" }
+  | { type: "FETCH_SUCCESS"; payload: Item[] }
+  | { type: "FETCH_ERROR"; payload: string };
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
-    case 'FETCH_START':
+    case "FETCH_START":
       return { ...state, loading: true, error: null };
-    case 'FETCH_SUCCESS':
+    case "FETCH_SUCCESS":
       return { ...state, loading: false, items: action.payload };
-    case 'FETCH_ERROR':
+    case "FETCH_ERROR":
       return { ...state, loading: false, error: action.payload };
     default:
       return state;
@@ -137,7 +139,7 @@ function reducer(state: State, action: Action): State {
 }
 
 const [state, dispatch] = useReducer(reducer, initialState);
-dispatch({ type: 'FETCH_SUCCESS', payload: items });
+dispatch({ type: "FETCH_SUCCESS", payload: items });
 ```
 
 ## Custom Hooks Pattern
@@ -157,7 +159,10 @@ interface UseCountdownReturn {
   formattedTime: string;
 }
 
-export const useCountdown = ({ endTime, onExpire }: UseCountdownOptions): UseCountdownReturn => {
+export const useCountdown = ({
+  endTime,
+  onExpire,
+}: UseCountdownOptions): UseCountdownReturn => {
   const [timeRemaining, setTimeRemaining] = useState(0);
 
   useEffect(() => {
@@ -174,7 +179,7 @@ export const useCountdown = ({ endTime, onExpire }: UseCountdownOptions): UseCou
     return () => clearInterval(interval);
   }, [endTime, onExpire]);
 
-  const formattedTime = `${Math.floor(timeRemaining / 60)}:${(timeRemaining % 60).toString().padStart(2, '0')}`;
+  const formattedTime = `${Math.floor(timeRemaining / 60)}:${(timeRemaining % 60).toString().padStart(2, "0")}`;
 
   return { timeRemaining, isExpired: timeRemaining === 0, formattedTime };
 };
@@ -199,7 +204,7 @@ interface UseFetchReturn<T> {
 
 export const useFetch = <T>(
   fetchFn: () => Promise<T>,
-  deps: React.DependencyList = []
+  deps: React.DependencyList = [],
 ): UseFetchReturn<T> => {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
@@ -212,7 +217,7 @@ export const useFetch = <T>(
       const result = await fetchFn();
       setData(result);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error');
+      setError(err instanceof Error ? err.message : "Error");
     } finally {
       setLoading(false);
     }
@@ -226,7 +231,12 @@ export const useFetch = <T>(
 };
 
 // Usage
-const { data: items, loading, error, refetch } = useFetch(() => itemService.getAll(), [userId]);
+const {
+  data: items,
+  loading,
+  error,
+  refetch,
+} = useFetch(() => itemService.getAll(), [userId]);
 ```
 
 ## Context Pattern
@@ -310,11 +320,11 @@ export const ItemCard = React.memo<ItemCardProps>(
 
 ```typescript
 // ❌ Creates new function on every render
-const handleClick = () => console.log('click');
+const handleClick = () => console.log("click");
 
 // ✅ Same function reference
 const handleClick = useCallback(() => {
-  console.log('click');
+  console.log("click");
 }, []);
 
 const handleDelete = useCallback((id: string) => {
@@ -326,11 +336,11 @@ const handleDelete = useCallback((id: string) => {
 
 ```typescript
 // ❌ Recalculates every render
-const filtered = items.filter(e => e.status === filter);
+const filtered = items.filter((e) => e.status === filter);
 
 // ✅ Only recalculates when dependencies change
 const filtered = useMemo(() => {
-  return items.filter(e => e.status === filter);
+  return items.filter((e) => e.status === filter);
 }, [items, filter]);
 
 const stats = useMemo(() => {

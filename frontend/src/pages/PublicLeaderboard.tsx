@@ -3,11 +3,20 @@ import { useParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/axios';
 import { Trophy, Users, TrendingUp, History, X } from 'lucide-react';
+import { useEventLogger } from '@/hooks/useEventLogger';
 
 const PublicLeaderboard: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const queryClient = useQueryClient();
   const [selectedStudent, setSelectedStudent] = useState<{ id: string; name: string } | null>(null);
+  const { logEvent } = useEventLogger();
+
+  // Log leaderboard check on mount
+  useEffect(() => {
+    if (slug) {
+      logEvent('LEADERBOARD_CHECK', { slug });
+    }
+  }, [slug, logEvent]);
 
   // Real-time Updates via SSE
   useEffect(() => {

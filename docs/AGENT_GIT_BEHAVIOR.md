@@ -122,15 +122,15 @@ docs/*.md                                         → (docs)
 
 ## Quick Decision Matrix
 
-| Change Type       | Type            | Example                                  |
-| ----------------- | --------------- | ---------------------------------------- |
-| New functionality | `feat`          | `feat(item): add image upload support`   |
-| Bug fix           | `fix`           | `fix(task): resolve status sync issue`   |
-| Docs only         | `docs`          | `docs(api): add endpoint examples`       |
+| Change Type       | Type            | Example                                    |
+| ----------------- | --------------- | ------------------------------------------ |
+| New functionality | `feat`          | `feat(item): add image upload support`     |
+| Bug fix           | `fix`           | `fix(task): resolve status sync issue`     |
+| Docs only         | `docs`          | `docs(api): add endpoint examples`         |
 | Refactor          | `refactor`      | `refactor(auth): extract validation logic` |
-| Tests             | `test`          | `test(item): add integration tests`      |
-| Dependencies      | `chore`         | `chore(deps): update prisma to v5.7.1`   |
-| DB schema         | `feat` or `fix` | `feat(db): add order field to details`   |
+| Tests             | `test`          | `test(item): add integration tests`        |
+| Dependencies      | `chore`         | `chore(deps): update prisma to v5.7.1`     |
+| DB schema         | `feat` or `fix` | `feat(db): add order field to details`     |
 
 ## Commit Workflow
 

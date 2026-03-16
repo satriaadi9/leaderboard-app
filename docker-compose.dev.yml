@@ -16,6 +16,7 @@ services:
       - REDIS_URL=redis://redis:6379
       - JWT_SECRET=supersecretdevkey
       - PORT=3000
+      - GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID:-76850180364-jtp4e1lgemjklvdqoahm3njb7v727vef.apps.googleusercontent.com}
     depends_on:
       - postgres
       - redis

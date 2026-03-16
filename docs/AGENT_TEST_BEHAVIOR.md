@@ -87,14 +87,14 @@ Examples:
 ### vitest.config.ts
 
 ```typescript
-import { defineConfig } from 'vitest/config';
-import path from 'path';
+import { defineConfig } from "vitest/config";
+import path from "path";
 
 export default defineConfig({
   test: {
     // E2E test settings
-    include: ['test/api/**/*.e2e.test.ts'],
-    exclude: ['**/node_modules/**', '**/dist/**'],
+    include: ["test/api/**/*.e2e.test.ts"],
+    exclude: ["**/node_modules/**", "**/dist/**"],
 
     // Run tests sequentially (avoid DB conflicts)
     threads: false,
@@ -104,18 +104,18 @@ export default defineConfig({
     hookTimeout: 30000,
 
     // Global setup/teardown
-    globalSetup: ['./test/helpers/setup.ts'],
+    globalSetup: ["./test/helpers/setup.ts"],
 
     // Environment
     env: {
-      NODE_ENV: 'test',
-      DATABASE_URL: 'postgresql://dbuser:dbpass@localhost:5433/app_db_test',
-      JWT_SECRET: 'test-secret-key',
+      NODE_ENV: "test",
+      DATABASE_URL: "postgresql://dbuser:dbpass@localhost:5433/app_db_test",
+      JWT_SECRET: "test-secret-key",
     },
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      "@": path.resolve(__dirname, "./src"),
     },
   },
 });
@@ -136,25 +136,25 @@ export default defineConfig({
 
 ```typescript
 // test/api/item.e2e.test.ts
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
-import { apiClient } from '../helpers/api-client';
-import { createUser, createItem } from '../helpers/factories';
-import { prisma } from '@/config/prisma';
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
+import { apiClient } from "../helpers/api-client";
+import { createUser, createItem } from "../helpers/factories";
+import { prisma } from "@/config/prisma";
 
-describe('Item API (E2E)', () => {
+describe("Item API (E2E)", () => {
   let adminToken: string;
   let userToken: string;
   let adminId: string;
 
   // Setup: Create test users
   beforeAll(async () => {
-    const admin = await createUser({ role: 'ADMIN' });
-    const user = await createUser({ role: 'USER' });
+    const admin = await createUser({ role: "ADMIN" });
+    const user = await createUser({ role: "USER" });
 
     adminId = admin.id;
 
-    adminToken = await apiClient.login(admin.email, 'password');
-    userToken = await apiClient.login(user.email, 'password');
+    adminToken = await apiClient.login(admin.email, "password");
+    userToken = await apiClient.login(user.email, "password");
   });
 
   // Cleanup: Delete test data after each test
@@ -167,24 +167,24 @@ describe('Item API (E2E)', () => {
     await prisma.$disconnect();
   });
 
-  describe('POST /api/admin/items', () => {
-    it('should create item with valid data', async () => {
+  describe("POST /api/admin/items", () => {
+    it("should create item with valid data", async () => {
       // Arrange
       const itemData = {
-        title: 'New Item',
-        description: 'Item description',
+        title: "New Item",
+        description: "Item description",
         priority: 5,
         details: [
           {
-            content: 'Detail content',
-            type: 'text',
+            content: "Detail content",
+            type: "text",
             order: 0,
           },
         ],
       };
 
       // Act
-      const response = await apiClient.post('/api/admin/items', itemData, {
+      const response = await apiClient.post("/api/admin/items", itemData, {
         headers: { Authorization: `Bearer ${adminToken}` },
       });
 
@@ -207,10 +207,10 @@ describe('Item API (E2E)', () => {
       expect(savedItem!.details).toHaveLength(1);
     });
 
-    it('should reject item without authentication', async () => {
-      const itemData = { title: 'Test', priority: 5, details: [] };
+    it("should reject item without authentication", async () => {
+      const itemData = { title: "Test", priority: 5, details: [] };
 
-      const response = await apiClient.post('/api/admin/items', itemData, {
+      const response = await apiClient.post("/api/admin/items", itemData, {
         validateStatus: () => true, // Don't throw on 401
       });
 
@@ -218,14 +218,14 @@ describe('Item API (E2E)', () => {
       expect(response.data.success).toBe(false);
     });
 
-    it('should reject item with invalid data', async () => {
+    it("should reject item with invalid data", async () => {
       const itemData = {
-        title: '', // Invalid: empty title
+        title: "", // Invalid: empty title
         priority: 0, // Invalid: zero priority
         details: [], // Invalid: no details
       };
 
-      const response = await apiClient.post('/api/admin/items', itemData, {
+      const response = await apiClient.post("/api/admin/items", itemData, {
         headers: { Authorization: `Bearer ${adminToken}` },
         validateStatus: () => true,
       });
@@ -235,10 +235,10 @@ describe('Item API (E2E)', () => {
       expect(response.data.errors).toBeDefined();
     });
 
-    it('should reject user creating item', async () => {
-      const itemData = { title: 'Test', priority: 5, details: [] };
+    it("should reject user creating item", async () => {
+      const itemData = { title: "Test", priority: 5, details: [] };
 
-      const response = await apiClient.post('/api/admin/items', itemData, {
+      const response = await apiClient.post("/api/admin/items", itemData, {
         headers: { Authorization: `Bearer ${userToken}` },
         validateStatus: () => true,
       });
@@ -248,14 +248,14 @@ describe('Item API (E2E)', () => {
     });
   });
 
-  describe('GET /api/admin/items', () => {
-    it('should list admin items', async () => {
+  describe("GET /api/admin/items", () => {
+    it("should list admin items", async () => {
       // Arrange: Create test items
-      await createItem({ ownerId: adminId, title: 'Item 1' });
-      await createItem({ ownerId: adminId, title: 'Item 2' });
+      await createItem({ ownerId: adminId, title: "Item 1" });
+      await createItem({ ownerId: adminId, title: "Item 2" });
 
       // Act
-      const response = await apiClient.get('/api/admin/items', {
+      const response = await apiClient.get("/api/admin/items", {
         headers: { Authorization: `Bearer ${adminToken}` },
       });
 
@@ -263,8 +263,8 @@ describe('Item API (E2E)', () => {
       expect(response.status).toBe(200);
       expect(response.data.success).toBe(true);
       expect(response.data.data).toHaveLength(2);
-      expect(response.data.data[0]).toHaveProperty('title');
-      expect(response.data.data[0]).toHaveProperty('priority');
+      expect(response.data.data[0]).toHaveProperty("title");
+      expect(response.data.data[0]).toHaveProperty("priority");
     });
   });
 });
@@ -276,9 +276,9 @@ describe('Item API (E2E)', () => {
 
 ```typescript
 // test/helpers/api-client.ts
-import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 
-const BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000';
+const BASE_URL = process.env.API_BASE_URL || "http://localhost:3000";
 
 class ApiClient {
   private client: AxiosInstance;
@@ -286,7 +286,7 @@ class ApiClient {
   constructor() {
     this.client = axios.create({
       baseURL: BASE_URL,
-      validateStatus: status => status < 500, // Don't throw on 4xx
+      validateStatus: (status) => status < 500, // Don't throw on 4xx
     });
   }
 
@@ -307,7 +307,7 @@ class ApiClient {
   }
 
   async login(email: string, password: string): Promise<string> {
-    const response = await this.post('/api/auth/login', { email, password });
+    const response = await this.post("/api/auth/login", { email, password });
     return response.data.data.token;
   }
 }
@@ -319,39 +319,43 @@ export const apiClient = new ApiClient();
 
 ```typescript
 // test/helpers/factories.ts
-import { prisma } from '@/config/prisma';
-import bcrypt from 'bcrypt';
+import { prisma } from "@/config/prisma";
+import bcrypt from "bcrypt";
 
 export async function createUser(data: {
   email?: string;
   name?: string;
-  role?: 'ADMIN' | 'USER';
+  role?: "ADMIN" | "USER";
 }) {
   const email = data.email || `test-${Date.now()}@example.com`;
-  const hashedPassword = await bcrypt.hash('password', 10);
+  const hashedPassword = await bcrypt.hash("password", 10);
 
   return await prisma.user.create({
     data: {
       email,
-      name: data.name || 'Test User',
+      name: data.name || "Test User",
       password: hashedPassword,
-      role: data.role || 'USER',
+      role: data.role || "USER",
     },
   });
 }
 
-export async function createItem(data: { ownerId: string; title?: string; priority?: number }) {
+export async function createItem(data: {
+  ownerId: string;
+  title?: string;
+  priority?: number;
+}) {
   return await prisma.item.create({
     data: {
-      title: data.title || 'Test Item',
-      description: 'Test description',
+      title: data.title || "Test Item",
+      description: "Test description",
       priority: data.priority || 5,
       ownerId: data.ownerId,
       details: {
         create: [
           {
-            content: 'Test detail',
-            type: 'text',
+            content: "Test detail",
+            type: "text",
             order: 0,
           },
         ],
@@ -371,7 +375,7 @@ export async function createTask(data: { itemId: string; userId: string }) {
       userId: data.userId,
       startTime,
       endTime,
-      status: 'IN_PROGRESS',
+      status: "IN_PROGRESS",
     },
   });
 }
@@ -381,30 +385,30 @@ export async function createTask(data: { itemId: string; userId: string }) {
 
 ```typescript
 // test/helpers/setup.ts
-import { execSync } from 'child_process';
+import { execSync } from "child_process";
 
 export async function setup() {
-  console.log('Setting up test environment...');
+  console.log("Setting up test environment...");
 
   // Clone dev database to test database
   try {
-    execSync('bash test/setup-test-db.sh', { stdio: 'inherit' });
-    console.log('Test database ready');
+    execSync("bash test/setup-test-db.sh", { stdio: "inherit" });
+    console.log("Test database ready");
   } catch (error) {
-    console.error('Failed to setup test database:', error);
+    console.error("Failed to setup test database:", error);
     throw error;
   }
 }
 
 export async function teardown() {
-  console.log('Cleaning up test environment...');
+  console.log("Cleaning up test environment...");
 
   // Optional: Clean up test database
   try {
-    execSync('bash test/teardown-test-db.sh', { stdio: 'inherit' });
-    console.log('Test database cleaned up');
+    execSync("bash test/teardown-test-db.sh", { stdio: "inherit" });
+    console.log("Test database cleaned up");
   } catch (error) {
-    console.error('Failed to teardown test database:', error);
+    console.error("Failed to teardown test database:", error);
   }
 }
 ```
@@ -507,42 +511,52 @@ cd backend && npx vitest -t "should create exam"
 ### AAA Pattern (Arrange-Act-Assert)
 
 ```typescript
-it('should create item', async () => {
+it("should create item", async () => {
   // Arrange: Setup test data
-  const itemData = { title: 'Test', priority: 5, details: [] };
+  const itemData = { title: "Test", priority: 5, details: [] };
 
   // Act: Execute the operation
-  const response = await apiClient.post('/api/admin/items', itemData, {
+  const response = await apiClient.post("/api/admin/items", itemData, {
     headers: { Authorization: `Bearer ${token}` },
   });
 
   // Assert: Verify the result
   expect(response.status).toBe(201);
-  expect(response.data.data.title).toBe('Test');
+  expect(response.data.data.title).toBe("Test");
 });
 ```
 
 ### Test CRUD Operations
 
 ```typescript
-describe('Item CRUD', () => {
-  it('should CREATE item', async () => {
-    const response = await apiClient.post('/api/admin/items', data, { headers });
+describe("Item CRUD", () => {
+  it("should CREATE item", async () => {
+    const response = await apiClient.post("/api/admin/items", data, {
+      headers,
+    });
     expect(response.status).toBe(201);
   });
 
-  it('should READ item', async () => {
-    const response = await apiClient.get(`/api/admin/items/${itemId}`, { headers });
+  it("should READ item", async () => {
+    const response = await apiClient.get(`/api/admin/items/${itemId}`, {
+      headers,
+    });
     expect(response.status).toBe(200);
   });
 
-  it('should UPDATE item', async () => {
-    const response = await apiClient.put(`/api/admin/items/${itemId}`, updates, { headers });
+  it("should UPDATE item", async () => {
+    const response = await apiClient.put(
+      `/api/admin/items/${itemId}`,
+      updates,
+      { headers },
+    );
     expect(response.status).toBe(200);
   });
 
-  it('should DELETE item', async () => {
-    const response = await apiClient.delete(`/api/admin/items/${itemId}`, { headers });
+  it("should DELETE item", async () => {
+    const response = await apiClient.delete(`/api/admin/items/${itemId}`, {
+      headers,
+    });
     expect(response.status).toBe(204);
   });
 });
@@ -551,24 +565,24 @@ describe('Item CRUD', () => {
 ### Test Authentication/Authorization
 
 ```typescript
-describe('Authorization', () => {
-  it('should reject unauthenticated request', async () => {
-    const response = await apiClient.get('/api/admin/items', {
+describe("Authorization", () => {
+  it("should reject unauthenticated request", async () => {
+    const response = await apiClient.get("/api/admin/items", {
       validateStatus: () => true,
     });
     expect(response.status).toBe(401);
   });
 
-  it('should reject user accessing admin endpoint', async () => {
-    const response = await apiClient.get('/api/admin/items', {
+  it("should reject user accessing admin endpoint", async () => {
+    const response = await apiClient.get("/api/admin/items", {
       headers: { Authorization: `Bearer ${userToken}` },
       validateStatus: () => true,
     });
     expect(response.status).toBe(403);
   });
 
-  it('should allow admin accessing admin endpoint', async () => {
-    const response = await apiClient.get('/api/admin/items', {
+  it("should allow admin accessing admin endpoint", async () => {
+    const response = await apiClient.get("/api/admin/items", {
       headers: { Authorization: `Bearer ${adminToken}` },
     });
     expect(response.status).toBe(200);
@@ -579,31 +593,31 @@ describe('Authorization', () => {
 ### Test Validation
 
 ```typescript
-describe('Validation', () => {
-  it('should reject empty title', async () => {
+describe("Validation", () => {
+  it("should reject empty title", async () => {
     const response = await apiClient.post(
-      '/api/admin/items',
-      { title: '', priority: 5, details: [] },
-      { headers, validateStatus: () => true }
+      "/api/admin/items",
+      { title: "", priority: 5, details: [] },
+      { headers, validateStatus: () => true },
     );
     expect(response.status).toBe(400);
     expect(response.data.errors).toBeDefined();
   });
 
-  it('should reject invalid priority', async () => {
+  it("should reject invalid priority", async () => {
     const response = await apiClient.post(
-      '/api/admin/items',
-      { title: 'Test', priority: 0, details: [] },
-      { headers, validateStatus: () => true }
+      "/api/admin/items",
+      { title: "Test", priority: 0, details: [] },
+      { headers, validateStatus: () => true },
     );
     expect(response.status).toBe(400);
   });
 
-  it('should reject item without details', async () => {
+  it("should reject item without details", async () => {
     const response = await apiClient.post(
-      '/api/admin/items',
-      { title: 'Test', priority: 5, details: [] },
-      { headers, validateStatus: () => true }
+      "/api/admin/items",
+      { title: "Test", priority: 5, details: [] },
+      { headers, validateStatus: () => true },
     );
     expect(response.status).toBe(400);
   });
@@ -613,10 +627,10 @@ describe('Validation', () => {
 ### Test Complete Flows
 
 ```typescript
-describe('Complete Item Flow', () => {
-  it('should complete full item lifecycle', async () => {
+describe("Complete Item Flow", () => {
+  it("should complete full item lifecycle", async () => {
     // 1. Admin creates item
-    const createResponse = await apiClient.post('/api/admin/items', itemData, {
+    const createResponse = await apiClient.post("/api/admin/items", itemData, {
       headers: { Authorization: `Bearer ${adminToken}` },
     });
     const itemId = createResponse.data.data.id;
@@ -627,15 +641,15 @@ describe('Complete Item Flow', () => {
       {},
       {
         headers: { Authorization: `Bearer ${userToken}` },
-      }
+      },
     );
     const taskId = startResponse.data.data.id;
 
     // 3. User submits task
     const submitResponse = await apiClient.post(
       `/api/user/tasks/${taskId}/submit`,
-      { data: { status: 'completed' } },
-      { headers: { Authorization: `Bearer ${userToken}` } }
+      { data: { status: "completed" } },
+      { headers: { Authorization: `Bearer ${userToken}` } },
     );
     expect(submitResponse.status).toBe(200);
 
@@ -644,7 +658,7 @@ describe('Complete Item Flow', () => {
       headers: { Authorization: `Bearer ${adminToken}` },
     });
     expect(resultsResponse.status).toBe(200);
-    expect(resultsResponse.data.data.status).toBe('COMPLETED');
+    expect(resultsResponse.data.data.status).toBe("COMPLETED");
   });
 });
 ```

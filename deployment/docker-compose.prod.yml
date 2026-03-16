@@ -8,13 +8,14 @@ services:
     expose:
       - "3000"
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/leaderboard?schema=public
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-leaderboard}?schema=public
       - REDIS_URL=redis://redis:6379
       - PORT=3000
       - NODE_ENV=production
-      - JWT_SECRET=supersecretprodkey_change_me_in_prod
-      - SUPERADMIN_EMAIL=isb@ciputra.ac.id
-      - SUPERADMIN_PASSWORD=admin123
+      - JWT_SECRET=${JWT_SECRET:-supersecretprodkey_change_me_in_prod}
+      - SUPERADMIN_EMAIL=${SUPERADMIN_EMAIL:-isb@ciputra.ac.id}
+      - SUPERADMIN_PASSWORD=${SUPERADMIN_PASSWORD:-admin123}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
     depends_on:
       - postgres
       - redis
@@ -39,9 +40,9 @@ services:
     container_name: leaderboard_postgres
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: leaderboard
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-leaderboard}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:

@@ -54,20 +54,20 @@ export type ItemWithDetails = Item & {
 
 ```typescript
 export enum UserRole {
-  ADMIN = 'ADMIN',
-  USER = 'USER',
+  ADMIN = "ADMIN",
+  USER = "USER",
 }
 
 export enum TaskStatus {
-  IN_PROGRESS = 'IN_PROGRESS',
-  COMPLETED = 'COMPLETED',
-  EXPIRED = 'EXPIRED',
+  IN_PROGRESS = "IN_PROGRESS",
+  COMPLETED = "COMPLETED",
+  EXPIRED = "EXPIRED",
 }
 
 export enum EventType {
-  CREATED = 'CREATED',
-  UPDATED = 'UPDATED',
-  DELETED = 'DELETED',
+  CREATED = "CREATED",
+  UPDATED = "UPDATED",
+  DELETED = "DELETED",
 }
 ```
 
@@ -79,7 +79,9 @@ const user = data as User;
 
 // ✅ Use type guards
 function isUser(obj: unknown): obj is User {
-  return typeof obj === 'object' && obj !== null && 'id' in obj && 'email' in obj;
+  return (
+    typeof obj === "object" && obj !== null && "id" in obj && "email" in obj
+  );
 }
 
 if (isUser(data)) {
@@ -130,11 +132,11 @@ export const examService = {
 
 // ✅ Use barrel exports for clean imports
 // types/index.ts
-export * from './user';
-export * from './exam';
+export * from "./user";
+export * from "./exam";
 
 // Usage
-import { User, Exam } from '@/types';
+import { User, Exam } from "@/types";
 ```
 
 ## Error Handling
@@ -147,10 +149,10 @@ export class AppError extends Error {
   constructor(
     public message: string,
     public statusCode: number = 500,
-    public errors?: any
+    public errors?: any,
   ) {
     super(message);
-    this.name = 'AppError';
+    this.name = "AppError";
     Error.captureStackTrace(this, this.constructor);
   }
 }
@@ -158,21 +160,21 @@ export class AppError extends Error {
 export class NotFoundError extends AppError {
   constructor(resource: string) {
     super(`${resource} not found`, 404);
-    this.name = 'NotFoundError';
+    this.name = "NotFoundError";
   }
 }
 
 export class UnauthorizedError extends AppError {
-  constructor(message: string = 'Unauthorized') {
+  constructor(message: string = "Unauthorized") {
     super(message, 401);
-    this.name = 'UnauthorizedError';
+    this.name = "UnauthorizedError";
   }
 }
 
 export class ValidationError extends AppError {
   constructor(errors: any) {
-    super('Validation failed', 400, errors);
-    this.name = 'ValidationError';
+    super("Validation failed", 400, errors);
+    this.name = "ValidationError";
   }
 }
 ```
@@ -182,11 +184,11 @@ export class ValidationError extends AppError {
 ```typescript
 // In services/controllers
 if (!item) {
-  throw new NotFoundError('Item');
+  throw new NotFoundError("Item");
 }
 
 if (!hasPermission) {
-  throw new UnauthorizedError('Insufficient permissions');
+  throw new UnauthorizedError("Insufficient permissions");
 }
 
 const validatedData = schema.parse(data); // Throws ValidationError
@@ -239,11 +241,11 @@ const sanitizedHTML = DOMPurify.sanitize(htmlContent);
 
 ```typescript
 // Always verify JWT tokens
-const token = req.headers.authorization?.replace('Bearer ', '');
+const token = req.headers.authorization?.replace("Bearer ", "");
 const decoded = jwt.verify(token, JWT_SECRET);
 
 // Check permissions
-if (decoded.role !== 'TEACHER') {
+if (decoded.role !== "TEACHER") {
   throw new UnauthorizedError();
 }
 ```
@@ -254,7 +256,10 @@ if (decoded.role !== 'TEACHER') {
 
 ```typescript
 // utils/formatDate.ts
-export const formatDate = (date: Date, format: string = 'YYYY-MM-DD'): string => {
+export const formatDate = (
+  date: Date,
+  format: string = "YYYY-MM-DD",
+): string => {
   // Implementation
 };
 
@@ -461,7 +466,7 @@ REDIS_PORT="6379"
 ### Docker Compose Structure
 
 ```yaml
-version: '3.8'
+version: "3.8"
 
 services:
   backend:
@@ -471,7 +476,7 @@ services:
       - NODE_ENV=production
       - DATABASE_URL=${DATABASE_URL}
     ports:
-      - '3000:3000'
+      - "3000:3000"
     volumes:
       - ./logs:/app/logs
     depends_on:
@@ -518,7 +523,7 @@ volumes:
 const exam = await prisma.exam.findUnique({ where: { id } });
 
 // ❌ Avoid raw promises
-prisma.exam.findUnique({ where: { id } }).then(exam => {});
+prisma.exam.findUnique({ where: { id } }).then((exam) => {});
 ```
 
 ### Optional Chaining
@@ -545,9 +550,9 @@ const timeout = config.timeout || 30000;
 
 ```typescript
 // ✅ Use functional methods
-const activeItems = items.filter(e => e.isActive);
-const itemIds = items.map(e => e.id);
-const hasCompleted = tasks.some(s => s.status === 'COMPLETED');
+const activeItems = items.filter((e) => e.isActive);
+const itemIds = items.map((e) => e.id);
+const hasCompleted = tasks.some((s) => s.status === "COMPLETED");
 
 // ❌ Avoid loops when functional works
 const activeItems = [];

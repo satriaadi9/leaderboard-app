@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/axios';
 import { Link } from 'react-router-dom';
 import { Plus, Trash2, Edit2, Users, LogOut, HelpCircle, X, Shield, Moon, Sun, ArrowRight, Lock, Globe, LayoutGrid, List as ListIcon, Search } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
+import { useEventLogger } from '@/hooks/useEventLogger';
 
 interface ClassItem {
   id: string;
@@ -33,6 +34,11 @@ const Dashboard: React.FC = () => {
   const [viewMode, setViewMode] = useState<'card' | 'list'>('card');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'createdAtDesc' | 'createdAtAsc' | 'nameAsc' | 'nameDesc' | 'studentCountDesc'>('createdAtDesc');
+  const { logEvent } = useEventLogger();
+
+  useEffect(() => {
+    logEvent('PAGE_VIEW', { page: 'Dashboard' });
+  }, [logEvent]);
 
   const { data: classes, isLoading } = useQuery<ClassItem[]>({
     queryKey: ['classes'],

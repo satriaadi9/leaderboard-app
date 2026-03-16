@@ -20,3 +20,13 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
     next(error);
   }
 };
+
+export const googleLogin = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { token } = req.body;
+    const data = await authService.googleLogin(token);
+    res.json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+};

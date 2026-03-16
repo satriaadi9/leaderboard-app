@@ -5,6 +5,7 @@ A real-time leaderboard application for managing student points in classes. Buil
 ## Features
 
 ### Role-Based Access Control
+
 - **Super Admin**: Full system access (manage all classes, users).
 - **Class Owner (Teacher)**:
   - Create, edit, and delete classes.
@@ -17,10 +18,11 @@ A real-time leaderboard application for managing student points in classes. Buil
   - **Capabilities**: Can adjust student points (add/remove) for day-to-day management.
 
 ### Class Management
+
 - **Dashboard**: Centralized view of all classes.
 - **Settings**:
   - Toggle **Public Access** (allow/deny viewing without login).
-// ...existing code...
+    // ...existing code...
   - **Custom Public Slug** for easy sharing (e.g., `leaderboard.com/p/my-class`).
   - Manage **Student Assistants** list.
 - **Visualization**:
@@ -28,13 +30,16 @@ A real-time leaderboard application for managing student points in classes. Buil
   - **Dark Mode**: Fully supported dark/light theme toggle.
 
 ### Points System & Leaderboard
+
 // ...existing code...
+
 - **Real-time Leaderboard**: Instant updates using WebSocket/SSE (Server-Sent Events).
 - **Easy Sharing**: One-click link copying (supports generic copy on HTTP/HTTPS).
 - **Point Adjustment**:
-// ...existing code...
+  // ...existing code...
 
 ### Points System & Leaderboard
+
 - **Real-time Leaderboard**: Instant updates using WebSocket/SSE (Server-Sent Events).
 - **Point Adjustment**:
   - Add or remove points with a required reason.
@@ -46,10 +51,12 @@ A real-time leaderboard application for managing student points in classes. Buil
 - **Statistics**: View total points, average points, and student count.
 
 ### Student Management
+
 - **Enrollment**: Add students individually or bulk import.
 - **History**: View detailed point history for each student.
 
 ## Tech Stack
+
 - **Frontend**: React, TypeScript, Tailwind CSS, TanStack Query.
 - **Backend**: Node.js, Express, TypeScript.
 - **Database**: PostgreSQL (Prisma ORM).
@@ -65,6 +72,7 @@ For detailed setup instructions, including **Development Environment** and **Pro
 The fastest way to run the app locally is using Docker Compose:
 
 1. **Start the Stack**:
+
    ```bash
    docker-compose -f docker-compose.dev.yml up --build
    ```
@@ -81,7 +89,7 @@ The fastest way to run the app locally is using Docker Compose:
    ```
 
 ## 📚 Documentation
+
 - [Deployment Guide (Dev & Prod)](DEPLOY.md)
 - [User Guide](docs/USER_GUIDE.md)
 - [Agent Behavior Guidelines](docs/AGENT_CODE_BEHAVIOR.md)
-

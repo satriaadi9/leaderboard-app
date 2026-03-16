@@ -107,3 +107,13 @@ model ClassPointsTotal {
   @@unique([classId, studentId])
   @@map("class_points_totals")
 }
+
+model EventLog {
+  id        String   @id @default(cuid())
+  action    String   // e.g., PAGE_VIEW, LEADERBOARD_CHECK, RANK_CHANGE_SEEN, EXPORT_USAGE
+  details   Json?    // Context about the event (e.g., classId, exportFormat, path)
+  userId    String?  // Optional: associated user (if logged in)
+  createdAt DateTime @default(now())
+
+  @@map("event_logs")
+}

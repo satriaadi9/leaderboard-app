@@ -5,6 +5,7 @@ import { z } from 'zod';
 import api from '@/lib/axios';
 import { useAuth } from '@/context/AuthContext';
 import { Link } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
 
 const schema = z.object({
   name: z.string().min(1),
@@ -32,6 +33,17 @@ const RegisterPage: React.FC = () => {
     } catch (error: any) {
       setError('root', {
         message: error.response?.data?.message || 'Registration failed',
+      });
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    try {
+      const res = await api.post('/auth/google', { token: credentialResponse.credential });
+      login(res.data.data.token, res.data.data.user);
+    } catch (error: any) {
+      setError('root', {
+        message: error.response?.data?.message || 'Google Sign-Up failed',
       });
     }
   };
@@ -90,7 +102,25 @@ const RegisterPage: React.FC = () => {
                 {isSubmitting ? 'Creating Account...' : 'Create Account'}
             </button>
             </form>
-             <div className="mt-8 border-t border-[#E5E5EA] dark:border-[#3a3a3c] pt-6 text-center">
+
+            <div className="mt-6 flex items-center justify-between">
+                <div className="w-full border-t border-[#E5E5EA] dark:border-[#3a3a3c]"></div>
+                <div className="px-3 text-[13px] text-[#8E8E93] dark:text-gray-400">OR</div>
+                <div className="w-full border-t border-[#E5E5EA] dark:border-[#3a3a3c]"></div>
+            </div>
+
+            <div className="mt-6 flex justify-center">
+                <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={() => {
+                        setError('root', { message: 'Google Sign-Up was unsuccessful' });
+                    }}
+                    theme="outline"
+                    width="100%"
+                />
+            </div>
+            
+            <div className="mt-8 border-t border-[#E5E5EA] dark:border-[#3a3a3c] pt-6 text-center">
                 <p className="text-[13px] text-[#8E8E93] dark:text-gray-400">Already have an account?</p>
                 <Link to="/login" className="mt-1 block text-[15px] font-medium text-[#007AFF] hover:underline">
                     Sign in here
