@@ -23,7 +23,8 @@ import {
   Download, 
   HelpCircle, 
   X, 
-  Link as LinkIcon 
+  Link as LinkIcon,
+  Globe
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
@@ -429,7 +430,11 @@ const ClassDetails: React.FC = () => {
                  <a href={`/p/${classDetails?.publicSlug}`} target="_blank" rel="noreferrer" className="font-medium text-[#007AFF] hover:underline">
                       /p/{classDetails?.publicSlug}
                  </a>
-                 {!classDetails?.isPublic && (
+                 {classDetails?.isPublic !== false ? (
+                    <span className="flex items-center gap-1 rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-green-600 dark:text-green-400">
+                        <Globe className="h-3 w-3" /> Public
+                    </span>
+                 ) : (
                     <span className="flex items-center gap-1 rounded-full bg-orange-100 dark:bg-orange-900/30 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-orange-600 dark:text-orange-400">
                         <Lock className="h-3 w-3" /> Private
                     </span>
