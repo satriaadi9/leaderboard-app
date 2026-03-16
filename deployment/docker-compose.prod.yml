@@ -29,6 +29,9 @@ services:
     restart: always
     expose:
       - "80"
+    environment:
+      - VITE_API_URL=${VITE_API_URL:-/api}
+      - VITE_GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
     depends_on:
       - backend
     networks:
