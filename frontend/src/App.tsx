@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from '@/pages/LoginPage';
 import RegisterPage from '@/pages/RegisterPage';
+import { ForgotPassword } from '@/pages/ForgotPassword';
 import Dashboard from '@/pages/Dashboard';
 import ClassDetails from '@/pages/ClassDetails';
 import PublicLeaderboard from '@/pages/PublicLeaderboard';
@@ -16,6 +17,7 @@ const App: React.FC = () => {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/p/:slug" element={<PublicLeaderboard />} />
       <Route path="/s/:id" element={<StudentProgress />} />
       

@@ -93,3 +93,9 @@ The fastest way to run the app locally is using Docker Compose:
 - [Deployment Guide (Dev & Prod)](DEPLOY.md)
 - [User Guide](docs/USER_GUIDE.md)
 - [Agent Behavior Guidelines](docs/AGENT_CODE_BEHAVIOR.md)
+
+### New Features (v1.1)
+- **Forgot Password via Email OTP**: Integrated secure 6-digit OTP email recovery system backed by Redis for rate limiting (60s cooldown).
+- **Email Notifications**: Teachers and admins can seamlessly dispatch personal tracker links directly to student emails in bulk or individually.
+- **Export to CSV**: Export your current leaderboard standings to a quick CSV sheet.
+- **QR Code Sharing**: Seamlessly project or download dynamic high-contrast QR Codes mapped directly to customized public tracking endpoints.

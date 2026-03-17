@@ -11,6 +11,7 @@ services:
       - /app/node_modules
     ports:
       - "3000:3000"
+    env_file: ./backend/.env
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/leaderboard?schema=public
       - REDIS_URL=redis://redis:6379
@@ -31,11 +32,13 @@ services:
       - /app/node_modules
     ports:
       - "5173:5173"
+    env_file: ./backend/.env
     environment:
       - VITE_API_URL=http://localhost:3000/api
 
   postgres:
     image: postgres:15-alpine
+    env_file: ./backend/.env
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres

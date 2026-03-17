@@ -148,6 +148,17 @@ export const removeAssistant = async (req: Request, res: Response, next: NextFun
   }
 };
 
+export const sendStudentLinks = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    const { studentIds, frontendUrl } = req.body;
+    const result = await classService.sendStudentLinks(id, studentIds, frontendUrl, req.user!.userId);
+    res.json({ success: true, ...result });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const streamClassUpdates = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { slug } = req.params;

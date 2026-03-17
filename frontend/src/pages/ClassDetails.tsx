@@ -24,8 +24,11 @@ import {
   HelpCircle, 
   X, 
   Link as LinkIcon,
-  Globe
+  Globe,
+  Mail
+, QrCode
 } from 'lucide-react';
+import QRCode from 'react-qr-code';
 import { useAuth } from '@/context/AuthContext';
 import { useEventLogger } from '@/hooks/useEventLogger';
 
@@ -51,6 +54,7 @@ const ClassDetails: React.FC = () => {
   const [settingsForm, setSettingsForm] = useState({ publicSlug: '', isPublic: true });
 
   const [isEmbedOpen, setIsEmbedOpen] = useState(false);
+  const [isQROpen, setIsQROpen] = useState(false);
   const [embedConfig, setEmbedConfig] = useState({ width: '100%', height: '600px' });
   const [isCopied, setIsCopied] = useState(false);
 
@@ -189,6 +193,30 @@ const ClassDetails: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['leaderboard', id] });
     },
   });
+
+
+  const sendLinksMutation = useMutation({
+    mutationFn: async (studentIds: string[]) => {
+      return api.post(`/classes/${id}/students/send-links`, { 
+        studentIds,
+        frontendUrl: window.location.origin
+      });
+    },
+    onSuccess: (data: any) => {
+      alert(`Successfully sent ${data?.data?.sentCount ?? data?.data?.data?.sentCount ?? 0} emails.`);
+      setSelectedStudents(new Set());
+    },
+    onError: (err: any) => {
+      alert('Failed to send emails: ' + (err.response?.data?.message || err.message));
+    }
+  });
+
+  const handleBulkSendLinks = () => {
+    if (selectedStudents.size === 0) return;
+    if (confirm(`Send progress link emails to ${selectedStudents.size} students?`)) {
+        sendLinksMutation.mutate(Array.from(selectedStudents));
+    }
+  };
 
   const handleEnroll = (e: React.FormEvent) => {
     e.preventDefault();
@@ -469,6 +497,13 @@ const ClassDetails: React.FC = () => {
                  <a href={`/p/${classDetails?.publicSlug}`} target="_blank" rel="noreferrer" className="font-medium text-[#007AFF] hover:underline">
                       /p/{classDetails?.publicSlug}
                  </a>
+                 <button
+                    onClick={() => setIsQROpen(true)}
+                    className="ml-1 inline-flex items-center justify-center rounded bg-gray-200 p-1 text-gray-600 hover:bg-gray-300 dark:bg-[#3a3a3c] dark:text-gray-300 dark:hover:bg-[#4a4a4c] transition-colors"
+                    title="Show QR Code"
+                 >
+                    <QrCode className="h-3.5 w-3.5" />
+                 </button>
                  {classDetails?.isPublic !== false ? (
                     <span className="flex items-center gap-1 rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-green-600 dark:text-green-400">
                         <Globe className="h-3 w-3" /> Public
@@ -515,6 +550,13 @@ const ClassDetails: React.FC = () => {
                         className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-[#FF9500] px-4 text-[13px] font-semibold text-white shadow-sm transition-all hover:bg-[#E08600] active:scale-95"
                     >
                         <Minus className="h-4 w-4" /> Penalty ({selectedStudents.size})
+                    </button>
+                    <button
+                        onClick={handleBulkSendLinks}
+                        disabled={sendLinksMutation.isPending}
+                        className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-[#007AFF] px-4 text-[13px] font-semibold text-white shadow-sm transition-all hover:bg-[#0062CC] active:scale-95 disabled:opacity-50"
+                    >
+                        <Mail className="h-4 w-4" /> {sendLinksMutation.isPending ? 'Sending...' : `Send Links (${selectedStudents.size})`}
                     </button>
                     <button
                         onClick={handleBulkDelete}
@@ -741,6 +783,17 @@ const ClassDetails: React.FC = () => {
                         </button>
                         <div className="h-4 w-px bg-[#E5E5EA] dark:bg-[#3a3a3c]"></div>
                         <button
+                            onClick={() => {
+                                if (confirm(`Send progress link email to ${entry.student.name}?`)) {
+                                    sendLinksMutation.mutate([entry.studentId]);
+                                }
+                            }}
+                            className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 transition-colors hover:bg-indigo-100 dark:hover:bg-indigo-900/40"
+                            title="Send Link via Email"
+                        >
+                            <Mail className="h-4 w-4" />
+                        </button>
+                        <button
                             onClick={async () => {
                                 const success = await copyToClipboard(`${window.location.origin}/s/${entry.studentId}`);
                                 if (success) {
@@ -830,7 +883,7 @@ const ClassDetails: React.FC = () => {
                          <h4 className="mb-3 ml-1 text-[13px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-gray-400">Current Assistants</h4>
                          <ul className="space-y-2">
                             {classDetails?.assistants?.map((assistant: any) => (
-                            <li key={assistant.userId} className="flex items-center justify-between rounded-xl bg-white dark:bg-[#2c2c2e] p-3 ring-1 ring-black/5 dark:ring-white/5">
+                            <li key={assistant.id} className="flex items-center justify-between rounded-xl bg-white dark:bg-[#2c2c2e] p-3 ring-1 ring-black/5 dark:ring-white/5">
                                 <div className="flex items-center gap-3">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F2F2F7] dark:bg-[#3a3a3c] text-[#8E8E93] dark:text-gray-400">
                                     <Shield className="h-5 w-5" />
@@ -842,7 +895,7 @@ const ClassDetails: React.FC = () => {
                                 </div>
                                 {user?.role !== 'STUDENT_ASSISTANT' && (
                                     <button
-                                    onClick={() => removeAssistantMutation.mutate(assistant.userId)}
+                                    onClick={() => removeAssistantMutation.mutate(assistant.id)}
                                     className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F2F2F7] dark:bg-[#3a3a3c] text-[#8E8E93] dark:text-gray-400 hover:bg-[#FF3B30] hover:text-white transition-colors"
                                     title="Remove Assistant"
                                     >
@@ -1160,6 +1213,65 @@ const ClassDetails: React.FC = () => {
                      </div>
                  </div>
              </div>
+          </div>
+        </div>
+      )}
+
+            {/* QR Code Modal */}
+      {isQROpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-md transition-all">
+          <div className="w-full max-w-sm rounded-[24px] bg-white p-6 shadow-2xl dark:bg-[#1c1c1e] text-center animate-in fade-in zoom-in duration-200">
+             <div className="mb-6 flex items-center justify-between">
+                <h3 className="text-[20px] font-bold tracking-tight text-[#1C1C1E] dark:text-white">Class QR Code</h3>
+                <button onClick={() => setIsQROpen(false)} className="rounded-full bg-[#f2f2f7] p-2 text-[#8e8e93] hover:bg-[#e5e5ea] dark:bg-[#2c2c2e] dark:hover:bg-[#3a3a3c] transition-colors">
+                    <X className="h-5 w-5" />
+                </button>
+             </div>
+             
+             <div className="mx-auto flex aspect-square w-64 items-center justify-center rounded-2xl bg-white p-5 shadow-sm ring-1 ring-black/5">
+                 {classDetails?.publicSlug && (
+                     <QRCode
+                        size={256}
+                        style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                        value={`${window.location.origin}/p/${classDetails.publicSlug}`}
+                        viewBox={`0 0 256 256`}
+                        bgColor="#ffffff"
+                        fgColor="#000000"
+                     />
+                 )}
+             </div>
+
+             <p className="mt-6 text-[15px] leading-relaxed text-[#8E8E93]">
+                 Scan this QR code to view the live leaderboard on your device.
+             </p>
+             <button
+                 onClick={() => {
+                     const svg = document.querySelector('svg');
+                     if (!svg) return;
+                     const svgData = new XMLSerializer().serializeToString(svg);
+                     const canvas = document.createElement("canvas");
+                     const ctx = canvas.getContext("2d");
+                     const img = new Image();
+                     img.onload = () => {
+                         canvas.width = img.width;
+                         canvas.height = img.height;
+                         if (ctx) {
+                             ctx.fillStyle = "white";
+                             ctx.fillRect(0, 0, canvas.width, canvas.height);
+                             ctx.drawImage(img, 0, 0);
+                             const pngFile = canvas.toDataURL("image/png");
+                             const downloadLink = document.createElement("a");
+                             downloadLink.download = `QRCode-${classDetails.publicSlug}.png`;
+                             downloadLink.href = `${pngFile}`;
+                             downloadLink.click();
+                         }
+                     };
+                     img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
+                 }}
+                 className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#007AFF] px-4 py-3.5 text-[15px] font-semibold text-white transition-all hover:bg-[#0062cc] active:scale-[0.98]"
+             >
+                 <Download className="h-5 w-5" /> Save to Photos
+             </button>
           </div>
         </div>
       )}

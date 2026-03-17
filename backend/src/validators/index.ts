@@ -15,6 +15,27 @@ export const loginSchema = z.object({
   }),
 });
 
+export const forgotPasswordSchema = z.object({
+  body: z.object({
+    email: z.string().email(),
+  }),
+});
+
+export const verifyOtpSchema = z.object({
+  body: z.object({
+    email: z.string().email(),
+    otp: z.string().length(6),
+  }),
+});
+
+export const resetPasswordSchema = z.object({
+  body: z.object({
+    email: z.string().email(),
+    otp: z.string().length(6),
+    newPassword: z.string().min(6),
+  }),
+});
+
 export const createClassSchema = z.object({
   body: z.object({
     name: z.string().min(1),
@@ -66,6 +87,16 @@ export const removeStudentsSchema = z.object({
   }),
   body: z.object({
     studentIds: z.array(z.string()),
+  }),
+});
+
+export const sendStudentLinksSchema = z.object({
+  params: z.object({
+    id: z.string(),
+  }),
+  body: z.object({
+    studentIds: z.array(z.string()).min(1),
+    frontendUrl: z.string().url().optional(), // In case frontend URL is different
   }),
 });
 

@@ -10,6 +10,29 @@ This repository supports both local development and production deployment using 
 
 ---
 
+## 🔒 Environment Variables
+
+The application relies on several environment variables. Make sure your `.env` (development) or `docker-compose.prod.yml` (production) files are securely filled in.
+
+### Core Architecture
+- `DATABASE_URL` - PostgreSQL connection string.
+- `REDIS_URL` - Redis cache connection string.
+- `JWT_SECRET` - Strong randomized string for JSON Web Tokens.
+- `VITE_API_URL` - Frontend variable defining where to fetch the API (defaults to `/api` in prod).
+
+### SMTP / Email Service
+Required for "Forgot Password" OTPs and "Send Student Link" features.
+- `MAIL_MAILER=smtp`
+- `MAIL_HOST=your-smtp-host.com`
+- `MAIL_PORT=587`
+- `MAIL_USERNAME=your_username`
+- `MAIL_PASSWORD=your_password`
+- `MAIL_ENCRYPTION=tls`
+- `MAIL_FROM_ADDRESS=noreply@yourdomain.com`
+- `MAIL_FROM_NAME="Leaderboard Admin"`
+
+---
+
 ## 💻 Development Environment
 
 Run the application locally with hot-reloading enabled.

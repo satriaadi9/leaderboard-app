@@ -4,6 +4,8 @@ import { UserRole } from '@prisma/client';
 import { randomBytes } from 'crypto';
 import { redis } from '@/config/redis';
 import { hashPassword } from '@/utils/auth';
+import { sendEmail } from '@/utils/mailer';
+
 
 export const classService = {
   async createClass(name: string, description: string | undefined, adminId: string) {
@@ -143,6 +145,80 @@ export const classService = {
           prisma.pointsLedger.deleteMany({ where: { classId, studentId } })
       ]);
       await redis.del(`leaderboard:${classId}`);
+  },
+
+  async sendStudentLinks(classId: string, studentIds: string[], frontendUrl: string = 'http://localhost:5173', adminId: string) {
+    const classData = await prisma.class.findUnique({
+      where: { id: classId },
+      include: {
+        enrollments: {
+          where: { studentId: { in: studentIds } },
+          include: { student: true }
+        }
+      }
+    });
+
+    if (!classData) throw new AppError('Class not found', 404);
+
+    let sentCount = 0;
+    let failedCount = 0;
+
+    for (const enrollment of classData.enrollments) {
+      const student = enrollment.student;
+      if (!student.email) {
+        failedCount++;
+        continue;
+      }
+
+      const cleanUrl = frontendUrl.endsWith('/') ? frontendUrl.slice(0, -1) : frontendUrl;
+      const link = `${cleanUrl}/s/${student.id}`;
+
+      const emailHtml = `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; color: #1c1c1e;">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="margin: 0; font-size: 24px; font-weight: 600;">${classData.name} - Leaderboard Access</h1>
+          </div>
+          <div style="background-color: #ffffff; border-radius: 16px; padding: 40px; border: 1px solid rgba(0,0,0,0.1); box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+            <h2 style="margin: 0 0 16px; font-size: 20px; font-weight: 600;">Hello ${student.name},</h2>
+            <p style="margin: 0 0 24px; font-size: 15px; line-height: 1.5; color: #3a3a3c;">
+              You have been enrolled in the class <strong>${classData.name}</strong>.
+            </p>
+            <p style="margin: 0 0 24px; font-size: 15px; line-height: 1.5; color: #3a3a3c;">
+              You can access your personalized public link to monitor your progress, see your point history, and view the global leaderboard.
+            </p>
+            <div style="text-align: center; margin-bottom: 32px; margin-top: 32px;">
+              <a href="${link}" style="background-color: #007aff; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-size: 16px; font-weight: 600; display: inline-block;">View Progress Link</a>
+            </div>
+            <p style="margin: 0 0 12px; font-size: 14px; line-height: 1.5; color: #8e8e93;">
+              Or copy and paste this link into your browser:
+            </p>
+            <div style="background-color: #f2f2f7; border-radius: 8px; padding: 16px; font-family: monospace; font-size: 13px; color: #1c1c1e; word-break: break-all;">
+              ${link}
+            </div>
+          </div>
+          <div style="text-align: center; margin-top: 30px; font-size: 12px; color: #8e8e93;">
+            &copy; ${new Date().getFullYear()} Leaderboard SIFT UC. All rights reserved.
+          </div>
+        </div>
+      `;
+
+      try {
+        const success = await sendEmail(student.email, `Welcome to ${classData.name} - Leaderboard Link`, emailHtml);
+        if (success) {
+          sentCount++;
+        } else {
+          failedCount++;
+        }
+      } catch (err) {
+        failedCount++;
+      }
+    }
+
+    return {
+      message: `Sent ${sentCount} emails (${failedCount} failed/no-email)`,
+      sentCount,
+      failedCount
+    };
   },
 
   async removeStudents(classId: string, studentIds: string[]) {

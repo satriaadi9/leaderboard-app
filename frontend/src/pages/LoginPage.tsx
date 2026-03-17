@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import api from '@/lib/axios';
 import { useAuth } from '@/context/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 
 const schema = z.object({
@@ -16,6 +16,9 @@ type FormData = z.infer<typeof schema>;
 
 const LoginPage: React.FC = () => {
   const { login } = useAuth();
+  const location = useLocation();
+  const successMessage = location.state?.message;
+
   const {
     register,
     handleSubmit,
@@ -75,8 +78,19 @@ const LoginPage: React.FC = () => {
                         className="w-full rounded-lg border-0 bg-[#F2F2F7] dark:bg-[#2c2c2e] px-4 py-3 text-[17px] text-[#1C1C1E] dark:text-white placeholder:text-[#8E8E93] dark:placeholder:text-gray-500 focus:ring-2 focus:ring-[#007AFF] transition-all"
                     />
                     {errors.password && <p className="mt-1 ml-1 text-[13px] text-[#FF3B30]">{errors.password.message}</p>}
+                    <div className="mt-2 text-right">
+                        <Link to="/forgot-password" className="text-[13px] font-medium text-[#007AFF] hover:underline">
+                            Forgot Password?
+                        </Link>
+                    </div>
                 </div>
             </div>
+
+            {successMessage && (
+                <div className="rounded-lg bg-green-50 dark:bg-green-500/10 p-3 text-center text-[13px] font-medium text-green-800 dark:text-green-400 border border-green-200 dark:border-green-500/20">
+                    {successMessage}
+                </div>
+            )}
             
             {errors.root && (
                 <div className="rounded-lg bg-[#FF3B30]/10 p-3 text-center text-[13px] font-medium text-[#FF3B30]">
