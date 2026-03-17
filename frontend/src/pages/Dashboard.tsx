@@ -136,12 +136,20 @@ const Dashboard: React.FC = () => {
                 {theme === 'dark' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
              </button>
             {user?.role === 'SUPERADMIN' && (
+              <div className="flex gap-2">
                 <Link 
                     to="/admin/users" 
                     className="hidden sm:flex items-center gap-1.5 rounded-full bg-blue-50 dark:bg-blue-900/20 px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
                 >
                     <Users className="h-4 w-4" /> Users
                 </Link>
+                <Link 
+                    to="/admin/events" 
+                    className="hidden sm:flex items-center gap-1.5 rounded-full bg-indigo-50 dark:bg-indigo-900/20 px-4 py-2 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors"
+                >
+                    <ListIcon className="h-4 w-4" /> Logs
+                </Link>
+              </div>
             )}
             <Link 
                 to="/profile" 
