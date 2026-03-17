@@ -36,9 +36,16 @@ docker push $DOCKER_USER/leaderboard-app-backend:latest
 
 # 2. Build and Push Frontend
 echo -e "${GREEN}📦 Building Frontend Image...${NC}"
-# Pass API_URL as build argument
+
+# Source frontend env to get VITE_GOOGLE_CLIENT_ID
+if [ -f "frontend/.env" ]; then
+    export $(grep -v '^#' frontend/.env | xargs)
+fi
+
+# Pass variables as build arguments
 docker build --no-cache --platform linux/amd64 \
     --build-arg VITE_API_URL=$API_URL \
+    --build-arg VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID \
     -f frontend/Dockerfile.prod \
     -t $DOCKER_USER/leaderboard-app-frontend:latest ./frontend
 
