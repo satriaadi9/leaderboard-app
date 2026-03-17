@@ -9,14 +9,11 @@ if [ -f ".env.deploy" ]; then
     export $(grep -v '^#' .env.deploy | xargs)
 fi
 
-if [ -z "$SERVER_IP" ]; then
-    echo -e "${RED}Error: SERVER_IP is not set. Please create a .env.deploy file in the project root with SERVER_IP=your_ip${NC}"
+if [ -z "$SERVER_IP" ] || [ -z "$SERVER_USER" ] || [ -z "$DOCKER_USER" ] || [ -z "$PROJECT_DIR" ]; then
+    echo -e "\033[0;31mError: Missing required variables in .env.deploy.\033[0m"
+    echo -e "Please ensure \033[1mSERVER_IP, SERVER_USER, DOCKER_USER, and PROJECT_DIR\033[0m are all set."
     exit 1
 fi
-
-SERVER_USER="${SERVER_USER:-sift}"
-DOCKER_USER="${DOCKER_USER:-satriaadi9}"
-PROJECT_DIR="/home/$SERVER_USER/leaderboard-app"
 # API_URL="http://$SERVER_IP:3000"
 # Use relative API path so Nginx on port 80 handles the proxying
 API_URL="/api"
