@@ -60,6 +60,7 @@ model Class {
   enrollments   Enrollment[]
   ledgerEntries PointsLedger[]
   pointsTotals  ClassPointsTotal[]
+  scoringPresets ScoringPreset[]
 
   @@map("classes")
 }
@@ -106,6 +107,19 @@ model ClassPointsTotal {
 
   @@unique([classId, studentId])
   @@map("class_points_totals")
+}
+
+model ScoringPreset {
+  id        String   @id @default(cuid())
+  classId   String
+  name      String
+  points    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  class     Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+
+  @@map("scoring_presets")
 }
 
 model EventLog {

@@ -381,6 +381,35 @@ const ClassDetails: React.FC = () => {
       addAssistantMutation.mutate(newAssistant);
   };
 
+  const [newPreset, setNewPreset] = useState({ name: '', points: '' });
+
+  const updatePresetsMutation = useMutation({
+      mutationFn: async (presets: any[]) => {
+          return api.put(`/classes/${id}/presets`, { presets });
+      },
+      onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ['class', id] });
+          setNewPreset({ name: '', points: '' });
+      },
+      onError: (err: any) => alert(err.response?.data?.message || 'Failed to update presets')
+  });
+
+  const handleAddPreset = (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!newPreset.name || !newPreset.points) return;
+      const points = parseInt(newPreset.points);
+      if (isNaN(points)) return;
+      
+      const currentPresets = classDetails?.scoringPresets || [];
+      updatePresetsMutation.mutate([...currentPresets, { name: newPreset.name, points }]);
+  };
+
+  const handleRemovePreset = (presetId: string) => {
+      const currentPresets = classDetails?.scoringPresets || [];
+      const updated = currentPresets.filter((p: any) => p.id !== presetId);
+      updatePresetsMutation.mutate(updated);
+  };
+
   React.useEffect(() => {
     if (id) {
        logEvent('PAGE_VIEW', { page: 'ClassDetails', classId: id });
@@ -753,7 +782,7 @@ const ClassDetails: React.FC = () => {
 
         {/* Assistants Management (Admin Only visual check, backend protected too) */}
         {classDetails?.assistants && (
-            <div className="mt-8 rounded-2xl bg-white dark:bg-[#1c1c1e] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)] ring-1 ring-black/5 dark:ring-white/10">
+            <div className="mt-8 rounded-2xl bg-white dark:bg-[#1c1c2e] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)] ring-1 ring-black/5 dark:ring-white/10">
                 <h3 className="mb-1 text-lg font-bold text-[#1C1C1E] dark:text-white">Teaching Assistants</h3>
                 <p className="mb-6 text-[13px] text-[#8E8E93] dark:text-gray-400">Manage assistants who can help grade the leaderboard.</p>
                 
@@ -830,6 +859,72 @@ const ClassDetails: React.FC = () => {
                 </div>
             </div>
         )}
+
+        {/* Scoring Presets Management */}
+        <div className="mt-8 mb-12 rounded-2xl bg-white dark:bg-[#1c1c2e] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)] ring-1 ring-black/5 dark:ring-white/10">
+            <h3 className="mb-1 text-lg font-bold text-[#1C1C1E] dark:text-white">Scoring Presets</h3>
+            <p className="mb-6 text-[13px] text-[#8E8E93] dark:text-gray-400">Define quick actions for standard points distribution (rubrics).</p>
+            
+            <div className="grid gap-6 lg:grid-cols-2">
+                <div>
+                    <form onSubmit={handleAddPreset} className="rounded-xl bg-[#F2F2F7] dark:bg-[#2c2c2e] p-5">
+                        <h4 className="mb-3 text-[13px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-gray-400">Add New Preset</h4>
+                        <div className="space-y-3">
+                            <input
+                                placeholder="Action Label (e.g., Attendance)"
+                                className="w-full rounded-lg border-0 bg-white dark:bg-[#1c1c1e] px-3 py-2 text-[15px] text-[#1C1C1E] dark:text-white shadow-sm focus:ring-2 focus:ring-[#007AFF]"
+                                value={newPreset.name}
+                                onChange={(e) => setNewPreset({ ...newPreset, name: e.target.value })}
+                                required
+                            />
+                            <input
+                                placeholder="Points (+5 or -2)"
+                                type="number"
+                                className="w-full rounded-lg border-0 bg-white dark:bg-[#1c1c1e] px-3 py-2 text-[15px] text-[#1C1C1E] dark:text-white shadow-sm focus:ring-2 focus:ring-[#007AFF]"
+                                value={newPreset.points}
+                                onChange={(e) => setNewPreset({ ...newPreset, points: e.target.value })}
+                                required
+                            />
+                            <button
+                                type="submit"
+                                disabled={updatePresetsMutation.isPending}
+                                className="w-full rounded-lg bg-[#007AFF] py-2 text-[13px] font-semibold text-white shadow-sm transition-all hover:bg-[#0062CC] active:scale-95 disabled:opacity-50"
+                            >
+                                {updatePresetsMutation.isPending ? 'Saving...' : 'Add Preset'}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div>
+                    <h4 className="mb-3 ml-1 text-[13px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-gray-400">Current Presets</h4>
+                    <ul className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
+                        {classDetails?.scoringPresets?.map((preset: any) => (
+                        <li key={preset.id} className="flex items-center justify-between rounded-xl bg-white dark:bg-[#2c2c2e] p-3 ring-1 ring-black/5 dark:ring-white/5">
+                            <div className="flex items-center gap-3">
+                                <div className={`flex h-10 w-10 items-center justify-center rounded-full font-bold text-sm ${preset.points > 0 ? 'bg-[#34C759]/10 text-[#34C759]' : 'bg-[#FF3B30]/10 text-[#FF3B30]'}`}>
+                                    {preset.points > 0 ? '+' : ''}{preset.points}
+                                </div>
+                                <div className="font-medium text-[15px] text-[#1C1C1E] dark:text-white">
+                                    {preset.name}
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => handleRemovePreset(preset.id)}
+                                disabled={updatePresetsMutation.isPending}
+                                className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F2F2F7] dark:bg-[#3a3a3c] text-[#8E8E93] dark:text-gray-400 hover:bg-[#FF3B30] hover:text-white transition-colors"
+                                title="Remove Preset"
+                            >
+                                <Trash2 className="h-4 w-4" />
+                            </button>
+                        </li>
+                        ))}
+                        {(!classDetails?.scoringPresets || classDetails.scoringPresets.length === 0) && (
+                            <li className="px-4 text-[13px] text-[#8E8E93] italic">No presets defined.</li>
+                        )}
+                    </ul>
+                </div>
+            </div>
+        </div>
       </main>
 
       {/* Help Modal */}
@@ -1028,7 +1123,7 @@ const ClassDetails: React.FC = () => {
                          </div>
                      </div>
 
-                     <div className="group relative rounded-xl border border-[#E5E5EA] dark:border-[#3a3a3c] bg-[#F9F9F9] dark:bg-[#2c2c2e] p-3 transition-colors hover:border-[#D1D1D6] dark:hover:border-[#4a4a4c]">
+                     <div className="group relative rounded-xl border border-[#E5E5EA] dark:border-[#3a3a3c] bg-[#F9F9F9] dark:bg-[#2c2c2e] p-3 transition-colors hover:border-[#D1D6D6] dark:hover:border-[#4a4a4c]">
                         <pre className="overflow-x-auto whitespace-pre-wrap font-mono text-[11px] text-[#1C1C1E] dark:text-gray-300 leading-relaxed">
 {`<iframe 
   src="${window.location.origin}/p/${classDetails?.publicSlug}" 
@@ -1127,7 +1222,32 @@ const ClassDetails: React.FC = () => {
                         </button>
                      </div>
                 </form>
-            </div>
+
+                {classDetails?.scoringPresets && classDetails.scoringPresets.length > 0 && (
+                            <div>
+                                <label className="mb-2 ml-1 block text-[12px] font-medium text-[#8E8E93] dark:text-gray-400">QUICK ACTIONS</label>
+                                <div className="flex flex-wrap gap-2">
+                                    {classDetails.scoringPresets
+                                        .filter((p: any) => (adjustData.delta > 0 && p.points > 0) || (adjustData.delta < 0 && p.points < 0))
+                                        .map((preset: any) => (
+                                            <button
+                                                key={preset.id}
+                                                type="button"
+                                                onClick={() => setAdjustData({ ...adjustData, reason: preset.name, delta: preset.points })}
+                                                className={`rounded-full px-3 py-1 text-[13px] font-medium transition-colors ${
+                                                    preset.points > 0 
+                                                    ? 'bg-[#34C759]/10 text-[#34C759] hover:bg-[#34C759]/20' 
+                                                    : 'bg-[#FF3B30]/10 text-[#FF3B30] hover:bg-[#FF3B30]/20'
+                                                }`}
+                                            >
+                                                {preset.name} ({preset.points > 0 ? '+' : ''}{preset.points})
+                                            </button>
+                                        ))
+                                    }
+                                </div>
+                            </div>
+                        )}
+                     </div>
           </div>
         </div>
       )}
@@ -1136,7 +1256,7 @@ const ClassDetails: React.FC = () => {
       {bulkAdjustData.isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/20 dark:bg-black/60 backdrop-blur-sm animate-in fade-in" onClick={() => setBulkAdjustData({ ...bulkAdjustData, isOpen: false })}></div>
-          <div className="relative w-full max-w-sm overflow-hidden rounded-[20px] bg-white dark:bg-[#1c1c1e] shadow-2xl animate-in zoom-in-95">
+          <div className="relative w-full max-w-sm overflow-hidden rounded-[20px] bg-white dark:bg-[#1c1c2e] shadow-2xl animate-in zoom-in-95">
              <div className="p-6 text-center">
                  <div className={`mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full ${bulkAdjustData.mode === 'add' ? 'bg-[#34C759]/10 text-[#34C759] dark:text-[#32d74b]' : 'bg-[#FF3B30]/10 text-[#FF3B30] dark:text-[#ff453a]'}`}>
                    {bulkAdjustData.mode === 'add' ? <Plus className="h-6 w-6" /> : <Minus className="h-6 w-6" />}

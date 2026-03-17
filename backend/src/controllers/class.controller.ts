@@ -174,3 +174,20 @@ export const streamClassUpdates = async (req: Request, res: Response, next: Next
         next(error);
     }
 };
+
+export const updatePresets = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    const { presets } = req.body;
+    
+    // Authorization check
+    const { userId, role } = (req as AuthenticatedRequest).user;
+    const hasAccess = await classService.verifyClassAccess(id, userId, role);
+    if (!hasAccess) throw new AppError('Unauthorized', 403);
+
+    const data = await classService.updateScoringPresets(id, presets);
+    res.json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+};

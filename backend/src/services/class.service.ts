@@ -9,13 +9,26 @@ export const classService = {
   async createClass(name: string, description: string | undefined, adminId: string) {
     const suffix = randomBytes(4).toString('hex').slice(0, 6);
     const publicSlug = `${name.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${suffix}`;
+    
+    const defaultPresets = [
+      { name: 'Attendance', points: 5 },
+      { name: 'Answered question', points: 3 },
+      { name: 'Presented solution', points: 7 },
+      { name: 'Late to class', points: -2 },
+      { name: 'Disturbing class', points: -3 },
+      { name: 'Quiz winner', points: 10 },
+    ];
+
     const newClass = await prisma.class.create({
       data: {
         name,
         description,
         publicSlug,
         createdByUserId: adminId,
-      },
+        scoringPresets: {
+          create: defaultPresets
+        }
+      } as any,
     });
     return newClass;
   },
@@ -147,8 +160,8 @@ export const classService = {
       include: {
         _count: { select: { enrollments: true } },
         createdBy: { select: { id: true, name: true, email: true } },
-        // Use any cast for experimental/new relation
         assistants: { select: { id: true, name: true, email: true } },
+        scoringPresets: { orderBy: { createdAt: 'asc' } }
       } as any,
     });
     if (!cls) throw new AppError('Class not found', 404);
@@ -298,5 +311,28 @@ export const classService = {
       if ((cls as any).assistants.some((a: any) => a.id === userId)) return true;
       
       return false;
+  },
+
+  async updateScoringPresets(classId: string, presets: { id?: string, name: string, points: number }[]) {
+      return await prisma.$transaction(async (tx: any) => {
+          await tx.scoringPreset.deleteMany({
+              where: { classId }
+          });
+          
+          if (presets.length > 0) {
+              await tx.scoringPreset.createMany({
+                  data: presets.map((p: any) => ({
+                      classId,
+                      name: p.name,
+                      points: p.points
+                  }))
+              });
+          }
+          
+          return await tx.scoringPreset.findMany({
+              where: { classId },
+              orderBy: { createdAt: 'asc' }
+          });
+      });
   }
 };

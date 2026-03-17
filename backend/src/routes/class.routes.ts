@@ -3,7 +3,7 @@ import * as classController from '@/controllers/class.controller';
 import * as pointsController from '@/controllers/points.controller';
 import { validate } from '@/middleware/validate';
 import { authenticate, authorize } from '@/middleware/auth';
-import { createClassSchema, enrollStudentSchema, adjustPointsSchema, adjustPointsBulkSchema, getLeaderboardSchema, importStudentsSchema, removeStudentSchema, removeStudentsSchema, updateClassSchema, deleteClassSchema, getPublicDataSchema, getPublicHistorySchema, addAssistantSchema, removeAssistantSchema } from '@/validators';
+import { createClassSchema, enrollStudentSchema, adjustPointsSchema, adjustPointsBulkSchema, getLeaderboardSchema, importStudentsSchema, removeStudentSchema, removeStudentsSchema, updateClassSchema, deleteClassSchema, getPublicDataSchema, getPublicHistorySchema, addAssistantSchema, removeAssistantSchema, updatePresetsSchema } from '@/validators';
 import { UserRole } from '@prisma/client';
 
 const router = Router();
@@ -34,5 +34,6 @@ router.delete('/:id/students/:studentId', validate(removeStudentSchema), classCo
 router.post('/:id/students/bulk-delete', validate(removeStudentsSchema), classController.removeStudents);
 router.post('/:id/points', validate(adjustPointsSchema), pointsController.adjustPoints);
 router.post('/:id/points/bulk', validate(adjustPointsBulkSchema), pointsController.adjustPointsBulk);
+router.put('/:id/presets', validate(updatePresetsSchema), classController.updatePresets);
 
 export default router;

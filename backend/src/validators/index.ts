@@ -144,3 +144,16 @@ export const getPublicHistorySchema = z.object({
         studentId: z.string()
     })
 });
+
+export const updatePresetsSchema = z.object({
+  params: z.object({
+    id: z.string(),
+  }),
+  body: z.object({
+    presets: z.array(z.object({
+      id: z.string().optional(),
+      name: z.string().min(1),
+      points: z.number().int()
+    }))
+  })
+});
