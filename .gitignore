@@ -37,3 +37,7 @@ thumbs.db
 docker-data/
 postgres-data/
 redis-data/
+
+# Deployment & External Resources
+.env.deploy
+resources/
