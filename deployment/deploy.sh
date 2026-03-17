@@ -64,7 +64,7 @@ ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP << EOF
     docker compose pull
     
     echo "🔄 Generating Prisma Client..."
-    docker compose run --rm backend npx prisma generate
+    docker compose run -T --rm backend npx prisma generate
 
     echo "🔄 Restarting services..."
     docker compose up -d --remove-orphans --force-recreate
